@@ -31,7 +31,7 @@ export default function App() {
   const [api] = createResource(fetchApi)
 
   return (
-    <div class="p-10 bg-dark-800 text-rose-300 mh-full">
+    <div class="p-10 bg-dark-800 text-rose-300 min-h-full">
       <div class="max-w-screen-md m-auto">
         <p class="text-4xl text-rose-400 text-center py-10">File Listing</p>
         {api.loading && "Loading..."}
