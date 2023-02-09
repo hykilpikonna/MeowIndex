@@ -20,6 +20,13 @@ function getIcon(f)
   if (m) return `/mime/${m.replace("/", "-")}.svg`
   else return '/mime/application-blank.svg'
 }
+
+function getHref(f)
+{
+  if (f.type == "directory") return f.name
+  return f.name
+}
+
 export default function App() {
   const [api] = createResource(fetchApi)
 
@@ -30,7 +37,7 @@ export default function App() {
         {api.loading && "Loading..."}
         <div class="flex flex-col gap-1">
           <For each={api()}>{(f, i) => 
-            <span class="w-full flex gap-4 transition-all duration-300 bg-dark-800 hover:bg-dark-300 hover:duration-0 rounded-xl p-2 items-center">
+            <a class="w-full flex gap-4 transition-all duration-300 bg-dark-800 hover:bg-dark-300 hover:duration-0 rounded-xl p-2 items-center" href={getHref(f)}>
               <img class="w-10" src={getIcon(f)}></img>
               <span class="flex-1 font-bold">{f.name}</span>
               <Show when={f.size !== undefined}>
@@ -39,7 +46,7 @@ export default function App() {
               <span class="text-right basis-30 select-none">
                 {moment(f.mtime).fromNow()}
               </span>
-            </span>
+            </a>
           }</For>
         </div>
       </div>
