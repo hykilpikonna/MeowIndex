@@ -4,6 +4,11 @@ import { Component, createResource, createSignal, For, lazy, Show } from 'solid-
 const host = "https://daisy-ddns.hydev.org/data/api/OS"
 
 const fetchApi = async () => await (await fetch(host)).json()
+
+function sizeFmt(size: number) {
+  var i = size == 0 ? 0 : Math.floor(Math.log(size) / Math.log(1024));
+  return (size / Math.pow(1024, i)).toFixed(1) + ' ' + ['B', 'kB', 'MB', 'GB', 'TB'][i];
+}
 export default function App() {
   const [api] = createResource(fetchApi)
 
@@ -17,7 +22,7 @@ export default function App() {
             <span class="w-full flex gap-4 transition-all duration-300 bg-dark-800 hover:bg-dark-300 hover:duration-0 rounded-xl p-2 items-center">
               <span class="flex-1 font-bold">{f.name}</span>
               <Show when={f.size !== undefined}>
-                <span class="text-right basis-30">{f.size}</span>
+                <span class="text-right basis-30">{sizeFmt(f.size)}</span>
               </Show>
               <span class="text-right basis-30 select-none">
                 {moment(f.mtime).fromNow()}
