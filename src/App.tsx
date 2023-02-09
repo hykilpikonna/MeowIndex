@@ -1,10 +1,12 @@
+import urlJoin from 'url-join';
 import mime from 'mime';
 import moment from 'moment';
 import { Component, createResource, createSignal, For, lazy, Show } from 'solid-js';
 
-const host = "https://daisy-ddns.hydev.org/data/api/OS"
+const host = "https://daisy-ddns.hydev.org/data/api"
 
-const fetchApi = async () => await (await fetch(host)).json()
+const path = window.location.pathname
+const fetchApi = async () => await (await fetch(urlJoin(host, path))).json()
 
 function sizeFmt(size: number) {
   var i = size == 0 ? 0 : Math.floor(Math.log(size) / Math.log(1024));
@@ -21,12 +23,6 @@ function getIcon(f)
   else return '/mime/application-blank.svg'
 }
 
-function getHref(f)
-{
-  if (f.type == "directory") return f.name
-  return f.name
-}
-
 export default function App() {
   const [api] = createResource(fetchApi)
 
@@ -37,7 +33,7 @@ export default function App() {
         {api.loading && "Loading..."}
         <div class="flex flex-col gap-1">
           <For each={api()}>{(f, i) => 
-            <a class="w-full flex gap-4 transition-all duration-300 bg-dark-800 hover:bg-dark-300 hover:duration-0 rounded-xl p-2 items-center" href={getHref(f)}>
+            <a class="w-full flex gap-4 transition-all duration-300 bg-dark-800 hover:bg-dark-300 hover:duration-0 rounded-xl p-2 items-center" href={urlJoin(path, f.name)}>
               <img class="w-10" src={getIcon(f)}></img>
               <span class="flex-1 font-bold">{f.name}</span>
               <Show when={f.size !== undefined}>
