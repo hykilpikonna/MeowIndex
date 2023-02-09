@@ -18,10 +18,9 @@
     "@types/mime": "^3.0.1",
     "@types/string-similarity": "^4.0.0",
     "mime": "^3.0.0",
-    "mime-db": "^1.52.0",
-    "mime-types": "^2.1.35",
     "moment": "^2.29.4",
     "solid-js": "^1.6.10",
-    "string-similarity": "^4.0.4"
+    "string-similarity": "^4.0.4",
+    "url-join": "^5.0.0"
   }
 }
