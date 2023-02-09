@@ -1,3 +1,4 @@
+import moment from 'moment';
 import { Component, createResource, createSignal, For, lazy, Show } from 'solid-js';
 
 const host = "https://daisy-ddns.hydev.org/data/api/OS"
@@ -19,7 +20,7 @@ export default function App() {
                 <span class="text-right basis-30">{f.size}</span>
               </Show>
               <span class="text-right basis-30 select-none">
-                {f.mtime}
+                {moment(f.mtime).fromNow()}
               </span>
             </span>
           }</For>
