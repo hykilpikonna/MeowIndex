@@ -41,12 +41,12 @@ export default function App() {
 
   return (
     // Full screen container
-    <div class="p-10 bg-dark-800 text-rose-300 min-h-full">
+    <div class="p-10 bg-dark-800 color-main min-h-full">
 
       {/* Content container */}
       <div class="max-w-screen-md m-auto">
 
-        <p class="text-4xl text-rose-400 text-center py-10">File Listing</p>
+        <p class="text-4xl color-emp text-center py-10">File Listing</p>
 
         {/* Breadcrumbs */}
         <div>
