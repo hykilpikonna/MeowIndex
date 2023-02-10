@@ -41,6 +41,11 @@ function getHref(f: File)
   return f.type == "directory" ? urlJoin(path, f.name) : urlJoin(host, path, f.name)
 }
 
+function getParent(level: number)
+{
+  return urlJoin(path, "../")
+}
+
 export default function App() {
   const [api] = createResource(fetchApi)
   const paths = [window.location.host, ...path.split("/").filter(it => it)]
@@ -59,7 +64,8 @@ export default function App() {
           <Icon icon="ion:wifi-outline" class="text-xl"/>
           <For each={paths}>{(p, i) => 
             <>
-              <span class="color-sub" classList={{active: i() + 1 == paths.length}}>{p}</span>
+              <a class="breadcrumb-link" classList={{active: i() + 1 == paths.length}} 
+                href={urlJoin(path, "../".repeat(paths.length - i() - 1))}>{p}</a>
               <span class="color-subsub last:hidden">/</span>
             </>
           }</For>
