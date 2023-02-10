@@ -55,9 +55,7 @@ export default function App() {
   function wheel(e: WheelEvent)
   {
     let direction = (e.detail < 0 || e.deltaY > 0) ? 1 : -1
-    let dx = direction * 20
-    
-    setBcLeft(Math.max(Math.min(bcLeft() + dx, bcMax), 0))
+    setBcLeft(Math.max(Math.min(bcLeft() + direction * 20, bcMax), 0))
   }
 
   // Set initial breadcrumb wheel to show the end path
