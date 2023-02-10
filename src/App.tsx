@@ -1,7 +1,7 @@
 import urlJoin from 'url-join';
 import mime from 'mime';
 import moment from 'moment';
-import { createResource, For, Show } from 'solid-js';
+import { createResource, createSignal, For, Show } from 'solid-js';
 
 import tippy from 'tippy.js';
 import 'tippy.js/dist/tippy.css';
@@ -47,8 +47,23 @@ function getParent(level: number)
 }
 
 export default function App() {
+  let bcWheel: HTMLDivElement
   const [api] = createResource(fetchApi)
+  const [bcLeft, setBcLeft] = createSignal(0)
   const paths = [window.location.host, ...path.split("/").filter(it => it)]
+
+  function wheel(e: WheelEvent)
+  {
+    let direction = (e.detail < 0 || e.deltaY > 0) ? 1 : -1
+    let dx = direction * 15
+
+    const rect = bcWheel.getBoundingClientRect()
+    const prect = bcWheel.parentElement.getBoundingClientRect()
+    const max = Math.round(rect.width - prect.width)
+
+    setBcLeft(Math.min(Math.max(bcLeft() + dx, 0), max))
+    console.log(e)
+  }
 
   return (
     // Full screen container
@@ -60,15 +75,21 @@ export default function App() {
         <p class="text-4xl color-emp text-center py-10">File Listing</p>
 
         {/* Breadcrumbs */}
-        <div id="breadcrumbs" class="flex gap-2 bg-dark-600 p-2 px-5 mb-5 rounded-xl">
-          <Icon icon="ion:wifi-outline" class="text-xl"/>
-          <For each={paths}>{(p, i) => 
-            <>
-              <a class="breadcrumb-link" classList={{active: i() + 1 == paths.length}} 
-                href={urlJoin(path, "../".repeat(paths.length - i() - 1))}>{p}</a>
-              <span class="color-subsub last:hidden">/</span>
-            </>
-          }</For>
+        <div id="breadcrumbs" class="flex bg-dark-600 p-2 px-5 mb-5 rounded-xl whitespace-nowrap">
+          <Icon icon="ion:wifi-outline" class="text-xl mr-2"/>
+          <div class="overflow-hidden flex-1">
+            <div class="w-min" onWheel={e => wheel(e)} 
+                style={{'margin-left': -bcLeft() + 'px'}} ref={bcWheel}> 
+              <For each={paths}>{(p, i) => 
+                <>
+                  <a class="breadcrumb-link ml-2 first:ml-0" 
+                    classList={{active: i() + 1 == paths.length}} 
+                    href={urlJoin(path, "../".repeat(paths.length - i() - 1))}>{decodeURIComponent(p)}</a>
+                  <span class="color-subsub ml-2 last:hidden">/</span>
+                </>
+              }</For>
+            </div>
+          </div>
         </div>
         
         {api.loading && "Loading..."}
