@@ -55,14 +55,10 @@ export default function App() {
   function wheel(e: WheelEvent)
   {
     let direction = (e.detail < 0 || e.deltaY > 0) ? 1 : -1
-    let dx = direction * 15
+    let dx = direction * 20
+    const max = Math.round(bcWheel.clientWidth - bcWheel.parentElement.clientWidth)
 
-    const rect = bcWheel.getBoundingClientRect()
-    const prect = bcWheel.parentElement.getBoundingClientRect()
-    const max = Math.round(rect.width - prect.width)
-
-    setBcLeft(Math.min(Math.max(bcLeft() + dx, 0), max))
-    console.log(e)
+    setBcLeft(Math.max(Math.min(bcLeft() + dx, max), 0))
   }
 
   return (
