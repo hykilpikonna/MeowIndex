@@ -18,6 +18,8 @@ interface File {
   mtime: string
 }
 
+// const assets = ".web-static"
+const assets = "/"
 const host = "https://daisy-ddns.hydev.org/data/api"
 
 const path = window.location.pathname
@@ -34,8 +36,13 @@ function getIcon(f: File)
   
   const sp = f.name.split(".")
   const m = mime.getType(sp[sp.length - 1])
-  if (m) return `/mime/${m.replace("/", "-")}.svg`
-  else return '/mime/application-blank.svg'
+  if (m) return urlJoin(assets, `mime/${m.replace("/", "-")}.svg`)
+  else return urlJoin(assets, 'mime/application-blank.svg')
+}
+
+function getHref(f: File)
+{
+  return f.type == "directory" ? urlJoin(path, f.name) : urlJoin(host, path, f.name)
 }
 
 export default function App() {
@@ -69,7 +76,7 @@ export default function App() {
 
           {/* For each file */}
           <For each={api()}>{(f, i) => 
-            <a class="w-full flex gap-4 transition-all duration-300 bg-dark-800 hover:bg-dark-300 hover:duration-0 rounded-xl p-2 items-center" href={urlJoin(path, f.name)}>
+            <a class="w-full flex gap-4 transition-all duration-300 bg-dark-800 hover:bg-dark-300 hover:duration-0 rounded-xl p-2 items-center" href={getHref(f)}>
               <img class="w-10" src={getIcon(f)}></img>
               
               {/* File name tooltip */}
