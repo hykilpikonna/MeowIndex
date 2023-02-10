@@ -40,25 +40,43 @@ export default function App() {
   const [api] = createResource(fetchApi)
 
   return (
+    // Full screen container
     <div class="p-10 bg-dark-800 text-rose-300 min-h-full">
+
+      {/* Content container */}
       <div class="max-w-screen-md m-auto">
+
         <p class="text-4xl text-rose-400 text-center py-10">File Listing</p>
+
+        {/* Breadcrumbs */}
+        <div>
+          
+        </div>
+        
         {api.loading && "Loading..."}
+
+        {/* Files */}
         <div class="flex flex-col gap-1">
+
+          {/* For each file */}
           <For each={api()}>{(f, i) => 
             <a class="w-full flex gap-4 transition-all duration-300 bg-dark-800 hover:bg-dark-300 hover:duration-0 rounded-xl p-2 items-center" href={urlJoin(path, f.name)}>
               <img class="w-10" src={getIcon(f)}></img>
+              
+              {/* File name tooltip */}
               <span class="flex-1 font-bold truncate" ref={el => tippy(el, {
                   content: f.name, placement: 'top', animation: 'shift-away', theme: 'light', delay: [1000, 100]
                 })}>
                 {f.name}
               </span>
+
+              {/* File size */}
               <Show when={f.size !== undefined}>
                 <span class="text-right basis-30">{sizeFmt(f.size)}</span>
               </Show>
-              <span class="text-right basis-30 select-none">
-                {moment(f.mtime).fromNow()}
-              </span>
+
+              {/* Modification date */}
+              <span class="text-right basis-30 select-none">{moment(f.mtime).fromNow()}</span>
             </a>
           }</For>
         </div>
