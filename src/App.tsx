@@ -10,6 +10,7 @@ import 'tippy.js/animations/shift-away.css';
 import './app.sass';
 
 import { Icon } from '@iconify-icon/solid';
+import { sizeFmt } from './utils';
 
 interface File {
   name: string 
@@ -24,11 +25,6 @@ const host = "https://daisy-ddns.hydev.org/data/api"
 
 const path = window.location.pathname
 const fetchApi = async () => await (await fetch(urlJoin(host, path))).json() as File[]
-
-function sizeFmt(size: number) {
-  var i = size == 0 ? 0 : Math.floor(Math.log(size) / Math.log(1024));
-  return (size / Math.pow(1024, i)).toFixed(1) + ' ' + ['B', 'kB', 'MB', 'GB', 'TB'][i];
-}
 
 function getIcon(f: File)
 {
