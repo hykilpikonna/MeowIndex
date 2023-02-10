@@ -1,7 +1,12 @@
 import urlJoin from 'url-join';
 import mime from 'mime';
 import moment from 'moment';
-import { Component, createResource, createSignal, For, lazy, Show } from 'solid-js';
+import { createResource, For, Show } from 'solid-js';
+
+import tippy from 'tippy.js';
+import 'tippy.js/dist/tippy.css';
+import 'tippy.js/themes/light.css';
+import 'tippy.js/animations/shift-away.css';
 
 const host = "https://daisy-ddns.hydev.org/data/api"
 
@@ -35,7 +40,11 @@ export default function App() {
           <For each={api()}>{(f, i) => 
             <a class="w-full flex gap-4 transition-all duration-300 bg-dark-800 hover:bg-dark-300 hover:duration-0 rounded-xl p-2 items-center" href={urlJoin(path, f.name)}>
               <img class="w-10" src={getIcon(f)}></img>
-              <span class="flex-1 font-bold">{f.name}</span>
+              <span class="flex-1 font-bold truncate" ref={el => tippy(el, {
+                  content: f.name, placement: 'top', animation: 'shift-away', theme: 'light', delay: [1000, 100]
+                })}>
+                {f.name}
+              </span>
               <Show when={f.size !== undefined}>
                 <span class="text-right basis-30">{sizeFmt(f.size)}</span>
               </Show>
