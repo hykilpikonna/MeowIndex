@@ -396,6 +396,18 @@
   resolved "https://registry.yarnpkg.com/@esbuild/win32-x64/-/win32-x64-0.16.17.tgz#c5a1a4bfe1b57f0c3e61b29883525c6da3e5c091"
   integrity sha512-y+EHuSchhL7FjHgvQL/0fnnFmO4T1bhvWANX6gcnqTjtnKWbTvUMCpGnv2+t+31d7RzyEAYAd4u2fnIhHL6N/Q==
 
+"@iconify-icon/solid@^1.0.5":
+  version "1.0.5"
+  resolved "https://registry.yarnpkg.com/@iconify-icon/solid/-/solid-1.0.5.tgz#8f09727a9e6e70fafe96fcc5f0d0e4c6e394d026"
+  integrity sha512-Imk8R7Uq+EcjGsfMeU6OaW5uISYXe0ZNeF9gfiS6+XDmXLPygOa1X+BTNVZiuamqw9vqk5Yik5qLxQAN/4cA0A==
+  dependencies:
+    iconify-icon "^1.0.5"
+
+"@iconify/types@^2.0.0":
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/@iconify/types/-/types-2.0.0.tgz#ab0e9ea681d6c8a1214f30cd741fe3a20cc57f57"
+  integrity sha512-+wluvCrRhXrhyOmRDJ3q8mux9JkKy5SJ/v8ol2tu4FVjyYvtEzkc/3pK15ET6RKg4b4w4BmTk1+gsCUhf21Ykg==
+
 "@jridgewell/gen-mapping@^0.1.0":
   version "0.1.1"
   resolved "https://registry.yarnpkg.com/@jridgewell/gen-mapping/-/gen-mapping-0.1.1.tgz#e5d2e450306a9491e3bd77e323e38d7aff315996"
@@ -718,6 +730,13 @@ html-entities@2.3.3:
   version "2.3.3"
   resolved "https://registry.yarnpkg.com/html-entities/-/html-entities-2.3.3.tgz#117d7626bece327fc8baace8868fa6f5ef856e46"
   integrity sha512-DV5Ln36z34NNTDgnz0EWGBLZENelNAtkiFA4kyNOG2tDI6Mz1uSWiq1wAKdyjnJwyDiDO7Fa2SO1CTxPXL8VxA==
+
+iconify-icon@^1.0.5:
+  version "1.0.5"
+  resolved "https://registry.yarnpkg.com/iconify-icon/-/iconify-icon-1.0.5.tgz#0a85b69dd63b9a7a2cd73d680ad1d141293ded1c"
+  integrity sha512-vr5IzIy30MQ2n/2M8Aw7jP/IaDmGUwMvDx64S77Zm5elSECYXIzNc3m8ktqbSFfp2XvyfNZk4jJhz1hN3+xKYg==
+  dependencies:
+    "@iconify/types" "^2.0.0"
 
 immutable@^4.0.0:
   version "4.2.4"

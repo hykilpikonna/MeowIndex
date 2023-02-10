@@ -15,6 +15,7 @@
     "vite-plugin-windicss": "^1.8.10"
   },
   "dependencies": {
+    "@iconify-icon/solid": "^1.0.5",
     "@types/mime": "^3.0.1",
     "@types/string-similarity": "^4.0.0",
     "mime": "^3.0.0",
