@@ -9,6 +9,8 @@ import 'tippy.js/themes/light.css';
 import 'tippy.js/animations/shift-away.css';
 import './app.sass';
 
+import { Icon } from '@iconify-icon/solid';
+
 interface File {
   name: string 
   type: 'file' | 'directory'
@@ -51,6 +53,7 @@ export default function App() {
 
         {/* Breadcrumbs */}
         <div id="breadcrumbs" class="flex gap-2 bg-dark-600 p-2 px-5 mb-5 rounded-xl">
+          <Icon icon="ion:wifi-outline" class="text-xl"/>
           <For each={paths}>{(p, i) => 
             <>
               <span class="color-sub" classList={{active: i() + 1 == paths.length}}>{p}</span>
