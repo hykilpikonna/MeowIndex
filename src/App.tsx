@@ -52,6 +52,7 @@ export default function App() {
   const [bcLeft, setBcLeft] = createSignal(0)
   const paths = [window.location.host, ...path.split("/").filter(it => it)]
 
+  // Handle wheel for breadcrumb
   function wheel(e: WheelEvent)
   {
     let direction = (e.detail < 0 || e.deltaY > 0) ? 1 : -1
@@ -87,6 +88,7 @@ export default function App() {
               }</For>
             </div>
           </div>
+          <Icon icon="ion:search-outline" class="text-xl ml-2"/>
         </div>
         
         {api.loading && "Loading..."}
