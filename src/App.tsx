@@ -41,11 +41,6 @@ function getHref(f: File)
   return f.type == "directory" ? urlJoin(path, f.name) : urlJoin(host, path, f.name)
 }
 
-function getParent(level: number)
-{
-  return urlJoin(path, "../")
-}
-
 export default function App() {
   let bcMax: number
   const [api] = createResource(fetchApi)
