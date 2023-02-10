@@ -38,6 +38,7 @@ function getIcon(f: File)
 
 export default function App() {
   const [api] = createResource(fetchApi)
+  const paths = [window.location.host, ...path.split("/").filter(it => it)]
 
   return (
     // Full screen container
@@ -49,8 +50,13 @@ export default function App() {
         <p class="text-4xl color-emp text-center py-10">File Listing</p>
 
         {/* Breadcrumbs */}
-        <div>
-          
+        <div id="breadcrumbs" class="flex gap-2 bg-dark-600 p-2 px-5 mb-5 rounded-xl">
+          <For each={paths}>{(p, i) => 
+            <>
+              <span class="color-sub" classList={{active: i() + 1 == paths.length}}>{p}</span>
+              <span class="color-subsub last:hidden">/</span>
+            </>
+          }</For>
         </div>
         
         {api.loading && "Loading..."}
