@@ -47,7 +47,7 @@ function getParent(level: number)
 }
 
 export default function App() {
-  let bcWheel: HTMLDivElement
+  let bcMax: number
   const [api] = createResource(fetchApi)
   const [bcLeft, setBcLeft] = createSignal(0)
   const paths = [window.location.host, ...path.split("/").filter(it => it)]
@@ -56,10 +56,13 @@ export default function App() {
   {
     let direction = (e.detail < 0 || e.deltaY > 0) ? 1 : -1
     let dx = direction * 20
-    const max = Math.round(bcWheel.clientWidth - bcWheel.parentElement.clientWidth)
-
-    setBcLeft(Math.max(Math.min(bcLeft() + dx, max), 0))
+    
+    setBcLeft(Math.max(Math.min(bcLeft() + dx, bcMax), 0))
   }
+
+  // Set initial breadcrumb wheel to show the end path
+  const initWheel = (w: HTMLDivElement) => setTimeout(() => 
+    setBcLeft(bcMax = Math.round(w.clientWidth - w.parentElement.clientWidth)), 100)
 
   return (
     // Full screen container
@@ -75,7 +78,7 @@ export default function App() {
           <Icon icon="ion:wifi-outline" class="text-xl mr-2"/>
           <div class="overflow-hidden flex-1">
             <div class="w-min" onWheel={e => wheel(e)} 
-                style={{'margin-left': -bcLeft() + 'px'}} ref={bcWheel}> 
+                style={{'margin-left': -bcLeft() + 'px'}} ref={w => initWheel(w)}> 
               <For each={paths}>{(p, i) => 
                 <>
                   <a class="breadcrumb-link ml-2 first:ml-0" 
