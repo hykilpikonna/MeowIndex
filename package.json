@@ -19,8 +19,10 @@
     "@types/string-similarity": "^4.0.0",
     "mime": "^3.0.0",
     "moment": "^2.29.4",
+    "sass": "^1.58.0",
     "solid-js": "^1.6.10",
     "string-similarity": "^4.0.4",
+    "tippy.js": "^6.3.7",
     "url-join": "^5.0.0"
   }
 }
