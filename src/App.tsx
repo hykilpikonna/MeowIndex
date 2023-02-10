@@ -10,7 +10,7 @@ import 'tippy.js/animations/shift-away.css';
 import './app.sass';
 
 import { Icon } from '@iconify-icon/solid';
-import { sizeFmt } from './utils';
+import { clamp, sizeFmt } from './utils';
 
 interface File {
   name: string 
@@ -51,7 +51,7 @@ export default function App() {
   function wheel(e: WheelEvent)
   {
     let direction = (e.detail < 0 || e.deltaY > 0) ? 1 : -1
-    setBcLeft(Math.max(Math.min(bcLeft() + direction * 20, bcMax), 0))
+    setBcLeft(clamp(bcLeft() + direction * 20, 0, bcMax))
   }
 
   // Set initial breadcrumb wheel to show the end path
