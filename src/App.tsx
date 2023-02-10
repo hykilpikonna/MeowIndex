@@ -9,17 +9,24 @@ import 'tippy.js/themes/light.css';
 import 'tippy.js/animations/shift-away.css';
 import './app.sass';
 
+interface File {
+  name: string 
+  type: 'file' | 'directory'
+  size: number
+  mtime: string
+}
+
 const host = "https://daisy-ddns.hydev.org/data/api"
 
 const path = window.location.pathname
-const fetchApi = async () => await (await fetch(urlJoin(host, path))).json()
+const fetchApi = async () => await (await fetch(urlJoin(host, path))).json() as File[]
 
 function sizeFmt(size: number) {
   var i = size == 0 ? 0 : Math.floor(Math.log(size) / Math.log(1024));
   return (size / Math.pow(1024, i)).toFixed(1) + ' ' + ['B', 'kB', 'MB', 'GB', 'TB'][i];
 }
 
-function getIcon(f)
+function getIcon(f: File)
 {
   if (f.type == "directory") return "/mime/folder.svg"
   
