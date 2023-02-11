@@ -2,6 +2,20 @@
 
 A cute, feature-rich file listing module to replace nginx's autoindex / fancyindex.
 
+
+## Features
+
+* [x] List files
+* [x] Show file icons
+
+**TODO**
+
+* [ ] Infinite-scroll
+* [ ] Search
+* [ ] Show image/video previews
+* [ ] Show 404 page
+
+
 ## How to use
 
 ### 1. Installation
