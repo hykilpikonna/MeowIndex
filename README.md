@@ -11,6 +11,7 @@ A cute, feature-rich file listing module to replace nginx's autoindex / fancyind
 
 **TODO**
 
+* [ ] Fix mobile view
 * [ ] Infinite-scroll
 * [ ] Search
 * [ ] Show image/video previews
