@@ -65,8 +65,9 @@ export default function App() {
   }
 
   // Set initial breadcrumb wheel to show the end path
-  const initWheel = (w: HTMLDivElement) => setTimeout(() => 
-    setBcLeft(bcMax = Math.round(w.clientWidth - w.parentElement.clientWidth)), 100)
+  const initWheel = (w: HTMLDivElement) => setTimeout(() => {
+    setBcLeft(Math.max(bcMax = Math.round(w.clientWidth - w.parentElement.clientWidth), 0))
+  }, 100)
 
   return (
     // Full screen container
