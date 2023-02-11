@@ -30,6 +30,7 @@ if (host.includes("-PLACEHOLDER")) host = "https://daisy.hydev.org/data/api"
 // Compute path
 let fullPath = window.location.pathname
 let filePath = fullPath.startsWith(deployPath) ? fullPath.substring(deployPath.length) : fullPath
+if (!filePath.startsWith('/')) filePath = `/${filePath}`
 
 const fetchApi = async () => await (await fetch(urlJoin(host, filePath))).json() as File[]
 
