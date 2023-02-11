@@ -38,19 +38,30 @@ This module uses the json file listing api in nginx. If you already have an auto
 
 The following example serves `/data/file-server` on http path `/`
 
-```diff
+**Before:**
+
+```nginx
+# ...
 server_name your.domain.com;
 
-- root /data/file-server;
-+ set $dir_path /data/file-server;
-+ include "/etc/nginx/MeowIndex/docs/nginx.conf";
+root /data/file-server;
 
-- location / {
--     fancyindex on;
--     fancyindex_exact_size off;
-- }
+location / {
+    fancyindex on;
+    fancyindex_exact_size off;
+}
+```
 
-+ location / {
-+     try_files $uri $uri/index.html /__meowindex__/index.html;
-+ }
+**After:**
+
+```nginx
+# ...
+server_name your.domain.com;
+
+set $dir_path /data/file-server;
+include "/etc/nginx/MeowIndex/docs/nginx.conf";
+
+location / {
+    try_files $uri $uri/index.html /__meowindex__/index.html;
+}
 ```
