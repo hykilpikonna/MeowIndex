@@ -20,12 +20,12 @@ To update, simply do `git pull` and `yarn build` in the same directory.
 
 ### 2. Setup File API in Nginx
 
-This module uses the json file listing api in nginx. If you already have an autoindex file server set up, you can make the following changes. If you're new to nginx, you can check out our [full example config](docs/example.nginx.conf).
+This module uses the json file listing api in nginx. If you already have an autoindex file server set up, you can make the following changes. If you're new to nginx, you can check out our [example configs](docs/examples).
 
 The following example serves `/data/file-server` on http path `/`
 
 ```diff
-- location ^~ / {
+- location / {
 -     alias "/data/file-server";
 -     fancyindex on;
 -     fancyindex_exact_size off;
