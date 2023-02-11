@@ -19,33 +19,40 @@ interface File {
   mtime: string
 }
 
-// const assets = ".web-static"
-const assets = "/"
-const host = "https://daisy-ddns.hydev.org/data/api"
+// Placeholder for nginx to replace
+let deployPath = "{DEPLOY-PATH-PLACEHOLDER}"
+let host = "{HOST-PLACEHOLDER}"
 
-const path = window.location.pathname
-const fetchApi = async () => await (await fetch(urlJoin(host, path))).json() as File[]
+// Default deploy path and host for testing
+if (deployPath.includes("-PLACEHOLDER")) deployPath = "/"
+if (host.includes("-PLACEHOLDER")) host = "https://daisy.hydev.org/data/api"
+
+// Compute path
+let fullPath = window.location.pathname
+let filePath = fullPath.startsWith(deployPath) ? fullPath.substring(deployPath.length) : fullPath
+
+const fetchApi = async () => await (await fetch(urlJoin(host, filePath))).json() as File[]
 
 function getIcon(f: File)
 {
-  if (f.type == "directory") return "/mime/folder.svg"
+  if (f.type == "directory") return urlJoin(deployPath, "mime/folder.svg")
   
   const sp = f.name.split(".")
   const m = mime.getType(sp[sp.length - 1])
-  if (m) return urlJoin(assets, `mime/${m.replace("/", "-")}.svg`)
-  else return urlJoin(assets, 'mime/application-blank.svg')
+  if (m) return urlJoin(deployPath, `mime/${m.replace("/", "-")}.svg`)
+  else return urlJoin(deployPath, 'mime/application-blank.svg')
 }
 
 function getHref(f: File)
 {
-  return f.type == "directory" ? urlJoin(path, f.name) : urlJoin(host, path, f.name)
+  return f.type == "directory" ? urlJoin(fullPath, f.name) : urlJoin(host, filePath, f.name)
 }
 
 export default function App() {
   let bcMax: number
   const [api] = createResource(fetchApi)
   const [bcLeft, setBcLeft] = createSignal(0)
-  const paths = [window.location.host, ...path.split("/").filter(it => it)]
+  const paths = [window.location.host, ...filePath.split("/").filter(it => it)]
 
   // Handle wheel for breadcrumb
   function wheel(e: WheelEvent)
@@ -77,7 +84,7 @@ export default function App() {
                 <>
                   <a class="breadcrumb-link ml-2 first:ml-0" 
                     classList={{active: i() + 1 == paths.length}} 
-                    href={urlJoin(path, "../".repeat(paths.length - i() - 1))}>{decodeURIComponent(p)}</a>
+                    href={urlJoin(filePath, "../".repeat(paths.length - i() - 1))}>{decodeURIComponent(p)}</a>
                   <span class="color-subsub ml-2 last:hidden">/</span>
                 </>
               }</For>
