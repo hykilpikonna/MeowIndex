@@ -57,6 +57,9 @@ export default function App() {
   // Handle wheel for breadcrumb
   function wheel(e: WheelEvent)
   {
+    e.preventDefault()
+    e.stopPropagation()
+
     let direction = (e.detail < 0 || e.deltaY > 0) ? 1 : -1
     setBcLeft(clamp(bcLeft() + direction * 20, 0, bcMax))
   }

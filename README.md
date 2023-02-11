@@ -7,6 +7,7 @@ A cute, feature-rich file listing module to replace nginx's autoindex / fancyind
 
 * [x] List files
 * [x] Show file icons
+* [x] Clickable, length-safe breadcrumb path
 
 **TODO**
 
