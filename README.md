@@ -24,24 +24,22 @@ This module uses the json file listing api in nginx. If you already have an auto
 
 The following example serves `/data/file-server` on http path `/`
 
-```diff
-- location / {
--     alias "/data/file-server";
--     fancyindex on;
--     fancyindex_exact_size off;
-- }
+```nginx.conf
+server_name your.domain.com;
 
-+ location ^~ /api {
-+     alias "/data/file-server";
-+     autoindex on;
-+     autoindex_format json;
-+     add_header Access-Control-Allow-Origin *;
-+ }
+root /your/file/server/location;
+
+# Serve an index file for your home page (if you want one)
+location = / {
+    index index.html;
+}
+
+include "/etc/nginx/MeowIndex/docs/nginx.conf";
 ```
 
 ### 3. Setup File Listing UI
 
-You can setup the file listing web UI in three different ways.  
+You can setup the file listing web UI in two different ways.  
 
 * If you want to deploy on a standalone domain (e.g. `https://files.example.com`), follow Option 1.  
 * If you want to deploy on a sub-path of an existing domain (e.g. `https://example.com/files`), follow Option 2.
@@ -50,39 +48,30 @@ You can setup the file listing web UI in three different ways.
 
 Add the following location block to the same server block as your file api.
 
-```nginx.conf
-location ^~ / {
-    alias /etc/nginx/MeowIndex/dist;
+```diff
+- location / {
+-     fancyindex on;
+-     fancyindex_exact_size off;
+- }
 
-    # Use sub_filter to configure the app
-    sub_filter_types application/javascript;
-    sub_filter_once on;
-    sub_filter "{HOST-PLACEHOLDER}" "/api";
-
-    # Serve index.html on other 404 paths as well
-    try_files $uri $uri/ /index.html;
-}
++ # If no file is found on any path, serve meowindex 
++ location / {
++     try_files $uri /__meowindex__/index.html;
++ }
 ```
 
 #### Option 2: Deploying to a path of an existing domain
 
-Add the following location block to the same server block as your file api, and replace the following:
+Add the following location block to the same server block as your file api, and replace `/data` with the path you want to deploy to.
 
-* Replace `/data` with the path you want to deploy to
-* Replace `/api` with your api endpoint
+```diff
+- location /data {
+-     fancyindex on;
+-     fancyindex_exact_size off;
+- }
 
-```nginx.conf
-location ^~ /data {
-    alias /etc/nginx/MeowIndex/dist;
-
-    # Use sub_filter to configure the app
-    sub_filter_types application/javascript;
-    sub_filter_once off;
-    sub_filter "{DEPLOY-PATH-PLACEHOLDER}" "/data";
-    sub_filter "{HOST-PLACEHOLDER}" "/api";
-    sub_filter "\"/assets" "\"/data/assets";
-
-    # Serve index.html on other 404 paths as well
-    try_files $uri $uri/ /data/index.html;
-}
++ # If no file is found on any path, serve meowindex 
++ location /data {
++     try_files $uri /__meowindex__/index.html;
++ }
 ```
