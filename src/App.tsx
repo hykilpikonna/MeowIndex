@@ -72,7 +72,7 @@ export default function App() {
 
   return (
     // Full screen container
-    <div class="p-10 bg-dark-800 color-main min-h-full">
+    <div class="p-2 text-sm bg-dark-800 color-main min-h-full lg:(p-10 text-base)">
 
       {/* Content container */}
       <div class="max-w-screen-md m-auto">
@@ -106,7 +106,7 @@ export default function App() {
           {/* For each file */}
           <For each={api()}>{(f, i) => 
             <a class="w-full flex gap-4 transition-all duration-300 bg-dark-800 hover:bg-dark-300 hover:duration-0 rounded-xl p-2 items-center" href={getHref(f)}>
-              <img class="w-10" src={getIcon(f)}></img>
+              <img class="w-10" src={getIcon(f)} alt=""></img>
               
               {/* File name tooltip */}
               <span class="flex-1 font-bold truncate" ref={el => tippy(el, {
@@ -117,11 +117,11 @@ export default function App() {
 
               {/* File size */}
               <Show when={f.size !== undefined}>
-                <span class="text-right basis-30">{sizeFmt(f.size)}</span>
+                <span class="text-right basis-30 <sm:basis-15 overflow-hidden whitespace-nowrap">{sizeFmt(f.size)}</span>
               </Show>
 
               {/* Modification date */}
-              <span class="text-right basis-30 select-none">{moment(f.mtime).fromNow()}</span>
+              <span class="text-right basis-30 select-none <sm:hidden">{moment(f.mtime).fromNow()}</span>
             </a>
           }</For>
         </div>
