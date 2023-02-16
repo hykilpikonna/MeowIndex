@@ -59,6 +59,9 @@ export default function App() {
   const [scrollIndex, setScrollIndex] = createSignal(50)
   const scrollNext = () => setScrollIndex(Math.min(scrollIndex() + 20, api().length))
 
+  // Search
+  const [search, setSearch] = createSignal<string>()
+
   // Handle wheel for breadcrumb
   const [bcLeft, setBcLeft] = createSignal(0)
   function wheel(e: WheelEvent)
@@ -84,22 +87,31 @@ export default function App() {
 
         <p class="text-4xl color-emp text-center py-10">File Listing</p>
 
-        {/* Breadcrumbs */}
+        {/* Breadcrumb slot */}
         <div id="breadcrumbs" class="flex bg-dark-600 p-2 px-5 mb-5 rounded-xl whitespace-nowrap">
           <Icon icon="ion:wifi-outline" class="text-xl mr-2"/>
-          <div class="overflow-hidden flex-1">
-            <div class="w-min" onWheel={e => wheel(e)} 
-                style={{'margin-left': -bcLeft() + 'px'}} ref={w => initWheel(w)}> 
-              <For each={paths}>{(p, i) => 
-                <>
-                  <a class="breadcrumb-link ml-2 first:ml-0" 
-                    classList={{active: i() + 1 == paths.length}} 
-                    href={urlJoin(filePath, "../".repeat(paths.length - i() - 1))}>{decodeURIComponent(p)}</a>
-                  <span class="color-subsub ml-2 last:hidden">/</span>
-                </>
-              }</For>
+
+          {/* Search bar */}
+          <Show when={search() !== undefined} keyed>
+            <input value={search()} onchange={e => setSearch((e.target as HTMLInputElement).value)} />
+          </Show>
+
+          {/* Breadcrumbs */}
+          <Show when={search() === undefined} keyed>
+            <div class="overflow-hidden flex-1">
+              <div class="w-min" onWheel={e => wheel(e)}
+                   style={{'margin-left': -bcLeft() + 'px'}} ref={w => initWheel(w)}>
+                <For each={paths}>{(p, i) =>
+                  <>
+                    <a class="breadcrumb-link ml-2 first:ml-0"
+                       classList={{active: i() + 1 == paths.length}}
+                       href={urlJoin(filePath, "../".repeat(paths.length - i() - 1))}>{decodeURIComponent(p)}</a>
+                    <span class="color-subsub ml-2 last:hidden">/</span>
+                  </>
+                }</For>
+              </div>
             </div>
-          </div>
+          </Show>
           <Icon icon="ion:search-outline" class="text-xl ml-2"/>
         </div>
         
@@ -109,8 +121,10 @@ export default function App() {
         <div class="flex flex-col gap-1">
 
           {/* For each file */}
-          <InfiniteScroll each={api()?.slice(0, scrollIndex())} hasMore={scrollIndex() < api()?.length} next={scrollNext}>{(f, i) =>
-            <a class="w-full flex gap-4 transition-all duration-300 bg-dark-800 hover:bg-dark-300 hover:duration-0 rounded-xl p-2 items-center" href={getHref(f)}>
+          <InfiniteScroll each={api()?.filter(it => search() ? it.name.includes(search()) : true).slice(0, scrollIndex())}
+                          hasMore={scrollIndex() < api()?.length} next={scrollNext}>{(f, i) =>
+            <a class="w-full flex gap-4 transition-all duration-300 bg-dark-800 hover:bg-dark-300 hover:duration-0 rounded-xl p-2 items-center"
+               href={getHref(f)}>
               <img class="w-10" src={getIcon(f)} alt=""></img>
               
               {/* File name tooltip */}
