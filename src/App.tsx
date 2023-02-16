@@ -11,6 +11,7 @@ import './app.sass';
 
 import { Icon } from '@iconify-icon/solid';
 import { clamp, sizeFmt } from './utils';
+import InfiniteScroll from 'solid-infinite-scroll';
 
 interface File {
   name: string 
@@ -52,10 +53,14 @@ function getHref(f: File)
 export default function App() {
   let bcMax: number
   const [api] = createResource(fetchApi)
-  const [bcLeft, setBcLeft] = createSignal(0)
   const paths = [window.location.host, ...filePath.split("/").filter(it => it)]
 
+  // Infinite Scroll
+  const [scrollIndex, setScrollIndex] = createSignal(50)
+  const scrollNext = () => setScrollIndex(Math.min(scrollIndex() + 20, api().length))
+
   // Handle wheel for breadcrumb
+  const [bcLeft, setBcLeft] = createSignal(0)
   function wheel(e: WheelEvent)
   {
     e.preventDefault()
@@ -104,7 +109,7 @@ export default function App() {
         <div class="flex flex-col gap-1">
 
           {/* For each file */}
-          <For each={api()}>{(f, i) => 
+          <InfiniteScroll each={api()?.slice(0, scrollIndex())} hasMore={scrollIndex() < api()?.length} next={scrollNext}>{(f, i) =>
             <a class="w-full flex gap-4 transition-all duration-300 bg-dark-800 hover:bg-dark-300 hover:duration-0 rounded-xl p-2 items-center" href={getHref(f)}>
               <img class="w-10" src={getIcon(f)} alt=""></img>
               
@@ -123,7 +128,7 @@ export default function App() {
               {/* Modification date */}
               <span class="text-right basis-30 select-none <sm:hidden">{moment(f.mtime).fromNow()}</span>
             </a>
-          }</For>
+          }</InfiniteScroll>
         </div>
       </div>
     </div>
