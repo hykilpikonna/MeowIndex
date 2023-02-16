@@ -88,7 +88,7 @@ export default function App() {
         <p class="text-4xl color-emp text-center py-10">File Listing</p>
 
         {/* Breadcrumb slot */}
-        <div id="breadcrumbs" class="flex bg-dark-600 p-2 px-5 mb-5 rounded-xl whitespace-nowrap">
+        <div id="breadcrumbs" class="flex bg-dark-600 p-2 px-5 mb-5 rounded-xl whitespace-nowrap relative z-30">
           <Icon icon="ion:wifi-outline" class="text-xl mr-2"/>
 
           {/* Search bar */}
