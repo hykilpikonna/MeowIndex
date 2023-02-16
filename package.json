@@ -21,6 +21,7 @@
     "mime": "^3.0.0",
     "moment": "^2.29.4",
     "sass": "^1.58.0",
+    "solid-infinite-scroll": "^0.0.1-beta",
     "solid-js": "^1.6.10",
     "string-similarity": "^4.0.4",
     "tippy.js": "^6.3.7",
