@@ -8,14 +8,15 @@ A cute, feature-rich file listing module to replace nginx's autoindex / fancyind
 * [x] List files
 * [x] Show file icons
 * [x] Clickable, length-safe breadcrumb path
+* [x] Fix mobile view
+* [x] Infinite-scroll
 
 **TODO**
 
-* [ ] Fix mobile view
-* [ ] Infinite-scroll
 * [ ] Search
 * [ ] Show image/video previews
 * [ ] Show 404 page
+* [ ] Sync mime db from linux
 
 
 ## How to use
