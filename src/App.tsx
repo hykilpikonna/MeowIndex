@@ -114,14 +114,15 @@ export default function App() {
           </Show>
           <Icon icon="ion:search-outline" class="text-xl ml-2"/>
         </div>
-        
-        {api.loading && "Loading..."}
+
+        {/*{api.loading && "Loading..."}*/}
 
         {/* Files */}
         <div class="flex flex-col gap-1">
 
           {/* For each file */}
           <InfiniteScroll each={api()?.filter(it => search() ? it.name.includes(search()) : true).slice(0, scrollIndex())}
+                          loadingMessage={<></>}
                           hasMore={scrollIndex() < api()?.length} next={scrollNext}>{(f, i) =>
             <a class="w-full flex gap-4 transition-all duration-300 bg-dark-800 hover:bg-dark-300 hover:duration-0 rounded-xl p-2 items-center"
                href={getHref(f)}>
@@ -135,7 +136,7 @@ export default function App() {
               </span>
 
               {/* File size */}
-              <Show when={f.size !== undefined}>
+              <Show when={f.size !== undefined} keyed>
                 <span class="text-right basis-30 <sm:basis-15 overflow-hidden whitespace-nowrap">{sizeFmt(f.size)}</span>
               </Show>
 
