@@ -109,7 +109,7 @@ export default function App() {
           {/* Search bar */}
           <Show when={searchOn()} keyed>
             <input ref={searchInp} class="bg-transparent flex-1 outline-none"
-                   value={search()} onchange={searchChange} />
+                   value={search()} onkeyup={searchChange} />
           </Show>
 
           {/* Breadcrumbs */}
