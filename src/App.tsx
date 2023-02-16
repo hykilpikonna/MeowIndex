@@ -50,8 +50,9 @@ function getHref(f: File)
   return f.type == "directory" ? urlJoin(fullPath, f.name) : urlJoin(host, filePath, f.name)
 }
 
+const alpNum = new Set("0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")
+
 export default function App() {
-  let bcMax: number
   const [api] = createResource(fetchApi)
   const paths = [window.location.host, ...filePath.split("/").filter(it => it)]
 
@@ -60,9 +61,23 @@ export default function App() {
   const scrollNext = () => setScrollIndex(Math.min(scrollIndex() + 20, api().length))
 
   // Search
-  const [search, setSearch] = createSignal<string>()
+  let searchInp: HTMLInputElement
+  const [search, setSearch] = createSignal("")
+  const [searchOn, setSearchOn] = createSignal(false)
+  const searchChange = e => {
+    const val = (e.target as HTMLInputElement).value
+    setSearch(val)
+    if (val == "") setSearchOn(false)
+  }
+
+  // Type anywhere to activate search
+  window.addEventListener("keydown", e => {
+    if (!searchOn()) setSearchOn(true)
+    searchInp.focus()
+  })
 
   // Handle wheel for breadcrumb
+  let bcMax: number
   const [bcLeft, setBcLeft] = createSignal(0)
   function wheel(e: WheelEvent)
   {
@@ -92,12 +107,13 @@ export default function App() {
           <Icon icon="ion:wifi-outline" class="text-xl mr-2"/>
 
           {/* Search bar */}
-          <Show when={search() !== undefined} keyed>
-            <input value={search()} onchange={e => setSearch((e.target as HTMLInputElement).value)} />
+          <Show when={searchOn()} keyed>
+            <input ref={searchInp} class="bg-transparent flex-1 outline-none"
+                   value={search()} onchange={searchChange} />
           </Show>
 
           {/* Breadcrumbs */}
-          <Show when={search() === undefined} keyed>
+          <Show when={!searchOn()} keyed>
             <div class="overflow-hidden flex-1">
               <div class="w-min" onWheel={e => wheel(e)}
                    style={{'margin-left': -bcLeft() + 'px'}} ref={w => initWheel(w)}>
