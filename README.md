@@ -2,6 +2,7 @@
 
 A cute, feature-rich file listing module to replace nginx's autoindex / fancyindex.
 
+![image](https://user-images.githubusercontent.com/22280294/219513952-736182cb-a38a-4a49-b9ea-f9160399987c.png)
 
 ## Features
 
