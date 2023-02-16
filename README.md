@@ -10,10 +10,10 @@ A cute, feature-rich file listing module to replace nginx's autoindex / fancyind
 * [x] Clickable, length-safe breadcrumb path
 * [x] Fix mobile view
 * [x] Infinite-scroll
+* [x] Search
 
 **TODO**
 
-* [ ] Search
 * [ ] Show image/video previews
 * [ ] Show 404 page
 * [ ] Sync mime db from linux
