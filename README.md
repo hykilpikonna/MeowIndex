@@ -11,11 +11,11 @@ A cute, feature-rich file listing module to replace nginx's autoindex / fancyind
 * [x] Fix mobile view
 * [x] Infinite-scroll
 * [x] Search
+* [x] Show 404 page
 
 **TODO**
 
 * [ ] Show image/video previews
-* [ ] Show 404 page
 * [ ] Sync mime db from linux
 
 
