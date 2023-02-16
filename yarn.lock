@@ -946,10 +946,10 @@ semver@^6.3.0:
   resolved "https://registry.yarnpkg.com/semver/-/semver-6.3.0.tgz#ee0a64c8af5e8ceea67687b133761e1becbd1d3d"
   integrity sha512-b39TBaTSfV6yBrapU89p5fKekE2m/NwnDocOVruQFS1/veMgdzuPcnOM34M6CwxW8jH/lxEa5rBoDeUwu5HHTw==
 
-solid-infinite-scroll@^0.0.1-beta:
-  version "0.0.1-beta"
-  resolved "https://registry.yarnpkg.com/solid-infinite-scroll/-/solid-infinite-scroll-0.0.1-beta.tgz#d8258ab8937cba4e430d9d1eee650b1e83e019b5"
-  integrity sha512-Ck9CZukwgq4MT6n7s+6auJ8CSaeMgRypZYT91YmsW7ffPSMdqHXN8u3K3iL3Ah9coXicfBolX0RIjv+MyM2Gwg==
+solid-infinite-scroll-fork@^1.0.0:
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/solid-infinite-scroll-fork/-/solid-infinite-scroll-fork-1.0.0.tgz#0c089b3263ff71fd127351c6f8e93da32fdfc18d"
+  integrity sha512-k+bcUImeXJuBxQ4t/41b2TV3wwqc85fh5LSE3E/i+CF4BS1g+Dwrrb/753HLZ+yPHXCERMRTd0EnvKGr8kMeOg==
   dependencies:
     solid-js "^1.4.7"
 

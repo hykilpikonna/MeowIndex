@@ -11,7 +11,7 @@ import './app.sass';
 
 import { Icon } from '@iconify-icon/solid';
 import { clamp, sizeFmt } from './utils';
-import InfiniteScroll from 'solid-infinite-scroll';
+import InfiniteScroll from 'solid-infinite-scroll-fork';
 
 interface File {
   name: string 
@@ -81,6 +81,9 @@ export default function App() {
   }
   window.addEventListener("keydown", searchActivate)
 
+  const filteredApi = () => api()?.filter(it => search() ? it.name.toLowerCase().includes(search().toLowerCase()) : true)
+    .slice(0, scrollIndex())
+
   // Handle wheel for breadcrumb
   let bcMax: number
   const [bcLeft, setBcLeft] = createSignal(0)
@@ -143,7 +146,7 @@ export default function App() {
         <div class="flex flex-col gap-1">
 
           {/* For each file */}
-          <InfiniteScroll each={api()?.filter(it => search() ? it.name.includes(search()) : true).slice(0, scrollIndex())}
+          <InfiniteScroll each={filteredApi()}
                           loadingMessage={<></>}
                           hasMore={scrollIndex() < api()?.length} next={scrollNext}>{(f, i) =>
             <a class="w-full flex gap-4 transition-all duration-300 bg-dark-800 hover:bg-dark-300 hover:duration-0 rounded-xl p-2 items-center"
