@@ -62,6 +62,7 @@ location / {
 # ...
 server_name your.domain.com;
 
+set $title "Meow Index";
 set $dir_path /data/file-server;
 include "/etc/nginx/MeowIndex/docs/nginx.conf";
 
