@@ -1,7 +1,7 @@
 import urlJoin from 'url-join';
 import mime from 'mime';
 import moment from 'moment';
-import { createResource, createSignal, For, Show } from 'solid-js';
+import {createResource, createSignal, ErrorBoundary, For, Show} from 'solid-js';
 
 import tippy from 'tippy.js';
 import 'tippy.js/dist/tippy.css';
@@ -33,7 +33,12 @@ let fullPath = window.location.pathname
 let filePath = fullPath.startsWith(deployPath) ? fullPath.substring(deployPath.length) : fullPath
 if (!filePath.startsWith('/')) filePath = `/${filePath}`
 
-const fetchApi = async () => await (await fetch(urlJoin(host, filePath))).json() as File[]
+const fetchApi = async () =>
+{
+  const req = await fetch(urlJoin(host, filePath))
+  if (req.status == 404) throw "404"
+  return await req.json() as File[]
+}
 
 function getIcon(f: File)
 {
@@ -143,6 +148,9 @@ export default function App() {
         {/*{api.loading && "Loading..."}*/}
 
         {/* Files */}
+        <ErrorBoundary fallback={e => <div class="flex w-full flex-1 text-xl justify-center">
+          {e == "404" ? "404: Not found" : `Error: ${e}`}
+        </div>}>
         <div class="flex flex-col gap-1">
 
           {/* For each file */}
@@ -170,6 +178,7 @@ export default function App() {
             </a>
           }</InfiniteScroll>
         </div>
+        </ErrorBoundary>
       </div>
     </div>
   );
