@@ -67,14 +67,19 @@ export default function App() {
   const searchChange = e => {
     const val = (e.target as HTMLInputElement).value
     setSearch(val)
-    if (val == "") setSearchOn(false)
+    if (val.length == 0) setSearchOn(false)
   }
-
-  // Type anywhere to activate search
-  window.addEventListener("keydown", e => {
-    if (!searchOn()) setSearchOn(true)
+  const searchActivate = () => {
+    setSearchOn(true)
     searchInp.focus()
-  })
+    console.log("Search activate")
+  }
+  const searchDeactivate = () => {
+    setSearchOn(false)
+    setSearch("")
+    console.log("Search deactivate")
+  }
+  window.addEventListener("keydown", searchActivate)
 
   // Handle wheel for breadcrumb
   let bcMax: number
@@ -128,7 +133,8 @@ export default function App() {
               </div>
             </div>
           </Show>
-          <Icon icon="ion:search-outline" class="text-xl ml-2"/>
+
+          <Icon icon="ion:search-outline" class="text-xl ml-2" onclick={e => searchOn() ? searchDeactivate() : searchActivate()}/>
         </div>
 
         {/*{api.loading && "Loading..."}*/}
