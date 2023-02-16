@@ -16,7 +16,7 @@ A cute, feature-rich file listing module to replace nginx's autoindex / fancyind
 **TODO**
 
 * [ ] Show image/video previews
-* [ ] Sync mime db from linux
+* [ ] Use file magic instead of file suffix to determine mime type
 
 
 ## How to use
