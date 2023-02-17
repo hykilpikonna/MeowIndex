@@ -215,6 +215,7 @@ name = "meow_index"
 version = "0.1.0"
 dependencies = [
  "hyper",
+ "path-clean",
  "serde",
  "serde_json",
  "tokio",
@@ -270,6 +271,12 @@ dependencies = [
  "smallvec",
  "windows-sys 0.45.0",
 ]
+
+[[package]]
+name = "path-clean"
+version = "0.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "ecba01bf2678719532c5e3059e0b5f0811273d94b397088b82e3bd0a78c78fdd"
 
 [[package]]
 name = "pin-project-lite"
