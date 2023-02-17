@@ -54,10 +54,10 @@ jobs:
 
       - name: Publish GitHub Release
         if: contains(github.event.head_commit.message, 'Release') == false
-        uses: ncipollo/release-action@v1.8.6
+        uses: ncipollo/release-action@v1
         with:
           prerelease: true
           bodyFile: ReleaseNotes.md
-          artifacts: "${{ env.BUILD_OUTPUT }}/*.zip"
-          tag: "v${{ env.VER }}-alpha"
+          artifacts: "../*.tar.zst"
+          tag: "v${{ env.VER }}-nightly"
           token: ${{ secrets.GITHUB_TOKEN }}
