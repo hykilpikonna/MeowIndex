@@ -1,5 +1,5 @@
 [package]
-name = "MeowIndex"
+name = "meow_index"
 version = "0.1.0"
 edition = "2021"
 
