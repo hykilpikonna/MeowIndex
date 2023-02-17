@@ -5,7 +5,8 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "serve": "vite preview"
+    "serve": "vite preview",
+    "app:version": "echo $npm_package_version"
   },
   "license": "MIT",
   "devDependencies": {
