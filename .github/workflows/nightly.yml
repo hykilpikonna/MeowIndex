@@ -47,7 +47,6 @@ jobs:
           git log -"5" --format="- %H %s" | sed '/^$/d' >> ReleaseNotes.md
 
       - name: Delete Old Prerelease
-        if: env.OLD_PRE_TAG != 'NULL'
         uses: dev-drprasad/delete-tag-and-release@v0.2.0
         with:
           tag_name: ${{ env.OLD_PRE_TAG }}
