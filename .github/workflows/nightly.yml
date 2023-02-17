@@ -37,7 +37,7 @@ jobs:
         run: |
           yarn install
           yarn build
-          tar -I zstd -cf ../MeowIndex-${VER}-nightly.tar.zst ./*
+          tar -I zstd -cf ../MeowIndex-nightly.tar.zst ./*
 
       - name: Generate Prerelease Release Notes
         run: |
