@@ -5,7 +5,7 @@ use std::convert::Infallible;
 use std::{env, fs};
 use std::net::SocketAddr;
 use std::os::unix::fs::MetadataExt;
-use hyper::{Body, http, Request, Response, Server, StatusCode};
+use hyper::{Body, http, Request, Response, Server};
 use hyper::service::{make_service_fn, service_fn};
 use serde::{Deserialize, Serialize};
 use path_clean::{clean};
@@ -40,7 +40,7 @@ struct ReturnPath {
 }
 
 async fn hello_world(_req: Request<Body>) -> http::Result<Response<Body>> {
-    let path = clean(_req.uri().path());
+    let path = format!(".{}", clean(_req.uri().path()));
     println!("{path}");
 
     // List files in directory
