@@ -1,3 +1,4 @@
+use std::path::PathBuf;
 use hyper::{Body, http, Response, StatusCode};
 
 pub trait StringExt {
@@ -10,6 +11,15 @@ impl StringExt for String {
     }
 }
 
-// fn main() {
-//     "a".resp()
-// }
+pub trait PathExt {
+    fn file_type(&self) -> &str;
+}
+
+impl PathExt for PathBuf {
+    fn file_type(&self) -> &str {
+        if self.is_file() { return "file" }
+        if self.is_dir() { return "directory" }
+        if self.is_symlink() { return "link" }
+        "unknown"
+    }
+}
