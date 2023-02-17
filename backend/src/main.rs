@@ -8,6 +8,8 @@ use std::os::unix::fs::MetadataExt;
 use hyper::{Body, http, Request, Response, Server, StatusCode};
 use hyper::service::{make_service_fn, service_fn};
 use serde::{Deserialize, Serialize};
+use path_clean::{clean};
+use macros::StringExt;
 
 #[tokio::main]
 async fn main() {
@@ -38,13 +40,17 @@ struct ReturnPath {
 }
 
 async fn hello_world(_req: Request<Body>) -> http::Result<Response<Body>> {
-    let path = _req.uri().path();
+    let path = clean(_req.uri().path());
     println!("{path}");
 
     // List files in directory
-    let read_dir = match fs::read_dir(".") {
+    let read_dir = match fs::read_dir(path) {
         Ok(file) => {file}
-        Err(e) => { return resp!(500).body(format!("Error {e}").into()) }
+        Err(e) => {
+            let e_str = format!("Error {e}");
+            if e.raw_os_error() == Some(2) { return e_str.resp(404) }
+            return e_str.resp(500)
+        }
     };
 
     let paths: Vec<ReturnPath> = read_dir
@@ -55,5 +61,5 @@ async fn hello_world(_req: Request<Body>) -> http::Result<Response<Body>> {
             mtime: x.metadata().unwrap().mtime(),
         }).collect();
 
-    ok!().body(serde_json::to_string(&paths).unwrap().into())
+    serde_json::to_string(&paths).unwrap().resp(200)
 }
