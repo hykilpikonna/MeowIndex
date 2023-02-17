@@ -1,8 +1,11 @@
+#[macro_use]
+mod macros;
+
 use std::convert::Infallible;
 use std::{env, fs};
 use std::net::SocketAddr;
 use std::os::unix::fs::MetadataExt;
-use hyper::{Body, Request, Response, Server};
+use hyper::{Body, http, Request, Response, Server, StatusCode};
 use hyper::service::{make_service_fn, service_fn};
 use serde::{Deserialize, Serialize};
 
@@ -34,8 +37,17 @@ struct ReturnPath {
     mtime: i64
 }
 
-async fn hello_world(_req: Request<Body>) -> Result<Response<Body>, Infallible> {
-    let paths: Vec<ReturnPath> = fs::read_dir("./").unwrap()
+async fn hello_world(_req: Request<Body>) -> http::Result<Response<Body>> {
+    let path = _req.uri().path();
+    println!("{path}");
+
+    // List files in directory
+    let read_dir = match fs::read_dir(".") {
+        Ok(file) => {file}
+        Err(e) => { return resp!(500).body(format!("Error {e}").into()) }
+    };
+
+    let paths: Vec<ReturnPath> = read_dir
         .map(|x| x.unwrap())
         .map(|x| ReturnPath {
             name: x.file_name().to_str().unwrap().parse().unwrap(),
@@ -43,5 +55,5 @@ async fn hello_world(_req: Request<Body>) -> Result<Response<Body>, Infallible> 
             mtime: x.metadata().unwrap().mtime(),
         }).collect();
 
-    Ok(Response::new(serde_json::to_string(&paths).unwrap().into()))
+    ok!().body(serde_json::to_string(&paths).unwrap().into())
 }
