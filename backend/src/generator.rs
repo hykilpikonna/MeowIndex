@@ -1,7 +1,6 @@
-use std::fmt::Error;
 use std::os::unix::fs::MetadataExt;
 use pathdiff::diff_paths;
-use std::path::{Path, PathBuf};
+use std::path::{PathBuf};
 
 const DOT_PATH: &str = ".meow_index";
 
