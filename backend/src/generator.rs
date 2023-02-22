@@ -7,10 +7,9 @@ const DOT_PATH: &str = ".meow_index";
 /// Generate thumbnail for a file if absent
 pub fn generate_thumb(base: PathBuf, file: PathBuf) -> Result<(), String>
 {
-    let ext = file.extension().unwrap_or("".as_ref()).to_str().unwrap_or("");
     let relative = diff_paths(&file, &base).ok_or("Cannot unwrap path")?;
     let thumb = base.join(DOT_PATH).join(relative)
-        .with_extension(format!("thumb.{}", ext));
+        .with_extension(format!("thumb.jpg"));
 
     if thumb.is_file() {
         match (thumb.metadata(), file.metadata()) {
