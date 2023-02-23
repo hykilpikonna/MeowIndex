@@ -52,7 +52,8 @@ pub struct ReturnPath {
     name: String,
     file_type: String,
     mtime: i64,
-    mime: Option<String>
+    size: u64,
+    mime: Option<String>,
 }
 
 struct MyApp {
@@ -80,12 +81,15 @@ impl MyApp {
 
         let paths: Vec<ReturnPath> = read_dir
             .filter_map(|x| x.ok())
-            .filter_map(|x| Some(ReturnPath {
+            .filter_map(|x| {
+                let m = x.metadata().ok()?;
+                Some(ReturnPath {
                 name: x.file_name().to_str()?.to_string(),
                 file_type: x.path().file_type().to_string(),
-                mtime: x.metadata().ok()?.mtime(),
+                mtime: m.mtime() * 1000,
+                size: m.len(),
                 mime: if x.path().is_file() { self.generator.get_mime(&x.path()).ok() } else { None }
-            })).collect();
+            })}).collect();
 
         match serde_json::to_string(&paths) {
             Ok(json) => { json.resp(200) }
