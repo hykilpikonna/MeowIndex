@@ -10,7 +10,7 @@ use std::fs::{File, Metadata};
 use std::fs::DirEntry;
 use std::io::{BufReader};
 use xdg_mime::{SharedMimeInfo};
-use anyhow::{Result};
+use anyhow::{Context, Result};
 use serde::{de, Deserialize, ser, Serialize};
 use crate::thumbnailer::{Thumbnailers};
 
@@ -80,22 +80,18 @@ impl Generator {
     }
 
     /// Process a single file
-    pub fn get_thumb(&self, file: &PathBuf) -> Result<()> {
-        let dot = self.dot_path(&file);
-        let thumb = dot.with_extension("thumb.jpg");
-
-        if thumb.exists() {
-            match (thumb.metadata(), file.metadata()) {
-                // Thumbnail already up to date
-                (Ok(tm), Ok(fm)) => if tm.mtime() >= fm.mtime() { return Ok(()) },
-                _ => {}
+    pub fn get_thumb(&self, file: &PathBuf) -> Result<Vec<u8>> {
+        self.get_cached(file, "thumb-128.png", |thumb| {
+            Ok(fs::read(thumb)?)
+        }, |thumb| {
+            debug!("Generating thumbnail for {}\nto {}", file.display(), thumb.display());
+            let mime = self.mime_db.guess_mime_type().path(file).guess().mime_type().to_string();
+            if let Some(t) = self.thumbnailers.find(&*mime) {
+                t.gen(file.to_str().context("Orig file failed to convert to str")?,
+                      thumb.to_str().context("New file failed to convert to str")?, 128)?;
             }
-        }
-
-        // Generate new thumbnail
-        info!("Generating thumbnail for {}\nto {}", file.display(), thumb.display());
-
-        Ok(())
+            Ok(())
+        })
     }
 
     /// Process a directory
