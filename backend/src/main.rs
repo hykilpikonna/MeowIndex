@@ -67,9 +67,9 @@ impl MyApp {
     }
 
     async fn hello_world(&self, req: Request<Body>) -> http::Result<Response<Body>> {
-        let mut path: String = url_escape::decode(req.uri().path()).into_owned();
-        path = format!(".{}", clean(&*path));
-        println!("Raw path: {} | Sanitized path: {path}", req.uri().path());
+        let rel: String = clean(&url_escape::decode(req.uri().path()));
+        let path = self.generator.base.join(&rel.strip_prefix("/").unwrap());
+        println!("Raw path: {} | Sanitized path: {}", req.uri().path(), path.display());
 
         let params = req.params();
 
