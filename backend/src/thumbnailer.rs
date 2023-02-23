@@ -35,4 +35,9 @@ impl Thumbnailer {
 
         Ok(t)
     }
+
+    /// Check if this thumbnailer should run on a specific mime type
+    pub fn check(&self, mime: &str) -> bool {
+        self.mime_type.contains(mime)
+    }
 }
