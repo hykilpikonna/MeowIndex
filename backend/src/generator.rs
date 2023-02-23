@@ -22,3 +22,13 @@ pub struct Generator {
     pub(crate) base: PathBuf,
 }
 
+pub trait GeneratorTraits {
+    fn new(base: PathBuf) -> Generator;
+}
+
+impl GeneratorTraits for Generator {
+    fn new(base: PathBuf) -> Generator {
+        Generator { mime_db: SharedMimeInfo::new(), base }
+    }
+}
+
