@@ -38,14 +38,6 @@ impl Thumbnailer {
         Ok(t)
     }
 
-    /// Load all thumbanilers available in the system
-    pub fn load_all() -> Result<Vec<Thumbnailer>> {
-        Ok(fs::read_dir("/usr/share/thumbnailers")?
-            .filter_map(|f| f.ok())
-            .filter_map(|f| Thumbnailer::load(&*f.path()).ok())
-            .collect())
-    }
-
     /// Check if this thumbnailer should run on a specific mime type
     pub fn check(&self, mime: &str) -> bool {
         self.mime_type.contains(mime)
@@ -67,5 +59,24 @@ impl Thumbnailer {
         debug!("Command output: {:?}", out);
 
         Ok(())
+    }
+}
+
+pub struct Thumbnailers {
+    list: Vec<Thumbnailer>
+}
+
+impl Thumbnailers {
+    /// Load all thumbanilers available in the system
+    pub fn load_all() -> Result<Thumbnailers> {
+        Ok(Thumbnailers { list: fs::read_dir("/usr/share/thumbnailers")?
+            .filter_map(|f| f.ok())
+            .filter_map(|f| Thumbnailer::load(&*f.path()).ok())
+            .collect() })
+    }
+
+    /// Find a thumbnailer for a mime type
+    pub fn find(&self, mime: &str) -> Option<&Thumbnailer> {
+        self.list.iter().find(|x| x.check(mime))
     }
 }
