@@ -2,6 +2,7 @@
 mod macros;
 mod generator;
 mod utils;
+mod thumbnailer;
 
 use std::convert::Infallible;
 use std::{env, fs};
