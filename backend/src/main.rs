@@ -9,7 +9,6 @@ use std::net::SocketAddr;
 use std::os::unix::fs::MetadataExt;
 use hyper::{Body, http, Request, Response, Server};
 use hyper::service::{make_service_fn, service_fn};
-use serde::{Deserialize, Serialize};
 use path_clean::{clean};
 use macros::StringExt;
 use crate::macros::PathExt;
@@ -37,13 +36,6 @@ async fn main() {
     if let Err(e) = server.await {
         eprintln!("server error: {}", e);
     }
-}
-
-#[derive(Serialize, Deserialize)]
-struct ReturnPath {
-    name: String,
-    file_type: String,
-    mtime: i64
 }
 
 async fn hello_world(_req: Request<Body>) -> http::Result<Response<Body>> {
