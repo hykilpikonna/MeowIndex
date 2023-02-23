@@ -18,6 +18,7 @@ interface File {
   type: 'file' | 'directory'
   size: number
   mtime: string
+  mime?: string
 }
 
 // Placeholder for nginx to replace
@@ -45,7 +46,7 @@ function getIcon(f: File)
   if (f.type == "directory") return urlJoin(deployPath, "mime/folder.svg")
   
   const sp = f.name.split(".")
-  const m = mime.getType(sp[sp.length - 1])
+  const m = f.mime ?? mime.getType(sp[sp.length - 1])
   if (m) return urlJoin(deployPath, `mime/${m.replace("/", "-")}.svg`)
   else return urlJoin(deployPath, 'mime/application-blank.svg')
 }
