@@ -12,6 +12,7 @@ use std::io::{BufReader};
 use xdg_mime::{SharedMimeInfo};
 use anyhow::{Result};
 use serde::{de, Deserialize, ser, Serialize};
+use crate::thumbnailer::{Thumbnailers};
 
 const DOT_PATH: &str = ".meow_index";
 
@@ -24,12 +25,13 @@ pub struct ReturnPath {
 
 pub struct Generator {
     pub(crate) mime_db: SharedMimeInfo,
+    pub(crate) thumbnailers: Thumbnailers,
     pub(crate) base: PathBuf,
 }
 
 impl Generator {
-    pub fn new(base: PathBuf) -> Generator {
-        Generator { mime_db: SharedMimeInfo::new(), base }
+    pub fn new(base: PathBuf) -> Result<Generator> {
+        Ok(Generator { mime_db: SharedMimeInfo::new(), thumbnailers: Thumbnailers::load_all()?, base })
     }
 
     /// Get the same file location in DOT_PATH directory
@@ -75,6 +77,64 @@ impl Generator {
             write_sf(f, guesser.path(file).guess().mime_type().to_string())?;
             Ok(())
         })
+    }
+
+    /// Process a single file
+    pub fn get_thumb(&self, file: &PathBuf) -> Result<()> {
+        let dot = self.dot_path(&file);
+        let thumb = dot.with_extension("thumb.jpg");
+
+        if thumb.exists() {
+            match (thumb.metadata(), file.metadata()) {
+                // Thumbnail already up to date
+                (Ok(tm), Ok(fm)) => if tm.mtime() >= fm.mtime() { return Ok(()) },
+                _ => {}
+            }
+        }
+
+        // Generate new thumbnail
+        info!("Generating thumbnail for {}\nto {}", file.display(), thumb.display());
+
+        Ok(())
+    }
+
+    /// Process a directory
+    pub fn process_dir(&self, dir: &PathBuf) -> Result<()> {
+        // List files
+        let files: Vec<(DirEntry, Metadata)> = dir.to_owned().read_dir()?
+            .filter_map(|x| x.ok())
+            .filter_map(|x| {
+                let meta = x.metadata();
+                Some((x, meta.ok()?))
+            }).collect();
+
+        // Recurse into directories
+        files.iter().for_each(|(f, m)| {
+            if f.path().is_dir() {
+                // Recurse into directory
+                let _ = self.process_dir(&f.path());
+            }
+        });
+
+        // Check if directory listing needs update
+        let d_info = self.dot_path(&dir).with_extension(".json");
+        let d_mtime = d_info.metadata()?.mtime();
+        if files.iter().any(|(f, m)| m.mtime() > d_mtime) {
+            // Update directory listing
+            let paths: Vec<ReturnPath> = files.iter()
+                .filter_map(|(f, m)| Some(ReturnPath {
+                    name: f.file_name().to_str()?.to_string(),
+                    file_type: f.path().file_type().to_string(),
+                    mtime: m.mtime(),
+                })).collect();
+
+            let json = serde_json::to_string(&paths)?;
+            // fs::write(d_info, json)?;
+        }
+
+
+
+        Ok(())
     }
 }
 

@@ -13,7 +13,7 @@ extern crate pretty_env_logger;
 fn main() {
     pretty_env_logger::init();
 
-    let gen = Generator::new("/data".into());
+    let gen = Generator::new("/data".into()).unwrap();
 
     let path: PathBuf = "/data/Anime/1977 Star Wars Collection/01 Star Wars Episode I The Phantom Menace - George Lucas 1999 Eng Subs 720p [H264-mp4].mp4".into();
     let mime = gen.get_mime(&path)
