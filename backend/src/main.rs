@@ -4,16 +4,19 @@ mod generator;
 mod utils;
 mod thumbnailer;
 
+use generator::*;
+use macros::*;
+
 use std::convert::Infallible;
 use std::{env, fs};
 use std::net::SocketAddr;
 use std::os::unix::fs::MetadataExt;
+use std::path::Path;
 use hyper::{Body, http, Request, Response, Server};
 use hyper::service::{make_service_fn, service_fn};
 use path_clean::{clean};
-use macros::StringExt;
-use crate::macros::PathExt;
-use generator::*;
+use anyhow::{Result};
+use serde::{Deserialize, Serialize};
 
 extern crate pretty_env_logger;
 #[macro_use] extern crate log;

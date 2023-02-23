@@ -1,5 +1,3 @@
-
-use crate::macros::*;
 use crate::utils::*;
 
 use std::fs;
@@ -15,13 +13,6 @@ use serde::{de, Deserialize, ser, Serialize};
 use crate::thumbnailer::{Thumbnailers};
 
 const DOT_PATH: &str = ".meow_index";
-
-#[derive(Serialize, Deserialize)]
-pub struct ReturnPath {
-    pub(crate) name: String,
-    pub(crate) file_type: String,
-    pub(crate) mtime: i64
-}
 
 pub struct Generator {
     pub(crate) mime_db: SharedMimeInfo,
@@ -111,24 +102,6 @@ impl Generator {
                 let _ = self.process_dir(&f.path());
             }
         });
-
-        // Check if directory listing needs update
-        let d_info = self.dot_path(&dir).with_extension(".json");
-        let d_mtime = d_info.metadata()?.mtime();
-        if files.iter().any(|(f, m)| m.mtime() > d_mtime) {
-            // Update directory listing
-            let paths: Vec<ReturnPath> = files.iter()
-                .filter_map(|(f, m)| Some(ReturnPath {
-                    name: f.file_name().to_str()?.to_string(),
-                    file_type: f.path().file_type().to_string(),
-                    mtime: m.mtime(),
-                })).collect();
-
-            let json = serde_json::to_string(&paths)?;
-            // fs::write(d_info, json)?;
-        }
-
-
 
         Ok(())
     }
