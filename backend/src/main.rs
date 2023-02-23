@@ -84,12 +84,13 @@ impl MyApp {
             .filter_map(|x| {
                 let m = x.metadata().ok()?;
                 Some(ReturnPath {
-                name: x.file_name().to_str()?.to_string(),
-                file_type: x.path().file_type().to_string(),
-                mtime: m.mtime() * 1000,
-                size: m.len(),
-                mime: if x.path().is_file() { self.generator.get_mime(&x.path()).ok() } else { None }
-            })}).collect();
+                    name: x.file_name().to_str()?.to_string(),
+                    file_type: x.path().file_type().to_string(),
+                    mtime: m.mtime() * 1000,
+                    size: m.len(),
+                    mime: if x.path().is_file() { self.generator.get_mime(&x.path()).ok() } else { None }
+                })
+            }).collect();
 
         match serde_json::to_string(&paths) {
             Ok(json) => { json.resp(200) }
