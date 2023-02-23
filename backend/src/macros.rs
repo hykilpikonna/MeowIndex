@@ -1,11 +1,14 @@
+use std::collections::HashMap;
 use std::path::PathBuf;
-use hyper::{Body, header, http, Response, StatusCode};
+use duplicate::duplicate_item;
+use hyper::{Body, header, http, Request, Response, StatusCode};
 
-pub trait StringExt {
+pub trait Resp {
     fn resp(&self, status: u16) -> http::Result<Response<Body>>;
 }
 
-impl StringExt for String {
+#[duplicate_item(name; [String]; [Vec<u8>])]
+impl Resp for name {
     fn resp(&self, status: u16) -> http::Result<Response<Body>> {
         Response::builder().header(header::ACCESS_CONTROL_ALLOW_ORIGIN, "*")
             .status(StatusCode::from_u16(status).unwrap()).body(Body::from(self.to_owned()))
