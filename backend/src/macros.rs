@@ -27,3 +27,15 @@ impl PathExt for PathBuf {
         "unknown"
     }
 }
+
+pub trait RequestExt {
+    fn params(&self) -> HashMap<String, String>;
+}
+
+impl <T> RequestExt for Request<T> {
+    fn params(&self) -> HashMap<String, String> {
+        self.uri().query()
+            .map(|v| url::form_urlencoded::parse(v.as_bytes()).into_owned().collect())
+            .unwrap_or_else(HashMap::new)
+    }
+}
