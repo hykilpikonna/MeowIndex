@@ -42,30 +42,49 @@ async fn main() {
     }
 }
 
-async fn hello_world(_req: Request<Body>) -> http::Result<Response<Body>> {
-    let path = format!(".{}", clean(_req.uri().path()));
-    println!("Raw path: {} | Sanitized path: {path}", _req.uri().path());
+#[derive(Serialize, Deserialize)]
+pub struct ReturnPath {
+    name: String,
+    file_type: String,
+    mtime: i64,
+    mime: Option<String>
+}
 
-    // List files in directory
-    let read_dir = match fs::read_dir(path) {
-        Ok(file) => { file }
-        Err(e) => {
-            let e_str = format!("Error {e}");
-            if e.raw_os_error() == Some(2) { return e_str.resp(404) }
-            return e_str.resp(500)
+struct MyApp {
+    generator: Generator
+}
+
+impl MyApp {
+    fn new(base: &Path) -> Result<MyApp> {
+        Ok(MyApp { generator: Generator::new(base.into())? })
+    }
+
+    async fn hello_world(&self, _req: Request<Body>) -> http::Result<Response<Body>> {
+        let path = format!(".{}", clean(_req.uri().path()));
+        println!("Raw path: {} | Sanitized path: {path}", _req.uri().path());
+
+        // List files in directory
+        let read_dir = match fs::read_dir(path) {
+            Ok(file) => { file }
+            Err(e) => {
+                let e_str = format!("Error {e}");
+                if e.raw_os_error() == Some(2) { return e_str.resp(404) }
+                return e_str.resp(500)
+            }
+        };
+
+        let paths: Vec<ReturnPath> = read_dir
+            .filter_map(|x| x.ok())
+            .filter_map(|x| Some(ReturnPath {
+                name: x.file_name().to_str()?.to_string(),
+                file_type: x.path().file_type().to_string(),
+                mtime: x.metadata().ok()?.mtime(),
+                mime: if x.path().is_file() { self.generator.get_mime(&x.path()).ok() } else { None }
+            })).collect();
+
+        match serde_json::to_string(&paths) {
+            Ok(json) => { json.resp(200) }
+            Err(e) => { e.to_string().resp(500) }
         }
-    };
-
-    let paths: Vec<ReturnPath> = read_dir
-        .filter_map(|x| x.ok())
-        .filter_map(|x| Some(ReturnPath {
-            name: x.file_name().to_str()?.to_string(),
-            file_type: x.path().file_type().to_string(),
-            mtime: x.metadata().ok()?.mtime(),
-        })).collect();
-
-    match serde_json::to_string(&paths) {
-        Ok(json) => { json.resp(200) }
-        Err(e) => { e.to_string().resp(500) }
     }
 }
