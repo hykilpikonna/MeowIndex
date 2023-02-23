@@ -167,7 +167,7 @@ export default function App() {
                           hasMore={scrollIndex() < api()?.length} next={scrollNext}>{(f, i) =>
             <a class="w-full flex gap-4 transition-all duration-300 bg-dark-800 hover:bg-dark-300 hover:duration-0 rounded-xl p-2 items-center"
                href={getHref(f)}>
-              <img class="w-10" src={getIcon(f)} alt=""></img>
+              <img class="w-10 max-h-10 object-contain" src={getIcon(f)} alt=""></img>
               
               {/* File name tooltip */}
               <span class="flex-1 font-bold truncate" ref={el => tippy(el, {
