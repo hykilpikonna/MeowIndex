@@ -75,6 +75,7 @@ impl MyApp {
 
         // Reading thumbnail of a file
         if params.contains_key("thumb") {
+            if !path.is_file() { return "Error: File not found".to_string().resp(404) }
             return match self.generator.get_thumb(&PathBuf::from(path.to_owned())) {
                 Ok(vec) => { vec.resp(200) }
                 Err(e) => { e.to_string().resp(500) }

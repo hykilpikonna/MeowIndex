@@ -47,8 +47,8 @@ impl Thumbnailer {
     pub fn gen(&self, orig: &str, new: &str, pixels: i32) -> Result<()> {
         let cmd = self.exec
             .replace("%s", &*format!("'{pixels}'"))
-            .replace("%u", &*format!("'{orig}'"))
-            .replace("%o", &*format!("'{new}'"));
+            .replace("%u", &shlex::quote(orig))
+            .replace("%o", &shlex::quote(new));
         let args: Vec<String> = Shlex::new(&*cmd).collect();
         let out = Command::new(args[0].to_owned()).args(&args[1..]).output()?;
         if !out.status.success() {
