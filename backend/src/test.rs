@@ -5,7 +5,7 @@ mod thumbnailer;
 
 use std::path::{Path, PathBuf};
 use generator::*;
-use crate::thumbnailer::Thumbnailer;
+use crate::thumbnailer::{Thumbnailer, Thumbnailers};
 
 extern crate pretty_env_logger;
 #[macro_use] extern crate log;
@@ -25,4 +25,7 @@ fn main() {
     info!("thumb {:?}", thumbnailer);
     info!("check {:?}", thumbnailer.check("audio/x-mp3"));
     thumbnailer.gen(path.to_str().unwrap(), "/tmp/test.png", 256).expect("Generation failed");
+
+    let ts = Thumbnailers::load_all().unwrap();
+    info!("Video thumbnailer: {:?}", ts.find("audio/x-mp3"))
 }
