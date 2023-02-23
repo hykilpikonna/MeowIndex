@@ -1,3 +1,7 @@
+use crate::macros::*;
+use crate::utils::*;
+
+use std::fs;
 use std::os::unix::fs::MetadataExt;
 use pathdiff::diff_paths;
 use std::path::{PathBuf};
@@ -24,11 +28,17 @@ pub struct Generator {
 
 pub trait GeneratorTraits {
     fn new(base: PathBuf) -> Generator;
+    fn dot_path(&self, path: &PathBuf) -> PathBuf;
 }
 
 impl GeneratorTraits for Generator {
     fn new(base: PathBuf) -> Generator {
         Generator { mime_db: SharedMimeInfo::new(), base }
+    }
+
+    /// Get the same file location in DOT_PATH directory
+    fn dot_path(&self, path: &PathBuf) -> PathBuf {
+        self.base.join(DOT_PATH).join(diff_paths(&path, &self.base).unwrap())
     }
 }
 
