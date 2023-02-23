@@ -54,6 +54,7 @@ pub struct ReturnPath {
     mtime: i64,
     size: u64,
     mime: Option<String>,
+    has_thumb: bool
 }
 
 struct MyApp {
@@ -83,12 +84,14 @@ impl MyApp {
             .filter_map(|x| x.ok())
             .filter_map(|x| {
                 let m = x.metadata().ok()?;
+                let mime = if x.path().is_file() { self.generator.get_mime(&x.path()).ok() } else { None };
                 Some(ReturnPath {
                     name: x.file_name().to_str()?.to_string(),
                     file_type: x.path().file_type().to_string(),
                     mtime: m.mtime() * 1000,
                     size: m.len(),
-                    mime: if x.path().is_file() { self.generator.get_mime(&x.path()).ok() } else { None }
+                    mime: mime.to_owned(),
+                    has_thumb: mime.is_some() && self.generator.thumbnailers.find(&*mime.unwrap()).is_some()
                 })
             }).collect();
 
