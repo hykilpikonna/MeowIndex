@@ -85,7 +85,7 @@ impl Generator {
             Ok(fs::read(thumb)?)
         }, |thumb| {
             debug!("Generating thumbnail for {}\nto {}", file.display(), thumb.display());
-            let mime = self.mime_db.guess_mime_type().path(file).guess().mime_type().to_string();
+            let mime = self.get_mime(file)?;
             if let Some(t) = self.thumbnailers.find(&*mime) {
                 t.gen(file.to_str().context("Orig file failed to convert to str")?,
                       thumb.to_str().context("New file failed to convert to str")?, 128)?;
