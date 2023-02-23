@@ -15,11 +15,14 @@ import InfiniteScroll from 'solid-infinite-scroll-fork';
 
 interface File {
   name: string 
-  type: 'file' | 'directory'
+  type?: 'file' | 'directory'
+  file_type?: 'file' | 'directory' | 'link'
   size: number
   mtime: string
   mime?: string
 }
+
+const getType = (f: File) => f.type ?? f.file_type
 
 // Placeholder for nginx to replace
 let deployPath = "{DEPLOY-PATH-PLACEHOLDER}"
@@ -43,7 +46,7 @@ const fetchApi = async () =>
 
 function getIcon(f: File)
 {
-  if (f.type == "directory") return urlJoin(deployPath, "mime/folder.svg")
+  if (getType(f) == "directory") return urlJoin(deployPath, "mime/folder.svg")
   
   const sp = f.name.split(".")
   const m = f.mime ?? mime.getType(sp[sp.length - 1])
@@ -53,7 +56,8 @@ function getIcon(f: File)
 
 function getHref(f: File)
 {
-  return f.type == "directory" ? urlJoin(fullPath, f.name) : urlJoin(host, filePath, f.name)
+  return getType(f) == "directory" ? urlJoin(fullPath, f.name) : urlJoin(host, filePath, f.name)
+  // return urlJoin(fullPath, f.name)
 }
 
 const alpNum = new Set("0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")
