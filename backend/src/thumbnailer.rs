@@ -1,7 +1,9 @@
 use std::collections::HashSet;
-use std::fs;
+use std::{fs, process};
 use std::path::Path;
-use anyhow::{Result};
+use std::process::Command;
+use anyhow::{bail, Result};
+use shlex::Shlex;
 
 #[derive(Debug)]
 pub struct Thumbnailer {
@@ -39,5 +41,23 @@ impl Thumbnailer {
     /// Check if this thumbnailer should run on a specific mime type
     pub fn check(&self, mime: &str) -> bool {
         self.mime_type.contains(mime)
+    }
+
+    /// Generate thumbnail
+    pub fn gen(&self, orig: &str, new: &str, pixels: i32) -> Result<()> {
+        let cmd = self.exec
+            .replace("%s", &*format!("'{pixels}'"))
+            .replace("%u", &*format!("'{orig}'"))
+            .replace("%o", &*format!("'{new}'"));
+        let args: Vec<String> = Shlex::new(&*cmd).collect();
+        let out = Command::new(args[0].to_owned()).args(&args[1..]).output()?;
+        if !out.status.success() {
+            error!("Command failed: {cmd}");
+            error!("Command output: {:?}", out);
+            bail!(String::from_utf8(out.stderr)?);
+        }
+        debug!("Command output: {:?}", out);
+
+        Ok(())
     }
 }
