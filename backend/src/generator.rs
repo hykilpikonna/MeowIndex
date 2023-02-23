@@ -9,7 +9,7 @@ use std::fs::DirEntry;
 use std::io::{BufReader};
 use xdg_mime::{SharedMimeInfo};
 use anyhow::{Context, Result};
-use serde::{de, Deserialize, ser, Serialize};
+use serde::{de, ser};
 use crate::thumbnailer::{Thumbnailers};
 
 const DOT_PATH: &str = ".meow_index";
@@ -22,12 +22,14 @@ pub struct Generator {
 
 impl Generator {
     pub fn new(base: PathBuf) -> Result<Generator> {
-        Ok(Generator { mime_db: SharedMimeInfo::new(), thumbnailers: Thumbnailers::load_all()?, base })
+        Ok(Generator { mime_db: SharedMimeInfo::new(), thumbnailers: Thumbnailers::load_all()?, base: fs::canonicalize(base)? })
     }
 
     /// Get the same file location in DOT_PATH directory
     pub fn dot_path(&self, path: &PathBuf) -> PathBuf {
-        self.base.join(DOT_PATH).join(diff_paths(&path, &self.base).unwrap())
+        debug!("Diffing {} to {}", path.display(), self.base.display());
+        if path.is_relative() { self.base.join(DOT_PATH).join(path) }
+        else { self.base.join(DOT_PATH).join(diff_paths(&path, &self.base).unwrap()) }
     }
 
     /// Get the cached result
@@ -96,7 +98,7 @@ impl Generator {
             }).collect();
 
         // Recurse into directories
-        files.iter().for_each(|(f, m)| {
+        files.iter().for_each(|(f, _m)| {
             if f.path().is_dir() {
                 // Recurse into directory
                 let _ = self.process_dir(&f.path());
