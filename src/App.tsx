@@ -20,6 +20,7 @@ interface File {
   size: number
   mtime: string
   mime?: string
+  has_thumb?: boolean
 }
 
 const getType = (f: File) => f.type ?? f.file_type
@@ -47,6 +48,8 @@ const fetchApi = async () =>
 function getIcon(f: File)
 {
   if (getType(f) == "directory") return urlJoin(deployPath, "mime/folder.svg")
+
+  if (f.has_thumb) return urlJoin(host, filePath, f.name) + "?thumb=1"
   
   const sp = f.name.split(".")
   const m = f.mime ?? mime.getType(sp[sp.length - 1])
