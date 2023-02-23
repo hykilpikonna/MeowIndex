@@ -11,7 +11,7 @@ use std::convert::Infallible;
 use std::{env, fs};
 use std::net::SocketAddr;
 use std::os::unix::fs::MetadataExt;
-use std::path::Path;
+use std::path::{Path, PathBuf};
 use hyper::{Body, http, Request, Response, Server};
 use hyper::service::{make_service_fn, service_fn};
 use path_clean::{clean};
@@ -66,9 +66,20 @@ impl MyApp {
         Ok(MyApp { generator: Generator::new(base.into())? })
     }
 
-    async fn hello_world(&self, _req: Request<Body>) -> http::Result<Response<Body>> {
-        let path = format!(".{}", clean(_req.uri().path()));
-        println!("Raw path: {} | Sanitized path: {path}", _req.uri().path());
+    async fn hello_world(&self, req: Request<Body>) -> http::Result<Response<Body>> {
+        let mut path: String = url_escape::decode(req.uri().path()).into_owned();
+        path = format!(".{}", clean(&*path));
+        println!("Raw path: {} | Sanitized path: {path}", req.uri().path());
+
+        let params = req.params();
+
+        // Reading thumbnail of a file
+        if params.contains_key("thumb") {
+            return match self.generator.get_thumb(&PathBuf::from(path.to_owned())) {
+                Ok(vec) => { vec.resp(200) }
+                Err(e) => { e.to_string().resp(500) }
+            }
+        }
 
         // List files in directory
         let read_dir = match fs::read_dir(path) {
