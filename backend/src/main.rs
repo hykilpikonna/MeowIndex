@@ -1,5 +1,7 @@
 #[macro_use]
 mod macros;
+mod generator;
+mod utils;
 
 use std::convert::Infallible;
 use std::{env, fs};
@@ -11,12 +13,16 @@ use serde::{Deserialize, Serialize};
 use path_clean::{clean};
 use macros::StringExt;
 use crate::macros::PathExt;
+use generator::*;
+
+extern crate pretty_env_logger;
+#[macro_use] extern crate log;
 
 #[tokio::main]
 async fn main() {
     let cwd = env::current_dir().unwrap();
     let addr = SocketAddr::from(([127, 0, 0, 1], 3029));
-    println!("Serving {} started on http://127.0.0.1:3029", cwd.display());
+    info!("Serving {} started on http://127.0.0.1:3029", cwd.display());
 
     // A `Service` is needed for every connection, so this
     // creates one from our `hello_world` function.
