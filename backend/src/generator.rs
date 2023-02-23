@@ -1,3 +1,4 @@
+
 use crate::macros::*;
 use crate::utils::*;
 
@@ -26,28 +27,18 @@ pub struct Generator {
     pub(crate) base: PathBuf,
 }
 
-pub trait GeneratorTraits {
-    fn new(base: PathBuf) -> Generator;
-    fn dot_path(&self, path: &PathBuf) -> PathBuf;
-    fn get_cached<T>(&self, file: &PathBuf, token: &str, read: impl Fn(&PathBuf) -> Result<T>,
-                     gen: impl Fn(&PathBuf) -> Result<()>) -> Result<T>;
-    fn get_cached_json<T>(&self, file: &PathBuf, token: &str, gen: impl Fn() -> Result<T>) -> Result<T>
-        where T: de::DeserializeOwned + ?Sized + ser::Serialize;
-    fn get_mime(&self, file: &PathBuf) -> Result<String>;
-}
-
-impl GeneratorTraits for Generator {
-    fn new(base: PathBuf) -> Generator {
+impl Generator {
+    pub fn new(base: PathBuf) -> Generator {
         Generator { mime_db: SharedMimeInfo::new(), base }
     }
 
     /// Get the same file location in DOT_PATH directory
-    fn dot_path(&self, path: &PathBuf) -> PathBuf {
+    pub fn dot_path(&self, path: &PathBuf) -> PathBuf {
         self.base.join(DOT_PATH).join(diff_paths(&path, &self.base).unwrap())
     }
 
     /// Get the cached result
-    fn get_cached<T>(&self, file: &PathBuf, token: &str, read: impl Fn(&PathBuf) -> Result<T>,
+    pub fn get_cached<T>(&self, file: &PathBuf, token: &str, read: impl Fn(&PathBuf) -> Result<T>,
                      gen: impl Fn(&PathBuf) -> Result<()>) -> Result<T> {
         let dot = self.dot_path(file).with_extension(token);
         if ! dot.exists() || match (dot.metadata(), file.metadata()) {
@@ -61,7 +52,7 @@ impl GeneratorTraits for Generator {
     }
 
     /// Get the cached result
-    fn get_cached_json<T>(&self, file: &PathBuf, token: &str, gen: impl Fn() -> Result<T>) -> Result<T>
+    pub fn get_cached_json<T>(&self, file: &PathBuf, token: &str, gen: impl Fn() -> Result<T>) -> Result<T>
         where T: de::DeserializeOwned + ?Sized + ser::Serialize {
         self.get_cached(&file, token, |f| {
             let open = File::open(f)?;
@@ -76,7 +67,7 @@ impl GeneratorTraits for Generator {
     }
 
     /// Get cached mime type
-    fn get_mime(&self, file: &PathBuf) -> Result<String> {
+    pub fn get_mime(&self, file: &PathBuf) -> Result<String> {
         self.get_cached(&file, "mime", |f| {
             Ok(fs::read_to_string(f)?)
         }, |f| {
