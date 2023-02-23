@@ -31,6 +31,8 @@ pub trait GeneratorTraits {
     fn dot_path(&self, path: &PathBuf) -> PathBuf;
     fn get_cached<T>(&self, file: &PathBuf, token: &str, read: impl Fn(&PathBuf) -> Result<T>,
                      gen: impl Fn(&PathBuf) -> Result<()>) -> Result<T>;
+    fn get_cached_json<T>(&self, file: &PathBuf, token: &str, gen: impl Fn() -> Result<T>) -> Result<T>
+        where T: de::DeserializeOwned + ?Sized + ser::Serialize;
 }
 
 impl GeneratorTraits for Generator {
@@ -55,6 +57,21 @@ impl GeneratorTraits for Generator {
             gen(&dot)?;
         }
         Ok(read(&dot)?)
+    }
+
+    /// Get the cached result
+    fn get_cached_json<T>(&self, file: &PathBuf, token: &str, gen: impl Fn() -> Result<T>) -> Result<T>
+        where T: de::DeserializeOwned + ?Sized + ser::Serialize {
+        self.get_cached(&file, token, |f| {
+            let open = File::open(f)?;
+            let reader = BufReader::new(open);
+            let val: T = serde_json::from_reader(reader)?;
+            Ok(val)
+        }, |f| {
+            let res = gen()?;
+            fs::write(f, serde_json::to_string(&res)?)?;
+            Ok(())
+        })
     }
 }
 
