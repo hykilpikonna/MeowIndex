@@ -33,6 +33,7 @@ pub trait GeneratorTraits {
                      gen: impl Fn(&PathBuf) -> Result<()>) -> Result<T>;
     fn get_cached_json<T>(&self, file: &PathBuf, token: &str, gen: impl Fn() -> Result<T>) -> Result<T>
         where T: de::DeserializeOwned + ?Sized + ser::Serialize;
+    fn get_mime(&self, file: &PathBuf) -> Result<String>;
 }
 
 impl GeneratorTraits for Generator {
@@ -70,6 +71,17 @@ impl GeneratorTraits for Generator {
         }, |f| {
             let res = gen()?;
             fs::write(f, serde_json::to_string(&res)?)?;
+            Ok(())
+        })
+    }
+
+    /// Get cached mime type
+    fn get_mime(&self, file: &PathBuf) -> Result<String> {
+        self.get_cached(&file, "mime", |f| {
+            Ok(fs::read_to_string(f)?)
+        }, |f| {
+            let mut guesser = self.mime_db.guess_mime_type();
+            write_sf(f, guesser.path(file).guess().mime_type().to_string())?;
             Ok(())
         })
     }
