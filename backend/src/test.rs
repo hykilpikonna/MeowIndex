@@ -22,5 +22,7 @@ fn main() {
 
     let thumbnailer_path = "/usr/share/thumbnailers/totem.thumbnailer";
     let thumbnailer = Thumbnailer::load(Path::new(thumbnailer_path)).unwrap();
-    info!("thumb {:?}", thumbnailer)
+    info!("thumb {:?}", thumbnailer);
+    info!("check {:?}", thumbnailer.check("audio/x-mp3"));
+    thumbnailer.gen(path.to_str().unwrap(), "/tmp/test.png", 256).expect("Generation failed");
 }
