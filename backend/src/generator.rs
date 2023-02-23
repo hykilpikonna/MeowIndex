@@ -29,6 +29,8 @@ pub struct Generator {
 pub trait GeneratorTraits {
     fn new(base: PathBuf) -> Generator;
     fn dot_path(&self, path: &PathBuf) -> PathBuf;
+    fn get_cached<T>(&self, file: &PathBuf, token: &str, read: impl Fn(&PathBuf) -> Result<T>,
+                     gen: impl Fn(&PathBuf) -> Result<()>) -> Result<T>;
 }
 
 impl GeneratorTraits for Generator {
@@ -39,6 +41,20 @@ impl GeneratorTraits for Generator {
     /// Get the same file location in DOT_PATH directory
     fn dot_path(&self, path: &PathBuf) -> PathBuf {
         self.base.join(DOT_PATH).join(diff_paths(&path, &self.base).unwrap())
+    }
+
+    /// Get the cached result
+    fn get_cached<T>(&self, file: &PathBuf, token: &str, read: impl Fn(&PathBuf) -> Result<T>,
+                     gen: impl Fn(&PathBuf) -> Result<()>) -> Result<T> {
+        let dot = self.dot_path(file).with_extension(token);
+        if ! dot.exists() || match (dot.metadata(), file.metadata()) {
+            (Ok(dm), Ok(fm)) => { fm.mtime() > dm.mtime() }
+            (_, _) => true
+        } {
+            debug!("Regenerating cached result {}", dot.display());
+            gen(&dot)?;
+        }
+        Ok(read(&dot)?)
     }
 }
 
