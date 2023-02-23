@@ -38,6 +38,14 @@ impl Thumbnailer {
         Ok(t)
     }
 
+    /// Load all thumbanilers available in the system
+    pub fn load_all() -> Result<Vec<Thumbnailer>> {
+        Ok(fs::read_dir("/usr/share/thumbnailers")?
+            .filter_map(|f| f.ok())
+            .filter_map(|f| Thumbnailer::load(&*f.path()).ok())
+            .collect())
+    }
+
     /// Check if this thumbnailer should run on a specific mime type
     pub fn check(&self, mime: &str) -> bool {
         self.mime_type.contains(mime)
