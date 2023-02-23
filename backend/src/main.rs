@@ -22,16 +22,19 @@ extern crate pretty_env_logger;
 #[macro_use] extern crate log;
 
 #[tokio::main]
-async fn main() {
+async fn main() -> Result<()> {
+    pretty_env_logger::init();
+
     let cwd = env::current_dir().unwrap();
     let addr = SocketAddr::from(([127, 0, 0, 1], 3029));
     info!("Serving {} started on http://127.0.0.1:3029", cwd.display());
+    let app: &MyApp = Box::leak(Box::new(MyApp::new(&cwd).unwrap())) as &'static _;
 
     // A `Service` is needed for every connection, so this
     // creates one from our `hello_world` function.
     let make_svc = make_service_fn(|_conn| async {
         // service_fn converts our function into a `Service`
-        Ok::<_, Infallible>(service_fn(hello_world))
+        Ok::<_, Infallible>(service_fn(|x| app.hello_world(x)))
     });
 
     let server = Server::bind(&addr).serve(make_svc);
@@ -40,6 +43,8 @@ async fn main() {
     if let Err(e) = server.await {
         eprintln!("server error: {}", e);
     }
+
+    Ok(())
 }
 
 #[derive(Serialize, Deserialize)]
