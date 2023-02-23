@@ -1,9 +1,7 @@
 use std::collections::HashSet;
 use std::fs;
-use std::fs::File;
-use std::io::{BufRead, BufReader};
 use std::path::Path;
-use anyhow::{bail, Result};
+use anyhow::{Result};
 
 #[derive(Debug)]
 pub struct Thumbnailer {
