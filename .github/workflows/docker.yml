@@ -22,7 +22,8 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - run: |
+      - name: Build rust
+        run: |
           cd backend
           cargo build --verbose
 
@@ -45,7 +46,7 @@ jobs:
         id: build-and-push
         uses: docker/build-push-action@v4
         with:
-          context: .
+          context: backend
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha
