@@ -9,6 +9,7 @@ use std::fs::{File, Metadata};
 use std::io::{BufReader};
 use xdg_mime::{SharedMimeInfo};
 use anyhow::{Context, Result};
+use rayon::prelude::*;
 use serde::{de, ser};
 use walkdir::{WalkDir, DirEntry};
 use crate::encoder::Encoders;
@@ -103,11 +104,14 @@ impl Generator {
     /// Process a directory
     pub fn encode_dir(&self, dir: &PathBuf) -> Result<()> {
         // Found file
-        for f in self.list_video_files(dir) {
-            self.encoders.exec_all(f.to_str().context("Path.to_str failed")?, self.dot_path(&f).as_path())?;
-        }
+        let videos: Vec<PathBuf> = self.list_video_files(dir).collect();
+        info!("Found {} videos", videos.len());
 
-        Ok(())
+        let results: Result<()> = videos.par_iter().map(|f| {
+            Ok(self.encoders.exec_all(f.to_str().context("Path.to_str failed")?, self.dot_path(&f).as_path())?)
+        }).collect();
+
+        Ok(results?)
     }
 
     /// List all video files in a directory
