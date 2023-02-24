@@ -25,7 +25,7 @@ jobs:
       - name: Build rust
         run: |
           cd backend
-          cargo build --verbose
+          cargo build --release --verbose
 
       - uses: docker/setup-buildx-action@v2
 
