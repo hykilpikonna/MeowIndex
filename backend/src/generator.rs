@@ -104,15 +104,14 @@ impl Generator {
     pub fn encode_dir(&self, dir: &PathBuf) -> Result<()> {
         // Found file
 
-
         Ok(())
     }
 
     /// List all video files in a directory
-    pub fn list_video_files(&self, dir: &PathBuf) -> Vec<PathBuf> {
+    pub fn list_video_files<'a>(&'a self, dir: &'a PathBuf) -> impl Iterator<Item = PathBuf> + 'a {
         WalkDir::new(dir).into_iter().filter_map(|f| f.ok())
             .filter(|f| f.path().is_file() && self.is_video(f))
-            .map(|f| f.into_path()).collect()
+            .map(|f| f.into_path())
     }
 
     /// Check if a file is a video file by file name

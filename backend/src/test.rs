@@ -36,8 +36,7 @@ fn main() {
     // let encoders = Encoders::load().unwrap();
     // info!("Encoders {:?}", encoders);
 
-
-    let videos = gen.list_video_files(&PathBuf::from("/data/Anime"));
+    let videos: Vec<PathBuf> = gen.list_video_files(&PathBuf::from("/data/Anime")).collect();
     videos.iter().for_each(|x| println!("Video found: {}", x.display()));
     println!("Length: {}", videos.len());
 }
