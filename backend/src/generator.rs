@@ -103,6 +103,9 @@ impl Generator {
     /// Process a directory
     pub fn encode_dir(&self, dir: &PathBuf) -> Result<()> {
         // Found file
+        for f in self.list_video_files(dir) {
+            self.encoders.exec_all(f.to_str().context("Path.to_str failed")?, self.dot_path(&f).as_path())?;
+        }
 
         Ok(())
     }

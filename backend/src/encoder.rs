@@ -1,6 +1,7 @@
 use std::{env, fs};
 use std::path::Path;
 use std::process::{Command, Output};
+use std::time::Instant;
 use serde::{Deserialize};
 use anyhow::{Context, Result};
 use tempdir::TempDir;
@@ -35,10 +36,13 @@ impl Encoders {
     }
 
     pub fn exec_all(&self, orig: &str, out: &Path) -> Result<()> {
-        for enc in self.encoders {
-            let enc_out = out.with_extension(enc.suffix);
+        for enc in &self.encoders {
+            let enc_out = out.with_extension(enc.suffix.to_owned());
             // Skip if encoded video already exists
             if enc_out.exists() { continue }
+
+            debug!("Encoding '{}' for {orig}...", enc.name);
+            let start = Instant::now();
 
             // Create tmp (this is to prevent partially completed encoding results being detected as completed)
             let tmp_dir = TempDir::new("meow_encoder_tmp")?;
@@ -46,6 +50,7 @@ impl Encoders {
 
             // Convert to tmp
             enc.execute(orig, tmp_out.to_str().context("Call to path.to_str failed")?)?;
+            debug!("Done, took {:.2} minutes, copying result...", start.elapsed().as_secs_f32() / 60.0);
 
             // Copy results
             fs::copy(tmp_out, enc_out)?;

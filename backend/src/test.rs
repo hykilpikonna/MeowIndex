@@ -39,4 +39,6 @@ fn main() {
     let videos: Vec<PathBuf> = gen.list_video_files(&PathBuf::from("/data/Anime")).collect();
     videos.iter().for_each(|x| println!("Video found: {}", x.display()));
     println!("Length: {}", videos.len());
+
+    gen.encode_dir(&PathBuf::from("/data/Anime")).expect("Encoding failed");
 }
