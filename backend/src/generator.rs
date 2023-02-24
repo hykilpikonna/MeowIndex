@@ -20,15 +20,20 @@ pub struct Generator {
     pub(crate) thumbnailers: Thumbnailers,
     pub(crate) encoders: Encoders,
     pub(crate) base: PathBuf,
+    video_ext: HashSet<String>
 }
 
 impl Generator {
     pub fn new(base: PathBuf) -> Result<Generator> {
+        let video = vec!["webm", "mkv", "flv", "vob", "ogv", "drc", "avi", "mov", "wmv",
+                         "yuv", "rm", "rmvb", "amv", "mp4", "m4p", "m4v", "mpg", "mpv", "mp2", "mpeg", "mpe", "3gp"];
+
         Ok(Generator {
             mime_db: SharedMimeInfo::new(),
             thumbnailers: Thumbnailers::load_all()?,
             encoders: Encoders::load()?,
-            base: fs::canonicalize(base)?
+            base: fs::canonicalize(base)?,
+            video_ext: HashSet::from_iter(video.into_iter().map(|x| x.to_string())),
         })
     }
 
