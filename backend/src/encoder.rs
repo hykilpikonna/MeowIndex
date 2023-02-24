@@ -6,6 +6,7 @@ use anyhow::{Result};
 pub struct Encoder {
     name: String,
     cmd: String,
+    suffix: String,
 }
 
 #[derive(Deserialize, Debug)]
