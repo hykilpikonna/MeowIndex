@@ -10,6 +10,7 @@ use std::io::{BufReader};
 use xdg_mime::{SharedMimeInfo};
 use anyhow::{Context, Result};
 use serde::{de, ser};
+use crate::encoder::Encoders;
 use crate::thumbnailer::{Thumbnailers};
 
 const DOT_PATH: &str = ".meow_index";
@@ -17,12 +18,18 @@ const DOT_PATH: &str = ".meow_index";
 pub struct Generator {
     pub(crate) mime_db: SharedMimeInfo,
     pub(crate) thumbnailers: Thumbnailers,
+    pub(crate) encoders: Encoders,
     pub(crate) base: PathBuf,
 }
 
 impl Generator {
     pub fn new(base: PathBuf) -> Result<Generator> {
-        Ok(Generator { mime_db: SharedMimeInfo::new(), thumbnailers: Thumbnailers::load_all()?, base: fs::canonicalize(base)? })
+        Ok(Generator {
+            mime_db: SharedMimeInfo::new(),
+            thumbnailers: Thumbnailers::load_all()?,
+            encoders: Encoders::load()?,
+            base: fs::canonicalize(base)?
+        })
     }
 
     /// Get the same file location in DOT_PATH directory
