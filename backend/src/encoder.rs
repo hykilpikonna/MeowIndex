@@ -53,6 +53,9 @@ impl Encoders {
             debug!("Done, took {:.2} minutes, copying result...", start.elapsed().as_secs_f32() / 60.0);
 
             // Copy results
+            if let Some(parent) = enc_out.parent() {
+                fs::create_dir_all(parent)?
+            }
             fs::copy(tmp_out, enc_out)?;
 
             // Cleanup tmp
