@@ -3,6 +3,7 @@ mod macros;
 mod generator;
 mod utils;
 mod thumbnailer;
+mod encoder;
 
 use generator::*;
 use macros::*;
