@@ -1,0 +1,13 @@
+version: "3"
+
+services:
+  web:
+    build: .
+    environment:
+#      - RUST_LOG=info
+      - RUST_LOG=debug
+      - RUST_BACKTRACE=full
+    volumes:
+      - ./web:/data
+    ports:
+      - "3030:3029"

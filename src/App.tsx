@@ -15,10 +15,15 @@ import InfiniteScroll from 'solid-infinite-scroll-fork';
 
 interface File {
   name: string 
-  type: 'file' | 'directory'
+  type?: 'file' | 'directory'
+  file_type?: 'file' | 'directory' | 'link'
   size: number
   mtime: string
+  mime?: string
+  has_thumb?: boolean
 }
+
+const getType = (f: File) => f.type ?? f.file_type
 
 // Placeholder for nginx to replace
 let deployPath = "{DEPLOY-PATH-PLACEHOLDER}"
@@ -42,17 +47,20 @@ const fetchApi = async () =>
 
 function getIcon(f: File)
 {
-  if (f.type == "directory") return urlJoin(deployPath, "mime/folder.svg")
+  if (getType(f) == "directory") return urlJoin(deployPath, "mime/folder.svg")
+
+  if (f.has_thumb) return urlJoin(host, filePath, f.name) + "?thumb=1"
   
   const sp = f.name.split(".")
-  const m = mime.getType(sp[sp.length - 1])
+  const m = f.mime ?? mime.getType(sp[sp.length - 1])
   if (m) return urlJoin(deployPath, `mime/${m.replace("/", "-")}.svg`)
   else return urlJoin(deployPath, 'mime/application-blank.svg')
 }
 
 function getHref(f: File)
 {
-  return f.type == "directory" ? urlJoin(fullPath, f.name) : urlJoin(host, filePath, f.name)
+  return getType(f) == "directory" ? urlJoin(fullPath, f.name) : urlJoin(host, filePath, f.name)
+  // return urlJoin(fullPath, f.name)
 }
 
 const alpNum = new Set("0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")
@@ -159,7 +167,7 @@ export default function App() {
                           hasMore={scrollIndex() < api()?.length} next={scrollNext}>{(f, i) =>
             <a class="w-full flex gap-4 transition-all duration-300 bg-dark-800 hover:bg-dark-300 hover:duration-0 rounded-xl p-2 items-center"
                href={getHref(f)}>
-              <img class="w-10" src={getIcon(f)} alt=""></img>
+              <img class="w-10 max-h-10 object-contain" src={getIcon(f)} alt=""></img>
               
               {/* File name tooltip */}
               <span class="flex-1 font-bold truncate" ref={el => tippy(el, {
