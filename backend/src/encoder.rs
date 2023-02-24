@@ -1,6 +1,9 @@
 use std::{env, fs};
+use std::path::Path;
+use std::process::{Command, Output};
 use serde::{Deserialize};
-use anyhow::{Result};
+use anyhow::{Context, Result};
+use crate::utils::run_cmd;
 
 #[derive(Deserialize, Debug)]
 pub struct Encoder {
@@ -13,6 +16,14 @@ pub struct Encoder {
 pub struct Encoders {
     processes: u32,
     encoders: Vec<Encoder>
+}
+
+impl Encoder {
+    pub fn execute(&self, orig: &str, out: &str) -> Result<Output> {
+        run_cmd(&*self.cmd
+            .replace("{{INPUT}}", &*shlex::quote(orig))
+            .replace("{{OUTPUT}}", &*shlex::quote(out)))
+    }
 }
 
 impl Encoders {
