@@ -1,9 +1,8 @@
 use std::collections::HashSet;
 use std::fs;
 use std::path::Path;
-use std::process::Command;
-use anyhow::{bail, Result};
-use shlex::Shlex;
+use anyhow::{Result};
+use crate::utils::run_cmd;
 
 #[derive(Debug)]
 pub struct Thumbnailer {
@@ -45,19 +44,11 @@ impl Thumbnailer {
 
     /// Generate thumbnail
     pub fn gen(&self, orig: &str, new: &str, pixels: i32) -> Result<()> {
-        let cmd = self.exec
+        run_cmd(&*self.exec
             .replace("%s", &*format!("'{pixels}'"))
             .replace("%u", &shlex::quote(orig))
             .replace("%i", &shlex::quote(orig))
-            .replace("%o", &shlex::quote(new));
-        let args: Vec<String> = Shlex::new(&*cmd).collect();
-        let out = Command::new(args[0].to_owned()).args(&args[1..]).output()?;
-        if !out.status.success() {
-            error!("Command failed: {cmd}");
-            error!("Command output: {:?}", out);
-            bail!(String::from_utf8(out.stderr)?);
-        }
-        debug!("Command output: {:?}", out);
+            .replace("%o", &shlex::quote(new)))?;
 
         Ok(())
     }
