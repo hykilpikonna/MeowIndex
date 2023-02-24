@@ -48,6 +48,7 @@ impl Thumbnailer {
         let cmd = self.exec
             .replace("%s", &*format!("'{pixels}'"))
             .replace("%u", &shlex::quote(orig))
+            .replace("%i", &shlex::quote(orig))
             .replace("%o", &shlex::quote(new));
         let args: Vec<String> = Shlex::new(&*cmd).collect();
         let out = Command::new(args[0].to_owned()).args(&args[1..]).output()?;
