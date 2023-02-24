@@ -1,0 +1,17 @@
+processes = 2
+
+[[encoders]]
+name = "H264 Full VBR35"
+cmd = "ffmpeg -i %i -c:v h264_nvenc -cq:v 35 -rc:v vbr -c:a aac -pix_fmt yuv420p -color_primaries 1 -color_trc 1 -colorspace 1 -movflags +faststart %o"
+
+[[encoders]]
+name = "AV1 Full CRF38"
+cmd = "ffmpeg -i %i -c:v libsvtav1 -crf 38 -c:a aac -pix_fmt yuv420p -color_primaries 1 -color_trc 1 -colorspace 1 -movflags +faststart %o"
+
+#[[encoders]]
+#name = "x264 Full CRF32"
+#cmd = "ffmpeg -i %i -c:v libx264 -crf 32 -c:a aac -pix_fmt yuv420p -color_primaries 1 -color_trc 1 -colorspace 1 -movflags +faststart %o"
+
+#[[encoders]]
+#name = "HEVC Full VBR35"
+
