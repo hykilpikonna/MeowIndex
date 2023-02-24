@@ -1,15 +1,16 @@
+use std::collections::HashSet;
 use crate::utils::*;
 
 use std::fs;
 use std::os::unix::fs::MetadataExt;
 use pathdiff::diff_paths;
-use std::path::{PathBuf};
+use std::path::{Path, PathBuf};
 use std::fs::{File, Metadata};
-use std::fs::DirEntry;
 use std::io::{BufReader};
 use xdg_mime::{SharedMimeInfo};
 use anyhow::{Context, Result};
 use serde::{de, ser};
+use walkdir::{WalkDir, DirEntry};
 use crate::encoder::Encoders;
 use crate::thumbnailer::{Thumbnailers};
 
@@ -100,24 +101,28 @@ impl Generator {
     }
 
     /// Process a directory
-    pub fn process_dir(&self, dir: &PathBuf) -> Result<()> {
-        // List files
-        let files: Vec<(DirEntry, Metadata)> = dir.to_owned().read_dir()?
-            .filter_map(|x| x.ok())
-            .filter_map(|x| {
-                let meta = x.metadata();
-                Some((x, meta.ok()?))
-            }).collect();
+    pub fn encode_dir(&self, dir: &PathBuf) -> Result<()> {
+        // Found file
 
-        // Recurse into directories
-        files.iter().for_each(|(f, _m)| {
-            if f.path().is_dir() {
-                // Recurse into directory
-                let _ = self.process_dir(&f.path());
-            }
-        });
 
         Ok(())
+    }
+
+    /// List all video files in a directory
+    pub fn list_video_files(&self, dir: &PathBuf) -> Vec<PathBuf> {
+        WalkDir::new(dir).into_iter().filter_map(|f| f.ok())
+            .filter(|f| f.path().is_file() && self.is_video(f))
+            .map(|f| f.into_path()).collect()
+    }
+
+    /// Check if a file is a video file by file name
+    fn is_video(&self, dir: &DirEntry) -> bool {
+        if let Some(name) = dir.file_name().to_str() {
+            if let Some((_, ext)) = name.rsplit_once(".") {
+                return self.video_ext.contains(&*ext)
+            }
+        }
+        false
     }
 }
 
