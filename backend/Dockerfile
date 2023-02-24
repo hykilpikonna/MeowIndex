@@ -5,12 +5,6 @@
 
 FROM debian:sid-slim
 
-# Copy built files
-WORKDIR /app
-#COPY --from=builder /app/target/release/meow_index .
-COPY ./target/release/meow_index .
-COPY ./res/thumb/* /usr/share/thumbnailers/
-
 RUN apt-get update \
     && apt-get install -y \
     # Video preview thumbnailer
@@ -29,5 +23,11 @@ RUN apt-get update \
     # Video formatter
     ffmpeg \
     && rm -rf /var/lib/apt/lists/*
+
+# Copy built files
+WORKDIR /app
+#COPY --from=builder /app/target/release/meow_index .
+COPY ./target/release/meow_index .
+COPY ./res/thumb/* /usr/share/thumbnailers/
 
 CMD ["./meow_index"]
