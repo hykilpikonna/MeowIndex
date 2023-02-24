@@ -26,7 +26,7 @@ jobs:
         run: |
           mkdir /tmp/tmp
           cp -r ./backend /tmp/tmp
-          rm -rf .*
+          rm -rf ./*
           cp -r /tmp/tmp/backend/* .
           cargo build --release --verbose
 
