@@ -26,7 +26,7 @@ async fn main() -> Result<()> {
     pretty_env_logger::init();
 
     let cwd = env::current_dir().unwrap();
-    let addr = SocketAddr::from(([127, 0, 0, 1], 3029));
+    let addr = SocketAddr::from(([0, 0, 0, 0], 3029));
     info!("Serving {} started on http://127.0.0.1:3029", cwd.display());
     let app: &MyApp = Box::leak(Box::new(MyApp::new(&cwd).unwrap())) as &'static _;
 
