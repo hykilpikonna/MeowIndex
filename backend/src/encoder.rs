@@ -46,7 +46,7 @@ impl Encoders {
 
             // Create tmp (this is to prevent partially completed encoding results being detected as completed)
             let tmp_dir = TempDir::new("meow_encoder_tmp")?;
-            let tmp_out = tmp_dir.path().join(out.file_name().context("No file name")?);
+            let tmp_out = tmp_dir.path().join(enc_out.file_name().context("No file name")?);
 
             // Convert to tmp
             enc.execute(orig, tmp_out.to_str().context("Call to path.to_str failed")?)?;
