@@ -9,6 +9,7 @@ use std::fs::{File, Metadata};
 use std::io::{BufReader};
 use xdg_mime::{SharedMimeInfo};
 use anyhow::{Context, Result};
+use indicatif::ParallelProgressIterator;
 use rayon::prelude::*;
 use rayon::ThreadPoolBuilder;
 use serde::{de, ser};
@@ -112,7 +113,7 @@ impl Generator {
         let videos: Vec<PathBuf> = self.list_video_files(dir).collect();
         info!("Found {} videos", videos.len());
 
-        let results: Result<()> = videos.par_iter().map(|f| {
+        let results: Result<()> = videos.par_iter().progress().map(|f| {
             Ok(self.encoders.exec_all(f.to_str().context("Path.to_str failed")?, self.dot_path(&f).as_path())?)
         }).collect();
 
