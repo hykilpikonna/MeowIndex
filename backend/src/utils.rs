@@ -21,6 +21,6 @@ pub fn run_cmd(cmd: &str) -> Result<Output> {
         error!("Command output: {:?}", out);
         bail!(String::from_utf8(out.stderr)?);
     }
-    debug!("Command output: {:?}", out);
+    // debug!("Command output: {:?}", out);
     Ok(out)
 }

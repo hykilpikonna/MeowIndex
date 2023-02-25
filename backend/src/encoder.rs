@@ -9,15 +9,15 @@ use crate::utils::run_cmd;
 
 #[derive(Deserialize, Debug)]
 pub struct Encoder {
-    name: String,
-    cmd: String,
-    suffix: String,
+    pub(crate) name: String,
+    pub(crate) cmd: String,
+    pub(crate) suffix: String,
 }
 
 #[derive(Deserialize, Debug)]
 pub struct Encoders {
-    processes: u32,
-    encoders: Vec<Encoder>
+    pub(crate) processes: usize,
+    pub(crate) encoders: Vec<Encoder>
 }
 
 impl Encoder {
@@ -41,7 +41,7 @@ impl Encoders {
             // Skip if encoded video already exists
             if enc_out.exists() { continue }
 
-            debug!("Encoding '{}' for {orig}...", enc.name);
+            info!("Encoding '{}' for {orig}...", enc.name);
             let start = Instant::now();
 
             // Create tmp (this is to prevent partially completed encoding results being detected as completed)
@@ -50,7 +50,7 @@ impl Encoders {
 
             // Convert to tmp
             enc.execute(orig, tmp_out.to_str().context("Call to path.to_str failed")?)?;
-            debug!("Done, took {:.2} minutes, copying result...", start.elapsed().as_secs_f32() / 60.0);
+            info!("Done, took {:.2} minutes, copying result...", start.elapsed().as_secs_f32() / 60.0);
 
             // Copy results
             if let Some(parent) = enc_out.parent() {
