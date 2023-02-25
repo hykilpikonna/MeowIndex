@@ -10,6 +10,7 @@ use std::io::{BufReader};
 use xdg_mime::{SharedMimeInfo};
 use anyhow::{Context, Result};
 use rayon::prelude::*;
+use rayon::ThreadPoolBuilder;
 use serde::{de, ser};
 use walkdir::{WalkDir, DirEntry};
 use crate::encoder::Encoders;
@@ -103,6 +104,10 @@ impl Generator {
 
     /// Process a directory
     pub fn encode_dir(&self, dir: &PathBuf) -> Result<()> {
+        // Set number of threads
+        ThreadPoolBuilder::new().num_threads(self.encoders.processes).build_global()?;
+        info!("Activating {} threads", self.encoders.processes);
+
         // Found file
         let videos: Vec<PathBuf> = self.list_video_files(dir).collect();
         info!("Found {} videos", videos.len());
