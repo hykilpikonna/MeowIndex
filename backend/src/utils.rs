@@ -19,7 +19,8 @@ pub fn run_cmd(cmd: &str) -> Result<Output> {
     if !out.status.success() {
         error!("Command failed: {cmd}");
         error!("Command output: {:?}", out);
-        bail!(String::from_utf8(out.stderr)?);
+        let msg = String::from_utf8_lossy(&out.stderr.to_owned()).to_string();
+        bail!(msg);
     }
     // debug!("Command output: {:?}", out);
     Ok(out)
