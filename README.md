@@ -14,11 +14,14 @@ A cute, feature-rich file listing module to replace nginx's autoindex / fancyind
 * [x] Search
 * [x] Show 404 page
 
+**Features requiring a backend**
+
+* [x] Show image/video previews
+* [x] Use file binary to determine mime type
+
 **TODO**
 
-* [ ] Show image/video previews
-* [ ] Use file magic instead of file suffix to determine mime type
-
+* [ ] Play videos
 
 ## How to use
 
