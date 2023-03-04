@@ -45,22 +45,6 @@ This module uses the json file listing api in nginx. If you already have an auto
 
 The following example serves `/data/file-server` on http path `/`
 
-**Before:**
-
-```nginx
-# ...
-server_name your.domain.com;
-
-root /data/file-server;
-
-location / {
-    fancyindex on;
-    fancyindex_exact_size off;
-}
-```
-
-**After:**
-
 ```nginx
 # ...
 server_name your.domain.com;
