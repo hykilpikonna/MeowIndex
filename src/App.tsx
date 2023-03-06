@@ -121,7 +121,15 @@ export default function App() {
       {/* Content container */}
       <div class="max-w-screen-md m-auto">
 
-        <p class="text-4xl color-emp text-center py-10">File Listing</p>
+        <div class="heading color-emp text-center py-10">
+          <p class="text-4xl">File Listing</p>
+          <div class="flex justify-center opacity-50">
+            <a class="flex gap-1" href="https://github.com/hykilpikonna/MeowIndex">
+              Powered by Nginx MeowIndex
+              <Icon class="text-lg" icon="mdi:github"/>
+            </a>
+          </div>
+        </div>
 
         {/* Breadcrumb slot */}
         <div id="breadcrumbs" class="flex bg-dark-600 p-2 px-5 mb-5 rounded-xl whitespace-nowrap relative z-30">
