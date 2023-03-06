@@ -59,7 +59,7 @@ function getIcon(f: File)
 
 function getHref(f: File)
 {
-  return getType(f) == "directory" ? urlJoin(fullPath, f.name) : urlJoin(host, filePath, f.name)
+  return getType(f) == "directory" ? (urlJoin(fullPath, f.name) + "/") : urlJoin(host, filePath, f.name)
   // return urlJoin(fullPath, f.name)
 }
 
