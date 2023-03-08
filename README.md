@@ -4,6 +4,11 @@ A cute, feature-rich file listing module to replace nginx's autoindex / fancyind
 
 ![image](https://user-images.githubusercontent.com/22280294/219513952-736182cb-a38a-4a49-b9ea-f9160399987c.png)
 
+## Demo
+
+* HyDEV ArchLinux Repo: https://arch.hydev.org/
+* HyDEV Backup CDN: https://cdn.hydev.org/backup/
+
 ## Features
 
 * [x] List files
