@@ -26,10 +26,12 @@ interface File {
 const getType = (f: File) => f.type ?? f.file_type
 
 // Placeholder for nginx to replace
+let assetsPath = "{ASSETS-PATH-PLACEHOLDER}"
 let deployPath = "{DEPLOY-PATH-PLACEHOLDER}"
 let host = "{HOST-PLACEHOLDER}"
 
-// Default deploy path and host for testing
+// Default paths and host for testing
+if (assetsPath.includes("-PLACEHOLDER")) assetsPath = "/"
 if (deployPath.includes("-PLACEHOLDER")) deployPath = "/"
 if (host.includes("-PLACEHOLDER")) host = "https://daisy.hydev.org/data/api"
 
@@ -47,14 +49,14 @@ const fetchApi = async () =>
 
 function getIcon(f: File)
 {
-  if (getType(f) == "directory") return urlJoin(deployPath, "mime/folder.svg")
+  if (getType(f) == "directory") return urlJoin(assetsPath, "mime/folder.svg")
 
   if (f.has_thumb) return urlJoin(host, filePath, f.name) + "?thumb=1"
   
   const sp = f.name.split(".")
   const m = f.mime ?? mime.getType(sp[sp.length - 1])
-  if (m) return urlJoin(deployPath, `mime/${m.replace("/", "-")}.svg`)
-  else return urlJoin(deployPath, 'mime/application-blank.svg')
+  if (m) return urlJoin(assetsPath, `mime/${m.replace("/", "-")}.svg`)
+  else return urlJoin(assetsPath, 'mime/application-blank.svg')
 }
 
 function getHref(f: File)
@@ -67,7 +69,7 @@ const alpNum = new Set("0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRST
 
 export default function App() {
   const [api] = createResource(fetchApi)
-  const paths = [window.location.host, ...filePath.split("/").filter(it => it)]
+  const paths = [window.location.host, ...fullPath.split("/").filter(it => it)]
 
   // Infinite Scroll
   const [scrollIndex, setScrollIndex] = createSignal(50)
@@ -150,7 +152,7 @@ export default function App() {
                   <>
                     <a class="breadcrumb-link ml-2 first:ml-0"
                        classList={{active: i() + 1 == paths.length}}
-                       href={urlJoin(filePath, "../".repeat(paths.length - i() - 1))}>{decodeURIComponent(p)}</a>
+                       href={urlJoin(fullPath, "../".repeat(paths.length - i() - 1))}>{decodeURIComponent(p)}</a>
                     <span class="color-subsub ml-2 last:hidden">/</span>
                   </>
                 }</For>
