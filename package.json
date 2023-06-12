@@ -2,6 +2,7 @@
   "name": "meow-index",
   "version": "1.0.0",
   "description": "Modern Drop-in Replacement for Nginx AutoIndex / FancyIndex!",
+  "homepage": "https://github.com/hykilpikonna/MeowIndex",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
