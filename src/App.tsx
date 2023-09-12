@@ -33,7 +33,7 @@ let host = "{HOST-PLACEHOLDER}"
 // Default paths and host for testing
 if (assetsPath.includes("-PLACEHOLDER")) assetsPath = "/"
 if (deployPath.includes("-PLACEHOLDER")) deployPath = "/"
-if (host.includes("-PLACEHOLDER")) host = "https://daisy.hydev.org/data/api"
+if (host.includes("-PLACEHOLDER")) host = undefined
 
 // Compute path
 let fullPath = window.location.pathname
@@ -115,6 +115,10 @@ export default function App() {
   const initWheel = (w: HTMLDivElement) => setTimeout(() => {
     setBcLeft(Math.max(bcMax = Math.round(w.clientWidth - w.parentElement.clientWidth), 0))
   }, 100)
+
+  if (!host) return (<div class="min-h-full my-auto flex justify-center items-center">
+    App is misconfigured. Please correct sub_filter.
+  </div>)
 
   return (
     // Full screen container
