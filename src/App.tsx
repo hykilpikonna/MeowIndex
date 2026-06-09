@@ -75,7 +75,7 @@ function getWgetCommand()
   // /raw/projects/foo/ with --cut-dirs=2 gives ./foo/...
   const cutDirs = Math.max(0, rawPath.split("/").filter(Boolean).length - 1)
 
-  return `wget -rnpnH --cut-dirs=${cutDirs} -R 'index.html*' ${window.location.origin}${rawPath}`
+  return `wget -r -np -nH -e robots=off -nc --cut-dirs=${cutDirs} \ ${window.location.origin}${rawPath}`
 }
 
 const alpNum = new Set("0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")
