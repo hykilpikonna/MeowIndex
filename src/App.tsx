@@ -158,24 +158,6 @@ export default function App() {
           </div>
         </div>
 
-        {/* Wget clone command */}
-        <div class="bg-dark-600 p-3 px-5 mb-5 rounded-xl">
-          <div class="opacity-50 mb-2">Download with wget:</div>
-
-          <div class="flex gap-2 items-center">
-            <code class="flex-1 overflow-x-auto whitespace-nowrap bg-dark-800 rounded-lg p-2">
-              {getWgetCommand()}
-            </code>
-
-            <button
-              class="bg-dark-300 hover:bg-dark-200 rounded-lg px-3 py-2 transition-all"
-              onClick={copyWget}
-            >
-              {copiedWget() ? "Copied" : "Copy"}
-            </button>
-          </div>
-        </div>
-
         {/* Breadcrumb slot */}
         <div id="breadcrumbs" class="flex bg-dark-600 p-2 px-5 mb-5 rounded-xl whitespace-nowrap relative z-30">
           <Icon icon="ion:wifi-outline" class="text-xl mr-2"/>
@@ -204,6 +186,22 @@ export default function App() {
           </Show>
 
           <Icon icon="ion:search-outline" class="text-xl ml-2" onclick={e => searchOn() ? searchDeactivate() : searchActivate()}/>
+        </div>
+
+        {/* Wget clone command */}
+        <div class="bg-dark-600 p-3 px-5 mb-5 rounded-xl">
+          <div class="flex gap-2 items-center">
+            <code class="flex-1 overflow-x-auto whitespace-nowrap bg-dark-800 rounded-lg p-2">
+              {getWgetCommand()}
+            </code>
+
+            <button
+              class="bg-dark-300 hover:bg-dark-200 rounded-lg px-3 py-2 transition-all"
+              onClick={copyWget}
+            >
+              {copiedWget() ? "Copied" : "Copy"}
+            </button>
+          </div>
         </div>
 
         {/*{api.loading && "Loading..."}*/}
