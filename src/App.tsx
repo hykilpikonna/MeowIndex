@@ -65,6 +65,19 @@ function getHref(f: File)
   // return urlJoin(fullPath, f.name)
 }
 
+function getWgetCommand()
+{
+  const path = filePath.endsWith("/") ? filePath : `${filePath}/`
+  const rawPath = urlJoin("/raw", path)
+
+  // Preserve the current folder name.
+  // Example:
+  // /raw/projects/foo/ with --cut-dirs=2 gives ./foo/...
+  const cutDirs = Math.max(0, rawPath.split("/").filter(Boolean).length - 1)
+
+  return `wget -r -np -nH -e robots=off -nc --cut-dirs=${cutDirs} ${window.location.origin}${rawPath}`
+}
+
 const alpNum = new Set("0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")
 
 export default function App() {
@@ -74,6 +87,14 @@ export default function App() {
   // Infinite Scroll
   const [scrollIndex, setScrollIndex] = createSignal(50)
   const scrollNext = () => setScrollIndex(Math.min(scrollIndex() + 20, api().length))
+
+  // Wget command
+  const [copiedWget, setCopiedWget] = createSignal(false)
+  const copyWget = async () => {
+    await navigator.clipboard.writeText(getWgetCommand())
+    setCopiedWget(true)
+    setTimeout(() => setCopiedWget(false), 1200)
+  }
 
   // Search
   let searchInp: HTMLInputElement
@@ -165,6 +186,22 @@ export default function App() {
           </Show>
 
           <Icon icon="ion:search-outline" class="text-xl ml-2" onclick={e => searchOn() ? searchDeactivate() : searchActivate()}/>
+        </div>
+
+        {/* Wget clone command */}
+        <div class="bg-dark-600 p-3 px-5 mb-5 rounded-xl">
+          <div class="flex gap-2 items-center">
+            <code class="flex-1 overflow-x-auto whitespace-nowrap bg-dark-800 rounded-lg p-2">
+              {getWgetCommand()}
+            </code>
+
+            <button
+              class="bg-dark-300 hover:bg-dark-200 rounded-lg px-3 py-2 transition-all"
+              onClick={copyWget}
+            >
+              {copiedWget() ? "Copied" : "Copy"}
+            </button>
+          </div>
         </div>
 
         {/*{api.loading && "Loading..."}*/}
