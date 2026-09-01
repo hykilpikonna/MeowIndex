@@ -109,7 +109,7 @@ example.com {
 | Action | How to Trigger |
 | :--- | :--- |
 | **Search / Filter** | Press <kbd>/</kbd> anywhere or click the 🔍 icon. Type to filter instantly. Press <kbd>Esc</kbd> to close. |
-| **Copy Wget Command** | Click the **`>_`** terminal icon in the toolbar. Copies `wget -r -np ...` to clipboard with a toast. |
+| **Copy Wget Command** | Click the **`>_`** terminal icon in the toolbar. Copies `wget -r -np ...` to clipboard with inline `✓ Copied` feedback. |
 | **Inspect Wget Command** | <kbd>Shift</kbd> + Click the **`>_`** icon to toggle the command drawer. |
 | **Breadcrumbs Navigation** | Click any path segment in the toolbar to jump up to that directory. |
 
@@ -117,7 +117,15 @@ example.com {
 
 ### 4. Customization
 
-* **Change Title:** Edit the `<title>` or `<p class="heading-title">` in [`docs/meowindex.html`](docs/meowindex.html).
+* **Change Title via `Caddyfile` (Recommended):** Add `header X-Site-Title "Your Custom Title"` to your Caddyfile block:
+  ```caddyfile
+  files.yourdomain.com {
+      root * /data/file-server
+      header X-Site-Title "HyDEV ArchLinux Mirror"
+      # ...
+  }
+  ```
+* **Change Title via Template:** Alternatively, edit line 2 in [`docs/meowindex.html`](docs/meowindex.html).
 * **Colors & Accents:** Tweak CSS variables under `:root` in [`docs/meowindex.html`](docs/meowindex.html) (`--color-emp`, `--color-main`, `--bg-dark-800`).
 
 ---
