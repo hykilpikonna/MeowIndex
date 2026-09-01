@@ -192,6 +192,11 @@
       transition: color 0.15s;
       flex-shrink: 0;
       white-space: nowrap;
+      max-width: 180px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      display: inline-block;
+      vertical-align: middle;
     }
 
     .breadcrumb-link:first-child {
@@ -209,6 +214,11 @@
       font-weight: 700;
       flex-shrink: 0;
       white-space: nowrap;
+      max-width: 220px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      display: inline-block;
+      vertical-align: middle;
     }
 
     .breadcrumb-sep {
@@ -638,8 +648,6 @@
       if (!searchOn) {
         if (e.key === '/') {
           e.preventDefault();
-          activateSearch();
-        } else if (e.key.length === 1 && !e.ctrlKey && !e.metaKey && !e.altKey) {
           activateSearch();
         }
       } else if (searchOn && e.key === 'Escape') {
