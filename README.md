@@ -1,6 +1,6 @@
 # MeowIndex
 
-A cute, feature-rich file listing module to replace Nginx autoindex/fancyindex and Caddy directory browse.
+A cute, feature-rich file listing theme and module for **Caddy** and **Nginx**.
 
 ![image](https://user-images.githubusercontent.com/22280294/219513952-736182cb-a38a-4a49-b9ea-f9160399987c.png)
 
@@ -11,38 +11,37 @@ A cute, feature-rich file listing module to replace Nginx autoindex/fancyindex a
 
 ## Features
 
-* [x] List files with WhiteSur icons and original MeowIndex dark theme
-* [x] Clickable, length-safe breadcrumb path with hostname root
-* [x] Live instant file search filter (press `/` or click search icon)
-* [x] Wget recursive clone helper with 1-click copy
-* [x] Formatted file sizes & relative timestamps
-* [x] Mobile responsive layout
-* [x] **Caddy Native Support** (Server-Side Rendered, zero build step needed)
-* [x] **Nginx Support** (SolidJS SPA + autoindex JSON)
-
-**Features requiring Rust backend (Nginx mode)**
-
-* [x] Show image/video previews
-* [x] Use file binary to determine mime type
+* [x] **Original Dark Palette:** Warm aesthetic with `#ebadb6` pastel accents
+* [x] **1,300+ WhiteSur Icons:** Rich SVG icons for images, audio, video, code, archives, and documents
+* [x] **Length-Safe Breadcrumbs:** Clickable directory breadcrumbs with hostname root
+* [x] **Live Instant Search:** Filter files in real-time by pressing `/` or clicking the search icon
+* [x] **Streamlined Wget Helper:** 1-click clipboard copy for recursive `wget` commands with toast confirmation
+* [x] **Formatted Timestamps & Sizes:** Relative timestamps (`a few seconds ago`, `2 hours ago`) and humanized file sizes
+* [x] **Caddy Native (SSR):** Blazing fast, zero Node.js/Vite build steps, standard Caddy template
+* [x] **Nginx Support:** SolidJS SPA + autoindex JSON mode
 
 ---
 
-## Usage with Caddy (Recommended)
+## Usage Guide (Caddy)
 
-Caddy natively renders directory listings on the server using Go templates. No Node.js, build steps, or background processes required!
+### 1. Installation
 
-### 1. Clone the Repository
+Clone the repository to `/etc/caddy/MeowIndex` (or your preferred directory):
 
 ```sh
 git clone https://github.com/hykilpikonna/MeowIndex /etc/caddy/MeowIndex
 ```
 
-### 2. Configure `Caddyfile`
+*(No build or compile steps needed for Caddy!)*
 
-Add the MeowIndex template and MIME icon handler:
+---
+
+### 2. Configuration Examples
+
+#### Example A: Public Domain with Automatic HTTPS
 
 ```caddyfile
-your.domain.com {
+files.yourdomain.com {
     root * /data/file-server
 
     # Serve WhiteSur MIME icons
@@ -51,7 +50,29 @@ your.domain.com {
         file_server
     }
 
-    # Serve directory listing with MeowIndex template
+    # Serve directory browsing with MeowIndex template
+    handle {
+        file_server {
+            browse /etc/caddy/MeowIndex/docs/meowindex.html
+        }
+    }
+
+    # Enable compression
+    encode zstd gzip
+}
+```
+
+#### Example B: Tailscale Node / Private Tailnet
+
+```caddyfile
+your-node.tailnet-name.ts.net {
+    root * /data/file-server
+
+    handle /mime/* {
+        root * /etc/caddy/MeowIndex/public
+        file_server
+    }
+
     handle {
         file_server {
             browse /etc/caddy/MeowIndex/docs/meowindex.html
@@ -59,6 +80,45 @@ your.domain.com {
     }
 }
 ```
+
+#### Example C: Subdirectory Hosting (e.g. `example.com/downloads/`)
+
+```caddyfile
+example.com {
+    handle_path /downloads/* {
+        root * /data/file-server
+
+        handle /mime/* {
+            root * /etc/caddy/MeowIndex/public
+            file_server
+        }
+
+        handle {
+            file_server {
+                browse /etc/caddy/MeowIndex/docs/meowindex.html
+            }
+        }
+    }
+}
+```
+
+---
+
+### 3. How to Use & Shortcuts
+
+| Action | How to Trigger |
+| :--- | :--- |
+| **Search / Filter** | Press <kbd>/</kbd> anywhere or click the 🔍 icon. Type to filter instantly. Press <kbd>Esc</kbd> to close. |
+| **Copy Wget Command** | Click the **`>_`** terminal icon in the toolbar. Copies `wget -r -np ...` to clipboard with a toast. |
+| **Inspect Wget Command** | <kbd>Shift</kbd> + Click the **`>_`** icon to toggle the command drawer. |
+| **Breadcrumbs Navigation** | Click any path segment in the toolbar to jump up to that directory. |
+
+---
+
+### 4. Customization
+
+* **Change Title:** Edit the `<title>` or `<p class="heading-title">` in [`docs/meowindex.html`](docs/meowindex.html).
+* **Colors & Accents:** Tweak CSS variables under `:root` in [`docs/meowindex.html`](docs/meowindex.html) (`--color-emp`, `--color-main`, `--bg-dark-800`).
 
 ---
 
@@ -74,14 +134,9 @@ yarn install
 yarn build
 ```
 
-To update, simply run `git pull` and `yarn build`.
-
 ### 2. Setup File Listing in Nginx
 
-The following example serves `/data/file-server` on http path `/`:
-
 ```nginx
-# ...
 server_name your.domain.com;
 
 set $title "Meow Index";
@@ -92,5 +147,3 @@ location / {
     try_files $uri $uri/index.html /__meowindex__/index.html;
 }
 ```
-
-Check out our [example configs](docs/examples) for more configurations.
