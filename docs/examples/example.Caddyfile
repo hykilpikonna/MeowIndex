@@ -1,0 +1,21 @@
+# Example production Caddyfile with automatic HTTPS
+
+your.domain.com {
+    # Path to your file directory
+    root * /data/file-server
+
+    # Enable directory listing with MeowIndex template
+    file_server {
+        browse /etc/caddy/meowindex.html
+    }
+
+    # Optional compression
+    encode zstd gzip
+
+    # Optional security headers
+    header {
+        X-Content-Type-Options nosniff
+        X-Frame-Options SAMEORIGIN
+        Referrer-Policy strict-origin-when-cross-origin
+    }
+}

@@ -1,0 +1,12 @@
+# MeowIndex Caddy Configuration
+# Usage:
+#   file_server {
+#       browse /path/to/MeowIndex/docs/meowindex.html
+#   }
+
+:80 {
+    root * /data/file-server
+    file_server {
+        browse /etc/caddy/meowindex.html
+    }
+}

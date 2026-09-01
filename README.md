@@ -1,6 +1,6 @@
 # MeowIndex
 
-A cute, feature-rich file listing module to replace nginx's autoindex / fancyindex.
+A cute, feature-rich file listing module to replace Nginx autoindex/fancyindex and Caddy directory browse.
 
 ![image](https://user-images.githubusercontent.com/22280294/219513952-736182cb-a38a-4a49-b9ea-f9160399987c.png)
 
@@ -11,28 +11,51 @@ A cute, feature-rich file listing module to replace nginx's autoindex / fancyind
 
 ## Features
 
-* [x] List files
-* [x] Show file icons
+* [x] List files with cute icons and dark theme
 * [x] Clickable, length-safe breadcrumb path
-* [x] Fix mobile view
-* [x] Infinite-scroll
-* [x] Search
-* [x] Show 404 page
+* [x] Live instant file search filter (press `/`)
+* [x] Wget recursive clone helper with 1-click copy
+* [x] Formatted file sizes & relative timestamps
+* [x] Mobile responsive layout
+* [x] **Caddy Native Support** (Server-Side Rendered, zero build step needed)
+* [x] **Nginx Support** (SolidJS SPA + autoindex JSON)
 
-**Features requiring a backend**
+**Features requiring Rust backend (Nginx mode)**
 
 * [x] Show image/video previews
 * [x] Use file binary to determine mime type
 
-**TODO**
+---
 
-* [ ] Play videos
+## Usage with Caddy (Recommended)
 
-## How to use
+Caddy natively renders directory listings on the server using Go templates. No Node.js, build steps, or background processes required!
+
+### 1. Copy or Clone the Template
+
+```sh
+git clone https://github.com/hykilpikonna/MeowIndex /etc/caddy/MeowIndex
+```
+
+### 2. Configure `Caddyfile`
+
+Add `browse` pointing to [`docs/meowindex.html`](docs/meowindex.html):
+
+```caddyfile
+your.domain.com {
+    root * /data/file-server
+
+    file_server {
+        browse /etc/caddy/MeowIndex/docs/meowindex.html
+    }
+}
+```
+
+---
+
+## Usage with Nginx
 
 ### 1. Installation
-
-You can install from source by cloning the repository:
 
 ```sh
 cd /etc/nginx
@@ -42,13 +65,11 @@ yarn install
 yarn build
 ```
 
-To update, simply do `git pull` and `yarn build` in the same directory.
+To update, simply run `git pull` and `yarn build`.
 
 ### 2. Setup File Listing in Nginx
 
-This module uses the json file listing api in nginx. If you already have an autoindex file server set up, you can make the following changes. If you're new to nginx, you can check out our [example configs](docs/examples).
-
-The following example serves `/data/file-server` on http path `/`
+The following example serves `/data/file-server` on http path `/`:
 
 ```nginx
 # ...
@@ -63,6 +84,4 @@ location / {
 }
 ```
 
-## Advanced Usage
-
-TODO
+Check out our [example configs](docs/examples) for more configurations.
