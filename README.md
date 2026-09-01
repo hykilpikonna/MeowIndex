@@ -11,9 +11,9 @@ A cute, feature-rich file listing module to replace Nginx autoindex/fancyindex a
 
 ## Features
 
-* [x] List files with cute icons and dark theme
-* [x] Clickable, length-safe breadcrumb path
-* [x] Live instant file search filter (press `/`)
+* [x] List files with WhiteSur icons and original MeowIndex dark theme
+* [x] Clickable, length-safe breadcrumb path with hostname root
+* [x] Live instant file search filter (press `/` or click search icon)
 * [x] Wget recursive clone helper with 1-click copy
 * [x] Formatted file sizes & relative timestamps
 * [x] Mobile responsive layout
@@ -31,7 +31,7 @@ A cute, feature-rich file listing module to replace Nginx autoindex/fancyindex a
 
 Caddy natively renders directory listings on the server using Go templates. No Node.js, build steps, or background processes required!
 
-### 1. Copy or Clone the Template
+### 1. Clone the Repository
 
 ```sh
 git clone https://github.com/hykilpikonna/MeowIndex /etc/caddy/MeowIndex
@@ -39,14 +39,23 @@ git clone https://github.com/hykilpikonna/MeowIndex /etc/caddy/MeowIndex
 
 ### 2. Configure `Caddyfile`
 
-Add `browse` pointing to [`docs/meowindex.html`](docs/meowindex.html):
+Add the MeowIndex template and MIME icon handler:
 
 ```caddyfile
 your.domain.com {
     root * /data/file-server
 
-    file_server {
-        browse /etc/caddy/MeowIndex/docs/meowindex.html
+    # Serve WhiteSur MIME icons
+    handle /mime/* {
+        root * /etc/caddy/MeowIndex/public
+        file_server
+    }
+
+    # Serve directory listing with MeowIndex template
+    handle {
+        file_server {
+            browse /etc/caddy/MeowIndex/docs/meowindex.html
+        }
     }
 }
 ```

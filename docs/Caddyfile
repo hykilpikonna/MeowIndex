@@ -1,12 +1,20 @@
 # MeowIndex Caddy Configuration
-# Usage:
-#   file_server {
-#       browse /path/to/MeowIndex/docs/meowindex.html
-#   }
-
+#
+# Put this in your Caddyfile:
 :80 {
+    # 1. Path to your static files
     root * /data/file-server
-    file_server {
-        browse /etc/caddy/meowindex.html
+
+    # 2. Serve WhiteSur MIME icons from MeowIndex
+    handle /mime/* {
+        root * /etc/caddy/MeowIndex/public
+        file_server
+    }
+
+    # 3. Serve directory listing using MeowIndex template
+    handle {
+        file_server {
+            browse /etc/caddy/MeowIndex/docs/meowindex.html
+        }
     }
 }

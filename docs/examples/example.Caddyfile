@@ -1,12 +1,20 @@
 # Example production Caddyfile with automatic HTTPS
 
 your.domain.com {
-    # Path to your file directory
+    # 1. Path to your files
     root * /data/file-server
 
-    # Enable directory listing with MeowIndex template
-    file_server {
-        browse /etc/caddy/meowindex.html
+    # 2. Serve MeowIndex WhiteSur MIME icons
+    handle /mime/* {
+        root * /etc/caddy/MeowIndex/public
+        file_server
+    }
+
+    # 3. Serve directory browsing with MeowIndex template
+    handle {
+        file_server {
+            browse /etc/caddy/MeowIndex/docs/meowindex.html
+        }
     }
 
     # Optional compression
