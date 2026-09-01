@@ -1,29 +1,24 @@
 # Example production Caddyfile with automatic HTTPS
 
-your.domain.com {
-    # 1. Path to your files
+files.yourdomain.com {
     root * /data/file-server
 
-    # 2. Serve MeowIndex WhiteSur MIME icons
+    # Optional: Set custom heading title
+    header X-Site-Title "HyDEV ArchLinux Mirror"
+
+    # Serve WhiteSur MIME icons
     handle /mime/* {
         root * /etc/caddy/MeowIndex/public
         file_server
     }
 
-    # 3. Serve directory browsing with MeowIndex template
+    # Serve directory browsing with MeowIndex template
     handle {
         file_server {
             browse /etc/caddy/MeowIndex/docs/meowindex.html
         }
     }
 
-    # Optional compression
+    # Compression
     encode zstd gzip
-
-    # Optional security headers
-    header {
-        X-Content-Type-Options nosniff
-        X-Frame-Options SAMEORIGIN
-        Referrer-Policy strict-origin-when-cross-origin
-    }
 }
