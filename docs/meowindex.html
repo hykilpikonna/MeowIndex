@@ -410,7 +410,12 @@
         <!-- Breadcrumbs (when search inactive) -->
         <div class="breadcrumbs-wrap" id="breadcrumbsWrap">
           <div class="breadcrumbs-inner" id="breadcrumbsInner">
-            <!-- Populated via JavaScript -->
+            {{range $i, $crumb := .Breadcrumbs}}
+              {{if ne $i 0}}<span class="breadcrumb-sep color-subsub">/</span>{{end}}
+              <a class="breadcrumb-link{{if eq $crumb.Link ""}} active{{end}}" href="{{if eq $crumb.Link ""}}#{{else}}{{html $crumb.Link}}{{end}}" title="{{html $crumb.Text}}">
+                {{if eq $crumb.Text "/"}}<span class="host-root">/</span>{{else}}{{html $crumb.Text}}{{end}}
+              </a>
+            {{end}}
           </div>
         </div>
 
@@ -518,23 +523,12 @@
     }
     resolveIcons();
 
-    // 2. Breadcrumbs Generator
-    const paths = [window.location.host, ...window.location.pathname.split('/').filter(Boolean)];
-    const fullPath = window.location.pathname;
-    const breadcrumbsInner = document.getElementById('breadcrumbsInner');
+    // 2. Breadcrumbs Host Root & Auto-Scroll
+    const hostRoot = document.querySelector('#breadcrumbsInner .host-root');
+    if (hostRoot) {
+      hostRoot.textContent = window.location.host;
+    }
 
-    let breadcrumbsHtml = '';
-    paths.forEach((p, i) => {
-      const isLast = i + 1 === paths.length;
-      const href = i === 0 ? '/' : (fullPath.split('/').slice(0, i + 1).join('/') + '/');
-      breadcrumbsHtml += `<a class="breadcrumb-link ${isLast ? 'active' : ''}" href="${href}">${decodeURIComponent(p)}</a>`;
-      if (!isLast) {
-        breadcrumbsHtml += `<span class="breadcrumb-sep color-subsub">/</span>`;
-      }
-    });
-    breadcrumbsInner.innerHTML = breadcrumbsHtml;
-
-    // Auto-scroll breadcrumbs to current directory on load & support mouse wheel
     const breadcrumbsWrap = document.getElementById('breadcrumbsWrap');
     const scrollToEnd = () => {
       if (breadcrumbsWrap) {
@@ -545,12 +539,14 @@
     requestAnimationFrame(scrollToEnd);
     setTimeout(scrollToEnd, 100);
 
-    breadcrumbsWrap.addEventListener('wheel', (e) => {
-      if (e.deltaY !== 0 && !e.shiftKey) {
-        e.preventDefault();
-        breadcrumbsWrap.scrollLeft += e.deltaY;
-      }
-    }, { passive: false });
+    if (breadcrumbsWrap) {
+      breadcrumbsWrap.addEventListener('wheel', (e) => {
+        if (e.deltaY !== 0 && !e.shiftKey) {
+          e.preventDefault();
+          breadcrumbsWrap.scrollLeft += e.deltaY;
+        }
+      }, { passive: false });
+    }
 
     // 3. Wget Command & Inline Copy Feedback
     const filePath = fullPath;
