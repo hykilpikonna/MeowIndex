@@ -412,7 +412,7 @@
         <!-- Action Buttons -->
         <div class="toolbar-actions">
           <!-- Wget Quick Copy / Drawer Toggle button -->
-          <button class="tool-btn" id="wgetBtn" title="Copy recursive wget command ( w )" onclick="handleWgetClick(event)">
+          <button class="tool-btn" id="wgetBtn" title="Copy recursive wget command" onclick="handleWgetClick(event)">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <polyline points="4 17 10 11 4 5"/>
               <line x1="12" y1="19" x2="20" y2="19"/>
@@ -628,11 +628,6 @@
         if (e.key === '/') {
           e.preventDefault();
           activateSearch();
-        } else if (e.key === 'w' || e.key === 'W') {
-          if (!e.ctrlKey && !e.metaKey && !e.altKey) {
-            e.preventDefault();
-            copyWget();
-          }
         } else if (e.key.length === 1 && !e.ctrlKey && !e.metaKey && !e.altKey) {
           activateSearch();
         }
