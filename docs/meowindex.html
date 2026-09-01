@@ -167,8 +167,14 @@
     }
 
     .breadcrumbs-wrap {
-      overflow: hidden;
+      overflow-x: auto;
       flex: 1 1 0%;
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+    }
+
+    .breadcrumbs-wrap::-webkit-scrollbar {
+      display: none;
     }
 
     .breadcrumbs-inner {
@@ -510,6 +516,19 @@
       }
     });
     breadcrumbsInner.innerHTML = breadcrumbsHtml;
+
+    // Auto-scroll breadcrumbs to current directory on load & support mouse wheel
+    const breadcrumbsWrap = document.getElementById('breadcrumbsWrap');
+    setTimeout(() => {
+      breadcrumbsWrap.scrollLeft = breadcrumbsWrap.scrollWidth;
+    }, 50);
+
+    breadcrumbsWrap.addEventListener('wheel', (e) => {
+      if (e.deltaY !== 0 && !e.shiftKey) {
+        e.preventDefault();
+        breadcrumbsWrap.scrollLeft += (e.deltaY > 0 ? 1 : -1) * 35;
+      }
+    }, { passive: false });
 
     // 3. Wget Command & Inline Copy Feedback
     const filePath = fullPath;
