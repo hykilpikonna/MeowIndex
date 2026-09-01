@@ -169,6 +169,7 @@
     .breadcrumbs-wrap {
       overflow-x: auto;
       flex: 1 1 0%;
+      min-width: 0;
       scrollbar-width: none;
       -ms-overflow-style: none;
     }
@@ -178,9 +179,10 @@
     }
 
     .breadcrumbs-inner {
-      width: min-content;
-      display: flex;
+      display: inline-flex;
       align-items: center;
+      white-space: nowrap;
+      min-width: max-content;
     }
 
     .breadcrumb-link {
@@ -188,6 +190,8 @@
       text-decoration: none;
       margin-left: 0.5rem;
       transition: color 0.15s;
+      flex-shrink: 0;
+      white-space: nowrap;
     }
 
     .breadcrumb-link:first-child {
@@ -203,12 +207,15 @@
       pointer-events: none;
       cursor: default;
       font-weight: 700;
+      flex-shrink: 0;
+      white-space: nowrap;
     }
 
     .breadcrumb-sep {
       color: var(--color-subsub);
       margin-left: 0.5rem;
       user-select: none;
+      flex-shrink: 0;
     }
 
     .search-input {
@@ -519,14 +526,19 @@
 
     // Auto-scroll breadcrumbs to current directory on load & support mouse wheel
     const breadcrumbsWrap = document.getElementById('breadcrumbsWrap');
-    setTimeout(() => {
-      breadcrumbsWrap.scrollLeft = breadcrumbsWrap.scrollWidth;
-    }, 50);
+    const scrollToEnd = () => {
+      if (breadcrumbsWrap) {
+        breadcrumbsWrap.scrollLeft = breadcrumbsWrap.scrollWidth - breadcrumbsWrap.clientWidth;
+      }
+    };
+    scrollToEnd();
+    requestAnimationFrame(scrollToEnd);
+    setTimeout(scrollToEnd, 100);
 
     breadcrumbsWrap.addEventListener('wheel', (e) => {
       if (e.deltaY !== 0 && !e.shiftKey) {
         e.preventDefault();
-        breadcrumbsWrap.scrollLeft += (e.deltaY > 0 ? 1 : -1) * 35;
+        breadcrumbsWrap.scrollLeft += e.deltaY;
       }
     }, { passive: false });
 
