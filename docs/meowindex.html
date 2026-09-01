@@ -413,7 +413,7 @@
             {{range $i, $crumb := .Breadcrumbs}}
               {{if ne $i 0}}<span class="breadcrumb-sep color-subsub">/</span>{{end}}
               <a class="breadcrumb-link{{if eq $crumb.Link ""}} active{{end}}" href="{{if eq $crumb.Link ""}}#{{else}}{{html $crumb.Link}}{{end}}" title="{{html $crumb.Text}}">
-                {{if eq $crumb.Text "/"}}<span class="host-root">/</span>{{else}}{{html $crumb.Text}}{{end}}
+                {{if eq $i 0}}<span class="host-root">~</span>{{else}}{{html $crumb.Text}}{{end}}
               </a>
             {{end}}
           </div>
@@ -549,11 +549,12 @@
     }
 
     // 3. Wget Command & Inline Copy Feedback
-    const filePath = fullPath;
-    const cleanPath = filePath.endsWith('/') ? filePath : `${filePath}/`;
+    const fullPath = window.location.pathname;
+    const cleanPath = fullPath.endsWith('/') ? fullPath : `${fullPath}/`;
     const cutDirs = Math.max(0, cleanPath.split('/').filter(Boolean).length);
     const wgetCommand = `wget -r -np -nH -e robots=off -nc --cut-dirs=${cutDirs} ${window.location.origin}${cleanPath}`;
-    document.getElementById('wgetCmd').textContent = wgetCommand;
+    const wgetCmdEl = document.getElementById('wgetCmd');
+    if (wgetCmdEl) wgetCmdEl.textContent = wgetCommand;
 
     function copyWget() {
       navigator.clipboard.writeText(wgetCommand).then(() => {
@@ -585,7 +586,7 @@
       if (e.shiftKey || e.altKey) {
         // Shift+Click toggles the drawer
         const drawer = document.getElementById('wgetDrawer');
-        drawer.classList.toggle('active');
+        if (drawer) drawer.classList.toggle('active');
       } else {
         // Direct click copies command
         copyWget();
@@ -594,23 +595,26 @@
 
     // 4. Search Filter
     const searchInp = document.getElementById('searchInp');
-    const breadcrumbsWrap = document.getElementById('breadcrumbsWrap');
     const fileItems = document.querySelectorAll('#fileList .file-item:not([href=".."])');
     const noResults = document.getElementById('noResults');
     let searchOn = false;
 
     function activateSearch() {
       searchOn = true;
-      breadcrumbsWrap.style.display = 'none';
-      searchInp.style.display = 'block';
-      searchInp.focus();
+      if (breadcrumbsWrap) breadcrumbsWrap.style.display = 'none';
+      if (searchInp) {
+        searchInp.style.display = 'block';
+        searchInp.focus();
+      }
     }
 
     function deactivateSearch() {
       searchOn = false;
-      searchInp.value = '';
-      searchInp.style.display = 'none';
-      breadcrumbsWrap.style.display = 'block';
+      if (searchInp) {
+        searchInp.value = '';
+        searchInp.style.display = 'none';
+      }
+      if (breadcrumbsWrap) breadcrumbsWrap.style.display = 'block';
       filterFiles('');
     }
 
