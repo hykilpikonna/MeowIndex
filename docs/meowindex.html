@@ -115,28 +115,45 @@
       white-space: nowrap;
       position: relative;
       z-index: 30;
+      gap: 0.5rem;
     }
 
     .icon-wifi {
       width: 1.25rem;
       height: 1.25rem;
-      margin-right: 0.5rem;
+      margin-right: 0.25rem;
       flex-shrink: 0;
       color: var(--color-emp);
     }
 
-    .icon-search {
+    .toolbar-actions {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      margin-left: auto;
+    }
+
+    .tool-btn {
+      background: none;
+      border: none;
+      padding: 0.2rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--color-main);
+      border-radius: 0.375rem;
+      transition: all 0.2s;
+    }
+
+    .tool-btn:hover {
+      color: var(--color-emp);
+      background-color: var(--bg-dark-300);
+    }
+
+    .tool-btn svg {
       width: 1.25rem;
       height: 1.25rem;
-      margin-left: 0.5rem;
-      flex-shrink: 0;
-      cursor: pointer;
-      color: var(--color-main);
-      transition: color 0.2s;
-    }
-
-    .icon-search:hover {
-      color: var(--color-emp);
     }
 
     .breadcrumbs-wrap {
@@ -189,18 +206,27 @@
       width: 100%;
     }
 
-    /* Wget Box */
-    .wget-box {
+    /* Optional Collapsible Wget Drawer */
+    .wget-drawer {
+      display: none;
       background-color: var(--bg-dark-600);
       padding: 0.75rem 1.25rem;
+      margin-top: -0.75rem;
       margin-bottom: 1.25rem;
-      border-radius: 0.75rem;
+      border-radius: 0 0 0.75rem 0.75rem;
+      border-top: 1px solid var(--bg-dark-800);
+      animation: slideDown 0.2s ease-out;
     }
 
-    .wget-inner {
+    .wget-drawer.active {
       display: flex;
       gap: 0.5rem;
       align-items: center;
+    }
+
+    @keyframes slideDown {
+      from { opacity: 0; transform: translateY(-6px); }
+      to { opacity: 1; transform: translateY(0); }
     }
 
     .wget-code {
@@ -211,7 +237,7 @@
       border-radius: 0.5rem;
       padding: 0.5rem;
       font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-      font-size: 0.875rem;
+      font-size: 0.82rem;
       color: var(--color-alt);
       scrollbar-width: none;
     }
@@ -225,9 +251,9 @@
       color: var(--color-emp);
       border: none;
       border-radius: 0.5rem;
-      padding: 0.5rem 0.75rem;
+      padding: 0.45rem 0.75rem;
       font-family: inherit;
-      font-size: 0.875rem;
+      font-size: 0.82rem;
       font-weight: 600;
       cursor: pointer;
       transition: all 0.2s ease;
@@ -307,9 +333,6 @@
       .file-mtime {
         display: none;
       }
-      .wget-box {
-        display: none;
-      }
     }
 
     .no-results {
@@ -318,6 +341,34 @@
       padding: 3rem 1rem;
       color: var(--color-sub);
       font-size: 1.1rem;
+    }
+
+    /* Toast Notification */
+    .toast-notification {
+      position: fixed;
+      bottom: 2rem;
+      left: 50%;
+      transform: translateX(-50%) translateY(20px);
+      background-color: var(--bg-dark-600);
+      color: var(--color-emp);
+      border: 1px solid var(--color-subsub);
+      padding: 0.65rem 1.25rem;
+      border-radius: 2rem;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+      font-weight: 600;
+      font-size: 0.9rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      opacity: 0;
+      pointer-events: none;
+      transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+      z-index: 9999;
+    }
+
+    .toast-notification.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
     }
   </style>
 </head>
@@ -349,7 +400,7 @@
         </svg>
 
         <!-- Search input (when search active) -->
-        <input type="text" id="searchInp" class="search-input" style="display: none;" placeholder="Search..." autocomplete="off" />
+        <input type="text" id="searchInp" class="search-input" style="display: none;" placeholder="Search files (press Esc to close)..." autocomplete="off" />
 
         <!-- Breadcrumbs (when search inactive) -->
         <div class="breadcrumbs-wrap" id="breadcrumbsWrap">
@@ -358,19 +409,30 @@
           </div>
         </div>
 
-        <!-- Search icon -->
-        <svg class="icon-search" id="searchIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <circle cx="11" cy="11" r="8"/>
-          <line x1="21" y1="21" x2="16.65" y2="16.65"/>
-        </svg>
+        <!-- Action Buttons -->
+        <div class="toolbar-actions">
+          <!-- Wget Quick Copy / Drawer Toggle button -->
+          <button class="tool-btn" id="wgetBtn" title="Copy recursive wget command ( w )" onclick="handleWgetClick(event)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="4 17 10 11 4 5"/>
+              <line x1="12" y1="19" x2="20" y2="19"/>
+            </svg>
+          </button>
+
+          <!-- Search icon -->
+          <button class="tool-btn" id="searchBtn" title="Search files ( / )" onclick="toggleSearch()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="11" cy="11" r="8"/>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+            </svg>
+          </button>
+        </div>
       </div>
 
-      <!-- Wget Clone Command -->
-      <div class="wget-box">
-        <div class="wget-inner">
-          <code class="wget-code" id="wgetCmd"></code>
-          <button class="wget-btn" id="copyBtn" onclick="copyWget()">Copy</button>
-        </div>
+      <!-- Collapsible Wget Drawer (Hidden by default) -->
+      <div class="wget-drawer" id="wgetDrawer">
+        <code class="wget-code" id="wgetCmd"></code>
+        <button class="wget-btn" id="drawerCopyBtn" onclick="copyWget()">Copy</button>
       </div>
 
       <!-- Files List (Rendered by Caddy) -->
@@ -403,8 +465,17 @@
     </div>
   </div>
 
+  <!-- Toast Notification -->
+  <div class="toast-notification" id="toast">
+    <svg style="width: 1.1rem; height: 1.1rem;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/>
+      <rect x="8" y="2" width="8" height="4" rx="1" ry="1"/>
+    </svg>
+    <span>Copied recursive wget command!</span>
+  </div>
+
   <script>
-    // 1. MIME Type to WhiteSur Icon Mapping (matching MeowIndex's mime.getType resolver)
+    // 1. MIME Type to WhiteSur Icon Mapping
     const mimeMap = {
       // Images
       png: 'image-png', jpg: 'image-jpeg', jpeg: 'image-jpeg', gif: 'image-gif', webp: 'image-webp',
@@ -448,7 +519,7 @@
     }
     resolveIcons();
 
-    // 2. Breadcrumbs Generator (matching MeowIndex: [hostname, ...paths])
+    // 2. Breadcrumbs Generator
     const paths = [window.location.host, ...window.location.pathname.split('/').filter(Boolean)];
     const fullPath = window.location.pathname;
     const breadcrumbsInner = document.getElementById('breadcrumbsInner');
@@ -464,26 +535,48 @@
     });
     breadcrumbsInner.innerHTML = breadcrumbsHtml;
 
-    // 3. Wget Command Builder (matching getWgetCommand from App.tsx)
+    // 3. Wget Command & Toast Notification
     const filePath = fullPath;
     const cleanPath = filePath.endsWith('/') ? filePath : `${filePath}/`;
-    const rawPath = cleanPath;
-    const cutDirs = Math.max(0, rawPath.split('/').filter(Boolean).length);
-    const wgetCommand = `wget -r -np -nH -e robots=off -nc --cut-dirs=${cutDirs} ${window.location.origin}${rawPath}`;
+    const cutDirs = Math.max(0, cleanPath.split('/').filter(Boolean).length);
+    const wgetCommand = `wget -r -np -nH -e robots=off -nc --cut-dirs=${cutDirs} ${window.location.origin}${cleanPath}`;
     document.getElementById('wgetCmd').textContent = wgetCommand;
 
-    let copiedWget = false;
+    let toastTimer = null;
+    function showToast(msg) {
+      const toast = document.getElementById('toast');
+      if (msg) toast.querySelector('span').textContent = msg;
+      toast.classList.add('show');
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => {
+        toast.classList.remove('show');
+      }, 2000);
+    }
+
     function copyWget() {
       navigator.clipboard.writeText(wgetCommand).then(() => {
-        const btn = document.getElementById('copyBtn');
-        btn.textContent = 'Copied';
-        setTimeout(() => btn.textContent = 'Copy', 1200);
+        showToast('Copied recursive wget command!');
+        const btn = document.getElementById('drawerCopyBtn');
+        if (btn) {
+          btn.textContent = 'Copied';
+          setTimeout(() => btn.textContent = 'Copy', 1200);
+        }
       });
     }
 
-    // 4. Search Filter (matching searchActivate, searchDeactivate, filteredApi from App.tsx)
+    function handleWgetClick(e) {
+      if (e.shiftKey || e.altKey) {
+        // Shift+Click toggles the drawer
+        const drawer = document.getElementById('wgetDrawer');
+        drawer.classList.toggle('active');
+      } else {
+        // Direct click copies command and toasts
+        copyWget();
+      }
+    }
+
+    // 4. Search Filter
     const searchInp = document.getElementById('searchInp');
-    const searchIcon = document.getElementById('searchIcon');
     const breadcrumbsWrap = document.getElementById('breadcrumbsWrap');
     const fileItems = document.querySelectorAll('#fileList .file-item:not([href=".."])');
     const noResults = document.getElementById('noResults');
@@ -504,6 +597,10 @@
       filterFiles('');
     }
 
+    function toggleSearch() {
+      searchOn ? deactivateSearch() : activateSearch();
+    }
+
     function filterFiles(query) {
       const q = query.trim().toLowerCase();
       let visible = 0;
@@ -521,21 +618,30 @@
       }
     }
 
-    searchIcon.addEventListener('click', () => searchOn ? deactivateSearch() : activateSearch());
     searchInp.addEventListener('keyup', (e) => {
       filterFiles(e.target.value);
       if (e.target.value.length === 0 && e.key === 'Escape') deactivateSearch();
     });
 
     window.addEventListener('keydown', (e) => {
-      if (!searchOn && e.key.length === 1 && !e.ctrlKey && !e.metaKey && !e.altKey) {
-        activateSearch();
+      if (!searchOn) {
+        if (e.key === '/') {
+          e.preventDefault();
+          activateSearch();
+        } else if (e.key === 'w' || e.key === 'W') {
+          if (!e.ctrlKey && !e.metaKey && !e.altKey) {
+            e.preventDefault();
+            copyWget();
+          }
+        } else if (e.key.length === 1 && !e.ctrlKey && !e.metaKey && !e.altKey) {
+          activateSearch();
+        }
       } else if (searchOn && e.key === 'Escape') {
         deactivateSearch();
       }
     });
 
-    // 5. Relative timestamps (matching moment(f.mtime).fromNow())
+    // 5. Relative timestamps
     function formatRelativeDates() {
       const now = new Date();
       document.querySelectorAll('#fileList time[datetime]').forEach(el => {
