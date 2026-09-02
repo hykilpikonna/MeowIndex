@@ -1,0 +1,204 @@
+#breadcrumbs {
+      display: flex;
+      align-items: center;
+      background-color: var(--bg-dark-600);
+      padding: 0.5rem 1.25rem;
+      margin-bottom: 1.25rem;
+      border-radius: 0.75rem;
+      white-space: nowrap;
+      position: relative;
+      z-index: 30;
+      gap: 0.5rem;
+    }
+
+    .icon-wifi {
+      width: 1.25rem;
+      height: 1.25rem;
+      margin-right: 0.25rem;
+      flex-shrink: 0;
+      color: var(--color-emp);
+    }
+
+    .toolbar-actions {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      margin-left: auto;
+    }
+
+    .tool-btn {
+      background: none;
+      border: none;
+      padding: 0.25rem 0.4rem;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      color: var(--color-main);
+      border-radius: 0.5rem;
+      font-family: inherit;
+      font-size: 0.85rem;
+      font-weight: 700;
+      transition: all 0.2s ease;
+    }
+
+    .tool-btn:hover {
+      color: var(--color-emp);
+      background-color: var(--bg-dark-300);
+    }
+
+    .tool-btn.copied {
+      color: var(--color-emp);
+      background-color: var(--bg-dark-300);
+    }
+
+    .tool-btn svg {
+      width: 1.25rem;
+      height: 1.25rem;
+    }
+
+    .breadcrumbs-wrap {
+      overflow-x: auto;
+      flex: 1 1 0%;
+      min-width: 0;
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+      mask-image: linear-gradient(to right, black calc(100% - 20px), transparent);
+      -webkit-mask-image: linear-gradient(to right, black calc(100% - 20px), transparent);
+      transition: mask-image 0.2s, -webkit-mask-image 0.2s;
+    }
+
+    .breadcrumbs-wrap.is-scrolled-left {
+      mask-image: linear-gradient(to right, transparent, black 20px, black calc(100% - 20px), transparent);
+      -webkit-mask-image: linear-gradient(to right, transparent, black 20px, black calc(100% - 20px), transparent);
+    }
+
+    .breadcrumbs-wrap.is-scrolled-end {
+      mask-image: linear-gradient(to right, transparent, black 20px, black 100%);
+      -webkit-mask-image: linear-gradient(to right, transparent, black 20px, black 100%);
+    }
+
+    .breadcrumbs-wrap::-webkit-scrollbar {
+      display: none;
+    }
+
+    .breadcrumbs-inner {
+      display: inline-flex;
+      align-items: center;
+      white-space: nowrap;
+      min-width: max-content;
+    }
+
+    .breadcrumb-link {
+      color: var(--color-main);
+      text-decoration: none;
+      margin-left: 0.5rem;
+      transition: color 0.15s;
+      flex-shrink: 0;
+      white-space: nowrap;
+      max-width: 180px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      display: inline-block;
+      vertical-align: middle;
+    }
+
+    .breadcrumb-link:first-child {
+      margin-left: 0;
+    }
+
+    .breadcrumb-link:hover {
+      color: var(--color-emp);
+    }
+
+    .breadcrumb-link.active {
+      color: var(--color-emp);
+      pointer-events: none;
+      cursor: default;
+      font-weight: 700;
+      flex-shrink: 0;
+      white-space: nowrap;
+      max-width: 220px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      display: inline-block;
+      vertical-align: middle;
+    }
+
+    .breadcrumb-sep {
+      color: var(--color-subsub);
+      margin-left: 0.5rem;
+      user-select: none;
+      flex-shrink: 0;
+    }
+
+    .search-input {
+      background: transparent;
+      border: none;
+      outline: none;
+      color: var(--color-emp);
+      font-family: inherit;
+      font-size: 0.95rem;
+      flex: 1 1 0%;
+      width: 100%;
+    }
+
+    /* Optional Collapsible Wget Drawer */
+    .wget-drawer {
+      display: none;
+      background-color: var(--bg-dark-600);
+      padding: 0.75rem 1.25rem;
+      margin-top: -0.75rem;
+      margin-bottom: 1.25rem;
+      border-radius: 0 0 0.75rem 0.75rem;
+      border-top: 1px solid var(--bg-dark-800);
+      animation: slideDown 0.2s ease-out;
+    }
+
+    .wget-drawer.active {
+      display: flex;
+      gap: 0.5rem;
+      align-items: center;
+    }
+
+    @keyframes slideDown {
+      from { opacity: 0; transform: translateY(-6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .wget-code {
+      flex: 1 1 0%;
+      overflow-x: auto;
+      white-space: nowrap;
+      background-color: var(--bg-dark-800);
+      border-radius: 0.5rem;
+      padding: 0.5rem;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 0.82rem;
+      color: var(--color-alt);
+      scrollbar-width: none;
+    }
+
+    .wget-code::-webkit-scrollbar {
+      display: none;
+    }
+
+    .wget-btn {
+      background-color: var(--bg-dark-300);
+      color: var(--color-emp);
+      border: none;
+      border-radius: 0.5rem;
+      padding: 0.45rem 0.75rem;
+      font-family: inherit;
+      font-size: 0.82rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      white-space: nowrap;
+    }
+
+    .wget-btn:hover {
+      background-color: var(--bg-dark-200);
+    }
+
+    /* List Column Headers for Sorting */

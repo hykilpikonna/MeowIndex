@@ -1,0 +1,159 @@
+.list-header {
+      display: flex;
+      gap: 1rem;
+      padding: 0.25rem 0.75rem 0.5rem 0.75rem;
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--color-subsub);
+      user-select: none;
+      align-items: center;
+    }
+
+    .col-name {
+      flex: 1 1 0%;
+      padding-left: 3.5rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+      transition: color 0.15s;
+    }
+
+    .col-size {
+      flex-basis: 7.5rem;
+      text-align: right;
+      justify-content: flex-end;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+      transition: color 0.15s;
+    }
+
+    .col-mtime {
+      flex-basis: 7.5rem;
+      text-align: right;
+      justify-content: flex-end;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+      transition: color 0.15s;
+    }
+
+    .sort-header-col:hover {
+      color: var(--color-emp);
+    }
+
+    .sort-header-col.active {
+      color: var(--color-emp);
+    }
+
+    .sort-arrow {
+      display: inline-block;
+      font-size: 0.7rem;
+      opacity: 0.85;
+    }
+
+    @media (max-width: 640px) {
+      .col-size { flex-basis: 3.75rem; }
+      .col-mtime { display: none; }
+    }
+
+    /* File List */
+    .file-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+    }
+
+    .file-item {
+      width: 100%;
+      display: flex;
+      gap: 1rem;
+      transition: all 0.2s;
+      background-color: var(--bg-dark-800);
+      border-radius: 0.75rem;
+      padding: 0.5rem 0.75rem;
+      align-items: center;
+      text-decoration: none;
+      color: var(--color-main);
+      position: relative;
+    }
+
+    .file-item:hover, .file-item.selected {
+      background-color: var(--bg-dark-300);
+      transition-duration: 0s;
+    }
+
+    .file-item.selected {
+      outline: 2px solid var(--color-emp);
+      outline-offset: -2px;
+    }
+
+    .file-icon {
+      width: 2.5rem;
+      max-height: 2.5rem;
+      object-fit: contain;
+      flex-shrink: 0;
+    }
+
+    .file-name {
+      flex: 1 1 0%;
+      font-weight: 700;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      color: var(--color-main);
+    }
+
+    .file-item:hover .file-name, .file-item.selected .file-name {
+      color: var(--color-emp);
+    }
+
+    .file-size {
+      text-align: right;
+      flex-basis: 7.5rem;
+      overflow: hidden;
+      white-space: nowrap;
+      color: var(--color-sub);
+      font-variant-numeric: tabular-nums;
+    }
+
+    .file-mtime {
+      text-align: right;
+      flex-basis: 7.5rem;
+      user-select: none;
+      color: var(--color-sub);
+      white-space: nowrap;
+    }
+
+    @media (max-width: 640px) {
+      .file-size {
+        flex-basis: 3.75rem;
+      }
+      .file-mtime {
+        display: none;
+      }
+    }
+
+    /* Summary Status Bar */
+    .list-summary {
+      text-align: center;
+      padding: 1.5rem 0.5rem 1rem 0.5rem;
+      color: var(--color-subsub);
+      font-size: 0.85rem;
+      user-select: none;
+    }
+
+    .no-results {
+      display: none;
+      text-align: center;
+      padding: 3rem 1rem;
+      color: var(--color-sub);
+      font-size: 1.1rem;
+    }
+
+    /* macOS Quick Look Overlay & Window */

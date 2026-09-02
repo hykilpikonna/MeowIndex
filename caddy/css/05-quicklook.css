@@ -1,0 +1,266 @@
+.quicklook-modal {
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 9999;
+      pointer-events: none;
+      align-items: center;
+      justify-content: center;
+      padding: 1.5rem;
+    }
+
+    .quicklook-modal.active {
+      display: flex;
+    }
+
+    @media (max-width: 768px), (pointer: coarse) {
+      .quicklook-modal,
+      .quicklook-modal.active {
+        display: none !important;
+      }
+    }
+
+    .quicklook-window {
+      background-color: rgba(28, 22, 23, 0.78);
+      backdrop-filter: blur(24px) saturate(130%);
+      -webkit-backdrop-filter: blur(24px) saturate(130%);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 0.75rem;
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.35), 0 1px 4px rgba(0, 0, 0, 0.2);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      max-width: 90vw;
+      max-height: 85vh;
+      min-width: 320px;
+      min-height: 240px;
+      width: 580px;
+      height: 420px;
+      position: relative;
+      transform: scale(0.96);
+      opacity: 0;
+      transition: transform 0.12s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.12s cubic-bezier(0.16, 1, 0.3, 1);
+      pointer-events: none; /* In hold mode, mouse events pass through to file list */
+    }
+
+    .quicklook-modal.active .quicklook-window {
+      transform: scale(1);
+      opacity: 1;
+    }
+
+    /* Pinned mode: interactive window */
+    .quicklook-window.is-pinned {
+      pointer-events: auto; /* Clickable close button, draggable, resizable, scrollable */
+      transition: none;
+    }
+
+    /* GNOME Style Headerbar */
+    .quicklook-header {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.5rem 0.75rem 0.5rem 1rem;
+      background-color: rgba(36, 28, 30, 0.65);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+      font-size: 0.85rem;
+      color: var(--color-main);
+      user-select: none;
+      cursor: grab;
+      flex-shrink: 0;
+      min-height: 40px;
+    }
+
+    .quicklook-header:active {
+      cursor: grabbing;
+    }
+
+    .quicklook-header-title {
+      font-weight: 600;
+      color: var(--color-emp);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      flex: 1 1 0%;
+      pointer-events: none;
+      letter-spacing: 0.01em;
+    }
+
+    .quicklook-header-meta {
+      font-size: 0.75rem;
+      color: var(--color-sub);
+      white-space: nowrap;
+      pointer-events: none;
+      opacity: 0.85;
+    }
+
+    /* GNOME Style Flat Action Button */
+    .quicklook-action-btn {
+      background: transparent;
+      border: 1px solid transparent;
+      color: var(--color-main);
+      cursor: pointer;
+      font-size: 0.75rem;
+      font-weight: 600;
+      font-family: inherit;
+      padding: 0.25rem 0.55rem;
+      border-radius: 6px;
+      transition: all 0.15s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      user-select: none;
+      flex-shrink: 0;
+      line-height: 1;
+    }
+
+    .quicklook-action-btn:hover {
+      background-color: rgba(255, 255, 255, 0.08);
+      color: var(--color-emp);
+    }
+
+    .quicklook-action-btn.copied {
+      color: var(--color-alt);
+      background-color: rgba(235, 214, 183, 0.12);
+    }
+
+    .quicklook-action-btn svg {
+      width: 0.85rem;
+      height: 0.85rem;
+    }
+
+    /* GNOME Flat Window Close Control */
+    .quicklook-close {
+      background: transparent;
+      border: 1px solid transparent;
+      color: var(--color-sub);
+      cursor: pointer;
+      font-size: 1rem;
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      transition: all 0.15s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-left: 0.15rem;
+      flex-shrink: 0;
+      line-height: 1;
+    }
+
+    .quicklook-close:hover {
+      color: var(--color-emp);
+      background-color: rgba(255, 255, 255, 0.1);
+    }
+
+    /* Syntax Highlighting (MeowIndex Pastel Theme) */
+
+    .quicklook-body {
+      padding: 0.75rem;
+      display: flex;
+      align-items: stretch;
+      justify-content: stretch;
+      overflow: hidden;
+      flex: 1 1 0%;
+      min-height: 0;
+      height: calc(100% - 40px);
+      background-color: transparent;
+      position: relative;
+      box-sizing: border-box;
+    }
+
+    .quicklook-body img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      border-radius: 0.5rem;
+      display: block;
+      margin: auto;
+    }
+
+    .quicklook-body video {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      border-radius: 0.5rem;
+      outline: none;
+      display: block;
+      margin: auto;
+    }
+
+    .quicklook-body audio {
+      width: 90%;
+      margin: auto;
+      align-self: center;
+    }
+
+    .quicklook-body pre {
+      width: 100%;
+      height: 100%;
+      box-sizing: border-box;
+      margin: 0;
+      overflow: auto;
+      white-space: pre;
+      word-break: normal;
+      font-family: ui-monospace, SFMono-Regular, monospace;
+      font-size: 0.85rem;
+      line-height: 1.5;
+      color: var(--color-alt);
+      background: rgba(18, 14, 15, 0.55);
+      padding: 1rem;
+      border-radius: 6px;
+      border: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    .quicklook-folder-preview {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 0.75rem;
+      padding: 2rem 1rem;
+      text-align: center;
+      width: 100%;
+      height: 100%;
+    }
+
+    .quicklook-folder-preview img {
+      width: 4.5rem;
+      height: 4.5rem;
+    }
+
+    /* 8-Direction Quick Look Resize Handles */
+    .ql-resize-handle {
+      position: absolute;
+      z-index: 50;
+      user-select: none;
+    }
+    .ql-resize-n {
+      top: 0; left: 14px; right: 14px; height: 8px; cursor: ns-resize;
+    }
+    .ql-resize-s {
+      bottom: 0; left: 14px; right: 14px; height: 8px; cursor: ns-resize;
+    }
+    .ql-resize-w {
+      left: 0; top: 14px; bottom: 14px; width: 8px; cursor: ew-resize;
+    }
+    .ql-resize-e {
+      right: 0; top: 14px; bottom: 14px; width: 8px; cursor: ew-resize;
+    }
+    .ql-resize-nw {
+      top: 0; left: 0; width: 14px; height: 14px; cursor: nwse-resize;
+    }
+    .ql-resize-ne {
+      top: 0; right: 0; width: 14px; height: 14px; cursor: nesw-resize;
+    }
+    .ql-resize-sw {
+      bottom: 0; left: 0; width: 14px; height: 14px; cursor: nesw-resize;
+    }
+    .ql-resize-se {
+      bottom: 0; right: 0; width: 16px; height: 16px; cursor: nwse-resize;
+      display: flex; align-items: center; justify-content: center;
+      color: var(--color-subsub);
+      transition: color 0.15s;
+    }
+    .ql-resize-se:hover {
+      color: var(--color-emp);
+    }
