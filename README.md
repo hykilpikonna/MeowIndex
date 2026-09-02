@@ -111,8 +111,7 @@ example.com {
 | **Search / Filter** | Press <kbd>/</kbd> anywhere or click 🔍 | Filter files in real-time. Press <kbd>Esc</kbd> to exit. |
 | **Keyboard Nav** | <kbd>↓</kbd> / <kbd>↑</kbd> (or <kbd>j</kbd> / <kbd>k</kbd>) + <kbd>Enter</kbd> | Move focus highlight through files and press Enter to open. |
 | **Column Sorting** | Click **Name**, **Size**, or **Date** header | Sort by filename, numeric byte size, or modification date. Folders stay pinned at the top. |
-| **Quick Preview** | Hover file row &rarr; click 👁 icon | Instant lightbox preview for images, video, audio, and code/markdown without leaving page. |
-| **Copy File URL** | Hover file row &rarr; click 🔗 icon | Copies the full direct link of any file to clipboard. |
+| **Hover Preview** | Hover over media/code file for 0.5s | Instant floating thumbnail preview for images, video, and code/markdown. |
 | **Copy Wget Clone** | Click **`>_`** in the toolbar | Copies recursive `wget` command to clipboard with inline `✓ Copied` feedback. |
 | **Inspect Wget** | <kbd>Shift</kbd> + Click **`>_`** | Toggles collapsible command drawer. |
 | **Breadcrumbs** | Click any path segment | Jump up to parent directories. Auto-scrolls and supports mouse-wheel. |
