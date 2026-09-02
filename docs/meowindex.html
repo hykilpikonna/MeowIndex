@@ -492,74 +492,135 @@
       font-size: 1.1rem;
     }
 
-    /* Hover Preview Card */
-    .hover-preview {
+    /* macOS Quick Look Overlay */
+    .quicklook-modal {
       display: none;
       position: fixed;
+      inset: 0;
       z-index: 9999;
       pointer-events: none;
-      background-color: var(--bg-dark-600);
+      align-items: center;
+      justify-content: center;
+      padding: 1.5rem;
+    }
+
+    .quicklook-modal.active {
+      display: flex;
+    }
+
+    @media (min-width: 1300px) {
+      .quicklook-modal {
+        justify-content: flex-end;
+        padding-right: clamp(2rem, calc((100vw - 768px) / 2 - 540px), 8rem);
+      }
+    }
+
+    .quicklook-window {
+      background-color: rgba(33, 29, 29, 0.94);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
       border: 1px solid var(--color-subsub);
-      border-radius: 0.75rem;
-      padding: 0.5rem;
-      box-shadow: 0 16px 36px rgba(0, 0, 0, 0.65);
-      opacity: 0;
-      transform: translateY(4px) scale(0.97);
-      transition: opacity 0.2s cubic-bezier(0.16, 1, 0.3, 1), transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+      border-radius: 1rem;
+      box-shadow: 0 28px 60px rgba(0, 0, 0, 0.75), 0 0 0 1px rgba(235, 173, 182, 0.15);
+      display: flex;
       flex-direction: column;
-      gap: 0.4rem;
-      width: 280px;
-      max-width: calc(100vw - 24px);
-      backdrop-filter: blur(8px);
+      overflow: hidden;
+      max-width: 520px;
+      width: 90vw;
+      max-height: 80vh;
+      transform: scale(0.96);
+      opacity: 0;
+      transition: transform 0.12s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.12s cubic-bezier(0.16, 1, 0.3, 1);
     }
 
-    .hover-preview.visible {
+    .quicklook-modal.active .quicklook-window {
+      transform: scale(1);
       opacity: 1;
-      transform: translateY(0) scale(1);
     }
 
-    .hover-preview-media {
+    .quicklook-header {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.65rem 1.1rem;
+      background-color: rgba(24, 20, 20, 0.75);
+      border-bottom: 1px solid rgba(119, 84, 90, 0.3);
+      font-size: 0.85rem;
+      color: var(--color-main);
+      user-select: none;
+    }
+
+    .quicklook-header-title {
+      font-weight: 700;
+      color: var(--color-emp);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      flex: 1 1 0%;
+    }
+
+    .quicklook-header-meta {
+      font-size: 0.75rem;
+      color: var(--color-sub);
+      white-space: nowrap;
+    }
+
+    .quicklook-body {
+      padding: 1rem;
       display: flex;
       align-items: center;
       justify-content: center;
-      background: var(--bg-dark-800);
-      border-radius: 0.5rem;
       overflow: hidden;
-      min-height: 80px;
+      min-height: 180px;
+      background-color: rgba(24, 20, 20, 0.45);
     }
 
-    .hover-preview-media img,
-    .hover-preview-media video {
-      display: block;
-      max-width: 300px;
-      max-height: 220px;
+    .quicklook-body img {
+      max-width: 100%;
+      max-height: 55vh;
       object-fit: contain;
       border-radius: 0.5rem;
     }
 
-    .hover-preview-media pre {
-      display: block;
-      max-width: 300px;
-      max-height: 180px;
-      overflow: hidden;
-      padding: 0.6rem;
-      font-family: ui-monospace, monospace;
-      font-size: 0.72rem;
-      color: var(--color-alt);
-      white-space: pre-wrap;
-      word-break: break-word;
-      line-height: 1.35;
+    .quicklook-body video {
+      max-width: 100%;
+      max-height: 55vh;
+      border-radius: 0.5rem;
+      outline: none;
     }
 
-    .hover-preview-info {
-      font-size: 0.75rem;
-      color: var(--color-main);
+    .quicklook-body audio {
+      width: 100%;
+      margin: 1.5rem 0.5rem;
+    }
+
+    .quicklook-body pre {
+      max-width: 100%;
+      max-height: 55vh;
+      overflow: auto;
+      white-space: pre-wrap;
+      word-break: break-word;
+      font-family: ui-monospace, SFMono-Regular, monospace;
+      font-size: 0.8rem;
+      color: var(--color-alt);
+      background: var(--bg-dark-800);
+      padding: 0.75rem;
+      border-radius: 0.5rem;
+      width: 100%;
+    }
+
+    .quicklook-folder-preview {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 2rem 1rem;
       text-align: center;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-      padding: 0 0.25rem;
-      font-weight: 600;
+    }
+
+    .quicklook-folder-preview img {
+      width: 4.5rem;
+      height: 4.5rem;
     }
   </style>
 </head>
@@ -683,10 +744,15 @@
     </div>
   </div>
 
-  <!-- Hover Preview Popover -->
-  <div class="hover-preview" id="hoverPreview">
-    <div class="hover-preview-media" id="hoverPreviewMedia"></div>
-    <div class="hover-preview-info" id="hoverPreviewInfo"></div>
+  <!-- macOS Quick Look Modal -->
+  <div class="quicklook-modal" id="quickLookModal">
+    <div class="quicklook-window" id="quickLookWindow">
+      <div class="quicklook-header">
+        <span class="quicklook-header-title" id="quickLookTitle"></span>
+        <span class="quicklook-header-meta" id="quickLookMeta"></span>
+      </div>
+      <div class="quicklook-body" id="quickLookBody"></div>
+    </div>
   </div>
 
   <script>
@@ -694,8 +760,8 @@
     let currentSort = { col: 'name', dir: 'asc' };
     let searchOn = false;
     let selectedIdx = -1;
-    let hoverTimer = null;
-    let activeHoverEl = null;
+    let isSpaceDown = false;
+    let currentHoveredItem = null;
 
     const breadcrumbsWrap = document.getElementById('breadcrumbsWrap');
     const searchInp = document.getElementById('searchInp');
@@ -708,9 +774,11 @@
     const wgetIcon = document.getElementById('wgetIcon');
     const wgetLabel = document.getElementById('wgetLabel');
     const drawerCopyBtn = document.getElementById('drawerCopyBtn');
-    const hoverPreview = document.getElementById('hoverPreview');
-    const hoverPreviewMedia = document.getElementById('hoverPreviewMedia');
-    const hoverPreviewInfo = document.getElementById('hoverPreviewInfo');
+    const quickLookModal = document.getElementById('quickLookModal');
+    const quickLookWindow = document.getElementById('quickLookWindow');
+    const quickLookTitle = document.getElementById('quickLookTitle');
+    const quickLookMeta = document.getElementById('quickLookMeta');
+    const quickLookBody = document.getElementById('quickLookBody');
 
     // 2. MIME Type to WhiteSur Icon Mapping
     const mimeMap = {
@@ -931,7 +999,7 @@
 
     function activateSearch() {
       searchOn = true;
-      hideHoverPreview();
+      hideQuickLook();
       if (breadcrumbsWrap) breadcrumbsWrap.style.display = 'none';
       if (searchInp) {
         searchInp.style.display = 'block';
@@ -1006,7 +1074,126 @@
       });
     }
 
+    // 8. macOS Quick Look (Hold Space to Preview)
+    function showQuickLook(el) {
+      if (!el || !quickLookModal || !quickLookBody) return;
+
+      const isDir = el.dataset.isdir === '1';
+      const name = el.dataset.name || '';
+      const url = el.getAttribute('href') || '';
+      const sizeEl = el.querySelector('.file-size');
+      const sizeText = sizeEl ? sizeEl.textContent.trim() : '';
+      const sp = name.split('.');
+      const ext = sp.length > 1 ? sp[sp.length - 1].toLowerCase() : '';
+
+      quickLookTitle.textContent = name;
+      quickLookMeta.textContent = isDir ? 'Folder' : (sizeText !== '-' ? sizeText : '');
+      quickLookBody.innerHTML = '';
+
+      const images = ['png', 'jpg', 'jpeg', 'gif', 'webp', 'svg', 'bmp', 'avif', 'ico'];
+      const videos = ['mp4', 'webm', 'mov', 'm4v'];
+      const audios = ['mp3', 'wav', 'ogg', 'flac', 'aac', 'm4a'];
+      const texts = ['txt', 'md', 'json', 'py', 'js', 'ts', 'css', 'html', 'log', 'sh', 'yaml', 'yml', 'toml', 'rs', 'go', 'c', 'cpp'];
+
+      if (isDir) {
+        quickLookBody.innerHTML = `
+          <div class="quicklook-folder-preview">
+            <img src="/mime/folder.svg" alt="folder" />
+            <span style="color: var(--color-emp); font-weight: 700; font-size: 1.1rem;">${name}</span>
+            <span style="color: var(--color-sub); font-size: 0.8rem;">Folder</span>
+          </div>
+        `;
+      } else if (images.includes(ext)) {
+        const img = document.createElement('img');
+        img.src = url;
+        img.alt = name;
+        quickLookBody.appendChild(img);
+      } else if (videos.includes(ext)) {
+        const vid = document.createElement('video');
+        vid.src = url;
+        vid.autoplay = true;
+        vid.muted = true;
+        vid.loop = true;
+        vid.playsInline = true;
+        quickLookBody.appendChild(vid);
+      } else if (audios.includes(ext)) {
+        const aud = document.createElement('audio');
+        aud.src = url;
+        aud.autoplay = true;
+        aud.controls = true;
+        quickLookBody.appendChild(aud);
+      } else if (texts.includes(ext)) {
+        const pre = document.createElement('pre');
+        pre.textContent = 'Loading preview...';
+        quickLookBody.appendChild(pre);
+        fetch(url)
+          .then(r => r.text())
+          .then(t => { pre.textContent = t.slice(0, 5000); })
+          .catch(() => { pre.textContent = 'Failed to load preview.'; });
+      } else {
+        quickLookBody.innerHTML = `
+          <div class="quicklook-folder-preview">
+            <img src="/mime/application-blank.svg" alt="" onerror="this.src='/mime/folder.svg'" />
+            <span style="color: var(--color-emp); font-weight: 700;">${name}</span>
+            <span style="color: var(--color-sub); font-size: 0.8rem;">${ext.toUpperCase()} File (${sizeText})</span>
+          </div>
+        `;
+      }
+
+      quickLookModal.classList.add('active');
+    }
+
+    function hideQuickLook() {
+      if (quickLookModal) {
+        quickLookModal.classList.remove('active');
+      }
+      if (quickLookBody) {
+        const media = quickLookBody.querySelectorAll('video, audio');
+        media.forEach(m => { m.pause(); m.src = ''; });
+        quickLookBody.innerHTML = '';
+      }
+    }
+
+    // Track mouseover across file items for dynamic preview update while Space is held
+    if (fileListEl) {
+      fileListEl.addEventListener('mouseover', (e) => {
+        const item = e.target.closest('.file-item');
+        if (item && item.getAttribute('href') !== '..') {
+          currentHoveredItem = item;
+          if (isSpaceDown) {
+            showQuickLook(item);
+          }
+        }
+      });
+
+      fileListEl.addEventListener('mouseout', (e) => {
+        const related = e.relatedTarget ? e.relatedTarget.closest('.file-item') : null;
+        if (!related) {
+          currentHoveredItem = null;
+        }
+      });
+    }
+
+    // Global Key Handlers for Space Quick Look and Navigation
     window.addEventListener('keydown', (e) => {
+      // Space Quick Look
+      if (e.key === ' ' || e.code === 'Space') {
+        if (searchOn || document.activeElement === searchInp) {
+          return; // Let user type spaces in search input
+        }
+        e.preventDefault(); // Prevent browser window scroll
+        if (isSpaceDown) return; // Prevent repeat triggers while holding
+        isSpaceDown = true;
+
+        const visible = getVisibleItems();
+        const target = currentHoveredItem || (selectedIdx >= 0 ? visible[selectedIdx] : (visible.length > 0 ? visible[0] : null));
+        if (target) {
+          showQuickLook(target);
+        }
+        return;
+      }
+
+      // Other keyboard shortcuts
       if (!searchOn) {
         if (e.key === '/') {
           e.preventDefault();
@@ -1016,15 +1203,21 @@
           const visible = getVisibleItems();
           if (visible.length > 0) {
             setSelected(Math.min(selectedIdx + 1, visible.length - 1));
+            if (isSpaceDown && visible[selectedIdx]) {
+              showQuickLook(visible[selectedIdx]);
+            }
           }
         } else if (e.key === 'ArrowUp' || e.key === 'k') {
           e.preventDefault();
           const visible = getVisibleItems();
           if (visible.length > 0) {
             if (selectedIdx <= 0) {
-              setSelected(-1);
+              setSelected(0);
             } else {
               setSelected(selectedIdx - 1);
+            }
+            if (isSpaceDown && visible[selectedIdx]) {
+              showQuickLook(visible[selectedIdx]);
             }
           }
         } else if (e.key === 'Enter' && selectedIdx >= 0) {
@@ -1035,122 +1228,29 @@
       }
     });
 
-    // 8. Automatic 0.5s Hover Preview
-    function setupHoverPreviews() {
-      const items = document.querySelectorAll('#fileList .file-item:not([href=".."])');
-      items.forEach(el => {
-        el.addEventListener('mouseenter', handleItemMouseEnter);
-        el.addEventListener('mouseleave', handleItemMouseLeave);
-      });
-    }
-
-    function handleItemMouseEnter(e) {
-      const el = e.currentTarget;
-      const isDir = el.dataset.isdir === '1';
-      if (isDir) return;
-      const name = el.dataset.name || '';
-      const url = el.getAttribute('href') || '';
-      const sp = name.split('.');
-      const ext = sp.length > 1 ? sp[sp.length - 1].toLowerCase() : '';
-
-      const previewable = [
-        'png', 'jpg', 'jpeg', 'gif', 'webp', 'svg', 'bmp', 'avif', 'ico',
-        'mp4', 'webm', 'mov', 'm4v',
-        'txt', 'md', 'json', 'py', 'js', 'ts', 'css', 'html', 'log'
-      ];
-      if (!previewable.includes(ext)) return;
-
-      clearTimeout(hoverTimer);
-      activeHoverEl = el;
-      hoverTimer = setTimeout(() => {
-        if (activeHoverEl === el) {
-          showHoverPreview(el, url, name, ext);
+    window.addEventListener('keyup', (e) => {
+      if (e.key === ' ' || e.code === 'Space') {
+        if (searchOn || document.activeElement === searchInp) {
+          return;
         }
-      }, 500);
-    }
-
-    function handleItemMouseLeave() {
-      clearTimeout(hoverTimer);
-      activeHoverEl = null;
-      hideHoverPreview();
-    }
-
-    function showHoverPreview(el, url, name, ext) {
-      if (!hoverPreview || !hoverPreviewMedia) return;
-      hoverPreviewMedia.innerHTML = '';
-      hoverPreviewInfo.textContent = name;
-
-      const images = ['png', 'jpg', 'jpeg', 'gif', 'webp', 'svg', 'bmp', 'avif', 'ico'];
-      const videos = ['mp4', 'webm', 'mov', 'm4v'];
-      const texts = ['txt', 'md', 'json', 'py', 'js', 'ts', 'css', 'html', 'log'];
-
-      if (images.includes(ext)) {
-        const img = document.createElement('img');
-        img.src = url;
-        img.alt = name;
-        hoverPreviewMedia.appendChild(img);
-      } else if (videos.includes(ext)) {
-        const vid = document.createElement('video');
-        vid.src = url;
-        vid.autoplay = true;
-        vid.muted = true;
-        vid.loop = true;
-        vid.playsInline = true;
-        hoverPreviewMedia.appendChild(vid);
-      } else if (texts.includes(ext)) {
-        const pre = document.createElement('pre');
-        pre.textContent = 'Loading preview...';
-        hoverPreviewMedia.appendChild(pre);
-        fetch(url)
-          .then(r => r.text())
-          .then(t => { pre.textContent = t.slice(0, 1000); })
-          .catch(() => { pre.textContent = 'Failed to load preview.'; });
+        isSpaceDown = false;
+        hideQuickLook();
       }
+    });
 
-      hoverPreview.style.display = 'flex';
-      const rect = el.getBoundingClientRect();
-      const popWidth = 280;
-      const popHeight = 210;
-
-      let left, top;
-      if (window.innerWidth - rect.right >= popWidth + 24) {
-        left = rect.right + 14;
-        top = Math.max(12, Math.min(rect.top - 10, window.innerHeight - popHeight - 12));
-      } else if (rect.left >= popWidth + 24) {
-        left = rect.left - popWidth - 14;
-        top = Math.max(12, Math.min(rect.top - 10, window.innerHeight - popHeight - 12));
-      } else {
-        left = Math.max(12, Math.min(rect.left + (rect.width - popWidth) / 2, window.innerWidth - popWidth - 12));
-        if (rect.top > popHeight + 24) {
-          top = rect.top - popHeight - 14;
-        } else {
-          top = rect.bottom + 14;
-        }
+    window.addEventListener('scroll', () => {
+      if (isSpaceDown) {
+        isSpaceDown = false;
+        hideQuickLook();
       }
+    }, { passive: true });
 
-      hoverPreview.style.left = `${Math.round(left)}px`;
-      hoverPreview.style.top = `${Math.round(top)}px`;
-      requestAnimationFrame(() => {
-        hoverPreview.classList.add('visible');
-      });
-    }
-
-    function hideHoverPreview() {
-      if (hoverPreview) {
-        hoverPreview.classList.remove('visible');
-        hoverPreview.style.display = 'none';
+    window.addEventListener('blur', () => {
+      if (isSpaceDown) {
+        isSpaceDown = false;
+        hideQuickLook();
       }
-      if (hoverPreviewMedia) {
-        const vids = hoverPreviewMedia.querySelectorAll('video');
-        vids.forEach(v => { v.pause(); v.src = ''; });
-        hoverPreviewMedia.innerHTML = '';
-      }
-    }
-
-    window.addEventListener('scroll', hideHoverPreview, { passive: true });
-    window.addEventListener('click', hideHoverPreview);
-    window.addEventListener('blur', hideHoverPreview);
-    setupHoverPreviews();
+    });
 
     // 9. Relative Timestamps
     function formatRelativeDates() {
