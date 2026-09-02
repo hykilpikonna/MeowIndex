@@ -1221,6 +1221,7 @@
       if (searchInp) {
         searchInp.style.display = 'block';
         searchInp.focus();
+        searchInp.select();
       }
       setSelected(-1);
     }
@@ -1619,6 +1620,13 @@
 
     // Global Key Handlers for Space Quick Look and Navigation
     window.addEventListener('keydown', (e) => {
+      // Ctrl+F / Cmd+F activates file search filter
+      if ((e.ctrlKey || e.metaKey) && (e.key === 'f' || e.key === 'F')) {
+        e.preventDefault();
+        activateSearch();
+        return;
+      }
+
       // Space Quick Look
       if (e.key === ' ' || e.code === 'Space') {
         if (isMobile() || searchOn || document.activeElement === searchInp) {
