@@ -32,6 +32,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
   <style>
     /* Exact MeowIndex Palette */
     :root {
@@ -591,6 +592,40 @@
       pointer-events: none;
     }
 
+    .quicklook-action-btn {
+      background-color: var(--bg-dark-600);
+      border: 1px solid rgba(119, 84, 90, 0.4);
+      color: var(--color-emp);
+      cursor: pointer;
+      font-size: 0.75rem;
+      font-weight: 700;
+      font-family: inherit;
+      padding: 0.25rem 0.6rem;
+      border-radius: 0.4rem;
+      transition: all 0.15s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      user-select: none;
+      flex-shrink: 0;
+      line-height: 1;
+    }
+
+    .quicklook-action-btn:hover {
+      background-color: var(--bg-dark-300);
+      border-color: var(--color-emp);
+    }
+
+    .quicklook-action-btn.copied {
+      color: var(--color-alt);
+      border-color: var(--color-alt);
+    }
+
+    .quicklook-action-btn svg {
+      width: 0.85rem;
+      height: 0.85rem;
+    }
+
     .quicklook-close {
       background: none;
       border: none;
@@ -610,6 +645,44 @@
     .quicklook-close:hover {
       color: var(--color-emp);
       background-color: var(--bg-dark-300);
+    }
+
+    /* Syntax Highlighting (MeowIndex Pastel Theme) */
+    .quicklook-body pre code.hljs {
+      color: var(--color-main);
+      background: transparent;
+      font-family: inherit;
+      font-size: inherit;
+      padding: 0;
+      display: block;
+      tab-size: 4;
+    }
+    .hljs-keyword, .hljs-selector-tag, .hljs-subst {
+      color: var(--color-emp);
+      font-weight: 700;
+    }
+    .hljs-string, .hljs-title.class_, .hljs-attr {
+      color: var(--color-alt);
+    }
+    .hljs-comment, .hljs-quote {
+      color: #8a6a72;
+      font-style: italic;
+    }
+    .hljs-function, .hljs-title.function_, .hljs-section {
+      color: #b5e8e0;
+      font-weight: 600;
+    }
+    .hljs-number, .hljs-literal {
+      color: #fab387;
+    }
+    .hljs-type, .hljs-built_in {
+      color: #cba6f7;
+    }
+    .hljs-variable, .hljs-template-variable {
+      color: var(--color-main);
+    }
+    .hljs-meta, .hljs-meta .hljs-keyword {
+      color: var(--color-sub);
     }
 
     .quicklook-body {
@@ -833,6 +906,13 @@
       <div class="quicklook-header" id="quickLookHeader" title="Drag to move">
         <span class="quicklook-header-title" id="quickLookTitle"></span>
         <span class="quicklook-header-meta" id="quickLookMeta"></span>
+        <button class="quicklook-action-btn" id="quickLookCopyBtn" onclick="copyQuickLookContents(event)" title="Copy contents" style="display: none;">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
+            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+          </svg>
+          <span id="quickLookCopyLabel">Copy</span>
+        </button>
         <button class="quicklook-close" id="quickLookCloseBtn" onclick="closeQuickLook(event)" title="Close (Esc or Space)">&times;</button>
       </div>
       <div class="quicklook-body" id="quickLookBody"></div>
@@ -859,6 +939,7 @@
     let isPinned = false;
     let currentHoveredItem = null;
     let currentPreviewItem = null;
+    let currentQuickLookText = '';
 
     // Drag & Resize State
     let isDragging = false;
@@ -885,6 +966,8 @@
     const quickLookHeader = document.getElementById('quickLookHeader');
     const quickLookTitle = document.getElementById('quickLookTitle');
     const quickLookMeta = document.getElementById('quickLookMeta');
+    const quickLookCopyBtn = document.getElementById('quickLookCopyBtn');
+    const quickLookCopyLabel = document.getElementById('quickLookCopyLabel');
     const quickLookBody = document.getElementById('quickLookBody');
     const quickLookResizeHandle = document.getElementById('quickLookResizeHandle');
 
@@ -1187,6 +1270,34 @@
       return window.innerWidth <= 768 || window.matchMedia('(pointer: coarse)').matches;
     }
 
+    const extLangMap = {
+      go: 'go', py: 'python', rs: 'rust',
+      js: 'javascript', mjs: 'javascript', ts: 'typescript', tsx: 'typescript', jsx: 'javascript',
+      json: 'json', html: 'xml', xml: 'xml', css: 'css', scss: 'scss',
+      sh: 'bash', bash: 'bash', zsh: 'bash',
+      md: 'markdown', markdown: 'markdown',
+      yaml: 'yaml', yml: 'yaml', toml: 'ini',
+      c: 'c', cpp: 'cpp', h: 'c', java: 'java', sql: 'sql'
+    };
+
+    function copyQuickLookContents(e) {
+      if (e) {
+        e.stopPropagation();
+        e.preventDefault();
+      }
+      if (!currentQuickLookText) return;
+      navigator.clipboard.writeText(currentQuickLookText).then(() => {
+        if (quickLookCopyBtn && quickLookCopyLabel) {
+          quickLookCopyBtn.classList.add('copied');
+          quickLookCopyLabel.textContent = 'Copied!';
+          setTimeout(() => {
+            quickLookCopyBtn.classList.remove('copied');
+            quickLookCopyLabel.textContent = 'Copy';
+          }, 1200);
+        }
+      });
+    }
+
     function showQuickLook(el, pinned = false) {
       if (isMobile() || !el || !quickLookModal || !quickLookBody) return;
       currentPreviewItem = el;
@@ -1206,9 +1317,11 @@
       const images = ['png', 'jpg', 'jpeg', 'gif', 'webp', 'svg', 'bmp', 'avif', 'ico'];
       const videos = ['mp4', 'webm', 'mov', 'm4v'];
       const audios = ['mp3', 'wav', 'ogg', 'flac', 'aac', 'm4a'];
-      const texts = ['txt', 'md', 'json', 'py', 'js', 'ts', 'css', 'html', 'log', 'sh', 'yaml', 'yml', 'toml', 'rs', 'go', 'c', 'cpp'];
+      const texts = ['txt', 'md', 'json', 'py', 'js', 'ts', 'css', 'html', 'log', 'sh', 'yaml', 'yml', 'toml', 'rs', 'go', 'c', 'cpp', 'java', 'sql'];
 
       if (isDir) {
+        if (quickLookCopyBtn) quickLookCopyBtn.style.display = 'none';
+        currentQuickLookText = '';
         quickLookBody.innerHTML = `
           <div class="quicklook-folder-preview">
             <img src="/mime/folder.svg" alt="folder" />
@@ -1217,11 +1330,15 @@
           </div>
         `;
       } else if (images.includes(ext)) {
+        if (quickLookCopyBtn) quickLookCopyBtn.style.display = 'none';
+        currentQuickLookText = '';
         const img = document.createElement('img');
         img.src = url;
         img.alt = name;
         quickLookBody.appendChild(img);
       } else if (videos.includes(ext)) {
+        if (quickLookCopyBtn) quickLookCopyBtn.style.display = 'none';
+        currentQuickLookText = '';
         const vid = document.createElement('video');
         vid.src = url;
         vid.autoplay = true;
@@ -1231,20 +1348,48 @@
         vid.controls = true;
         quickLookBody.appendChild(vid);
       } else if (audios.includes(ext)) {
+        if (quickLookCopyBtn) quickLookCopyBtn.style.display = 'none';
+        currentQuickLookText = '';
         const aud = document.createElement('audio');
         aud.src = url;
         aud.autoplay = true;
         aud.controls = true;
         quickLookBody.appendChild(aud);
       } else if (texts.includes(ext)) {
+        if (quickLookCopyBtn) quickLookCopyBtn.style.display = 'inline-flex';
         const pre = document.createElement('pre');
-        pre.textContent = 'Loading preview...';
+        const code = document.createElement('code');
+        code.className = 'hljs';
+        code.textContent = 'Loading preview...';
+        pre.appendChild(code);
         quickLookBody.appendChild(pre);
+
         fetch(url)
           .then(r => r.text())
-          .then(t => { pre.textContent = t.slice(0, 10000); })
-          .catch(() => { pre.textContent = 'Failed to load preview.'; });
+          .then(t => {
+            currentQuickLookText = t;
+            const lang = extLangMap[ext];
+            if (window.hljs && lang) {
+              try {
+                code.innerHTML = hljs.highlight(t.slice(0, 30000), { language: lang, ignoreIllegals: true }).value;
+                return;
+              } catch (e) {}
+            }
+            if (window.hljs) {
+              try {
+                code.innerHTML = hljs.highlightAuto(t.slice(0, 30000)).value;
+                return;
+              } catch (e) {}
+            }
+            code.textContent = t.slice(0, 30000);
+          })
+          .catch(() => {
+            code.textContent = 'Failed to load preview.';
+            currentQuickLookText = '';
+          });
       } else {
+        if (quickLookCopyBtn) quickLookCopyBtn.style.display = 'none';
+        currentQuickLookText = '';
         quickLookBody.innerHTML = `
           <div class="quicklook-folder-preview">
             <img src="/mime/application-blank.svg" alt="" onerror="this.src='/mime/folder.svg'" />
@@ -1271,6 +1416,8 @@
 
     function hideQuickLook() {
       currentPreviewItem = null;
+      currentQuickLookText = '';
+      if (quickLookCopyBtn) quickLookCopyBtn.style.display = 'none';
       if (quickLookModal) {
         quickLookModal.classList.remove('active');
       }
