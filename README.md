@@ -11,14 +11,16 @@ A cute, feature-rich file listing theme and module for **Caddy** and **Nginx**.
 
 ## Features
 
-* [x] **Original Dark Palette:** Warm aesthetic with `#ebadb6` pastel accents
-* [x] **1,300+ WhiteSur Icons:** Rich SVG icons for images, audio, video, code, archives, and documents
-* [x] **Length-Safe Breadcrumbs:** Clickable directory breadcrumbs with hostname root
-* [x] **Live Instant Search:** Filter files in real-time by pressing `/` or clicking the search icon
-* [x] **Streamlined Wget Helper:** 1-click clipboard copy for recursive `wget` commands with toast confirmation
-* [x] **Formatted Timestamps & Sizes:** Relative timestamps (`a few seconds ago`, `2 hours ago`) and humanized file sizes
-* [x] **Caddy Native (SSR):** Blazing fast, zero Node.js/Vite build steps, standard Caddy template
-* [x] **Nginx Support:** SolidJS SPA + autoindex JSON mode
+* [x] List files
+* [x] Show file icons
+* [x] Clickable, length-safe breadcrumb path
+* [x] Quick Look previews (Space)
+* [x] Search
+* [x] Sort by name, size, or date
+* [x] Streamlined wget helper
+* [x] Relative timestamps and formatted sizes
+* [x] Fix mobile view
+* [x] Both Caddy and Nginx support
 
 ---
 
