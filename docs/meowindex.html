@@ -492,7 +492,7 @@
       font-size: 1.1rem;
     }
 
-    /* macOS Quick Look Overlay */
+    /* macOS Quick Look Overlay & Window */
     .quicklook-modal {
       display: none;
       position: fixed;
@@ -508,29 +508,26 @@
       display: flex;
     }
 
-    @media (min-width: 1300px) {
-      .quicklook-modal {
-        justify-content: flex-end;
-        padding-right: clamp(2rem, calc((100vw - 768px) / 2 - 540px), 8rem);
-      }
-    }
-
     .quicklook-window {
-      background-color: rgba(33, 29, 29, 0.94);
+      background-color: rgba(33, 29, 29, 0.95);
       backdrop-filter: blur(16px);
       -webkit-backdrop-filter: blur(16px);
       border: 1px solid var(--color-subsub);
       border-radius: 1rem;
-      box-shadow: 0 28px 60px rgba(0, 0, 0, 0.75), 0 0 0 1px rgba(235, 173, 182, 0.15);
+      box-shadow: 0 28px 60px rgba(0, 0, 0, 0.8), 0 0 0 1px rgba(235, 173, 182, 0.15);
       display: flex;
       flex-direction: column;
       overflow: hidden;
-      max-width: 520px;
-      width: 90vw;
-      max-height: 80vh;
+      max-width: 90vw;
+      max-height: 85vh;
+      min-width: 320px;
+      min-height: 220px;
+      width: 520px;
+      position: relative;
       transform: scale(0.96);
       opacity: 0;
       transition: transform 0.12s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.12s cubic-bezier(0.16, 1, 0.3, 1);
+      pointer-events: none; /* In hold mode, mouse events pass through to file list */
     }
 
     .quicklook-modal.active .quicklook-window {
@@ -538,16 +535,26 @@
       opacity: 1;
     }
 
+    /* Pinned mode: interactive window */
+    .quicklook-window.is-pinned {
+      pointer-events: auto; /* Clickable close button, draggable, resizable, scrollable */
+    }
+
     .quicklook-header {
       display: flex;
       align-items: center;
       gap: 0.5rem;
-      padding: 0.65rem 1.1rem;
-      background-color: rgba(24, 20, 20, 0.75);
+      padding: 0.55rem 0.8rem 0.55rem 1.1rem;
+      background-color: rgba(24, 20, 20, 0.85);
       border-bottom: 1px solid rgba(119, 84, 90, 0.3);
       font-size: 0.85rem;
       color: var(--color-main);
       user-select: none;
+      cursor: grab;
+    }
+
+    .quicklook-header:active {
+      cursor: grabbing;
     }
 
     .quicklook-header-title {
@@ -557,12 +564,35 @@
       text-overflow: ellipsis;
       white-space: nowrap;
       flex: 1 1 0%;
+      pointer-events: none;
     }
 
     .quicklook-header-meta {
       font-size: 0.75rem;
       color: var(--color-sub);
       white-space: nowrap;
+      pointer-events: none;
+    }
+
+    .quicklook-close {
+      background: none;
+      border: none;
+      color: var(--color-sub);
+      cursor: pointer;
+      font-size: 1.35rem;
+      line-height: 1;
+      padding: 0.1rem 0.35rem;
+      border-radius: 0.35rem;
+      transition: all 0.15s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-left: 0.25rem;
+    }
+
+    .quicklook-close:hover {
+      color: var(--color-emp);
+      background-color: var(--bg-dark-300);
     }
 
     .quicklook-body {
@@ -571,20 +601,22 @@
       align-items: center;
       justify-content: center;
       overflow: hidden;
+      flex: 1 1 0%;
       min-height: 180px;
       background-color: rgba(24, 20, 20, 0.45);
+      position: relative;
     }
 
     .quicklook-body img {
       max-width: 100%;
-      max-height: 55vh;
+      max-height: 100%;
       object-fit: contain;
       border-radius: 0.5rem;
     }
 
     .quicklook-body video {
       max-width: 100%;
-      max-height: 55vh;
+      max-height: 100%;
       border-radius: 0.5rem;
       outline: none;
     }
@@ -596,7 +628,7 @@
 
     .quicklook-body pre {
       max-width: 100%;
-      max-height: 55vh;
+      max-height: 100%;
       overflow: auto;
       white-space: pre-wrap;
       word-break: break-word;
@@ -607,6 +639,7 @@
       padding: 0.75rem;
       border-radius: 0.5rem;
       width: 100%;
+      height: 100%;
     }
 
     .quicklook-folder-preview {
@@ -621,6 +654,26 @@
     .quicklook-folder-preview img {
       width: 4.5rem;
       height: 4.5rem;
+    }
+
+    .quicklook-resize-handle {
+      position: absolute;
+      right: 4px;
+      bottom: 4px;
+      width: 16px;
+      height: 16px;
+      cursor: nwse-resize;
+      color: var(--color-subsub);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      user-select: none;
+      z-index: 10;
+      transition: color 0.15s;
+    }
+
+    .quicklook-resize-handle:hover {
+      color: var(--color-emp);
     }
   </style>
 </head>
@@ -747,11 +800,19 @@
   <!-- macOS Quick Look Modal -->
   <div class="quicklook-modal" id="quickLookModal">
     <div class="quicklook-window" id="quickLookWindow">
-      <div class="quicklook-header">
+      <div class="quicklook-header" id="quickLookHeader" title="Drag to move">
         <span class="quicklook-header-title" id="quickLookTitle"></span>
         <span class="quicklook-header-meta" id="quickLookMeta"></span>
+        <button class="quicklook-close" id="quickLookCloseBtn" onclick="closeQuickLook(event)" title="Close (Esc or Space)">&times;</button>
       </div>
       <div class="quicklook-body" id="quickLookBody"></div>
+      <div class="quicklook-resize-handle" id="quickLookResizeHandle" title="Resize">
+        <svg viewBox="0 0 10 10" width="10" height="10">
+          <line x1="9" y1="1" x2="1" y2="9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+          <line x1="9" y1="5" x2="5" y2="9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+          <line x1="9" y1="9" x2="9" y2="9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+      </div>
     </div>
   </div>
 
@@ -760,8 +821,22 @@
     let currentSort = { col: 'name', dir: 'asc' };
     let searchOn = false;
     let selectedIdx = -1;
+
+    // Quick Look State
     let isSpaceDown = false;
+    let spacePressTime = 0;
+    let hasSwitchedSubject = false;
+    let isPinned = false;
     let currentHoveredItem = null;
+
+    // Drag & Resize State
+    let isDragging = false;
+    let dragStartX = 0, dragStartY = 0;
+    let winStartX = 0, winStartY = 0;
+    let isResizing = false;
+    let resizeStartX = 0, resizeStartY = 0;
+    let winStartWidth = 0, winStartHeight = 0;
+    let hasCustomPosition = false;
 
     const breadcrumbsWrap = document.getElementById('breadcrumbsWrap');
     const searchInp = document.getElementById('searchInp');
@@ -776,9 +851,11 @@
     const drawerCopyBtn = document.getElementById('drawerCopyBtn');
     const quickLookModal = document.getElementById('quickLookModal');
     const quickLookWindow = document.getElementById('quickLookWindow');
+    const quickLookHeader = document.getElementById('quickLookHeader');
     const quickLookTitle = document.getElementById('quickLookTitle');
     const quickLookMeta = document.getElementById('quickLookMeta');
     const quickLookBody = document.getElementById('quickLookBody');
+    const quickLookResizeHandle = document.getElementById('quickLookResizeHandle');
 
     // 2. MIME Type to WhiteSur Icon Mapping
     const mimeMap = {
@@ -999,7 +1076,7 @@
 
     function activateSearch() {
       searchOn = true;
-      hideQuickLook();
+      closeQuickLook();
       if (breadcrumbsWrap) breadcrumbsWrap.style.display = 'none';
       if (searchInp) {
         searchInp.style.display = 'block';
@@ -1074,8 +1151,8 @@
       });
     }
 
-    // 8. macOS Quick Look (Hold Space to Preview)
-    function showQuickLook(el) {
+    // 8. macOS Quick Look (Hold Space or Quick-Tap Space to Pin, Movable & Resizable)
+    function showQuickLook(el, pinned = false) {
       if (!el || !quickLookModal || !quickLookBody) return;
 
       const isDir = el.dataset.isdir === '1';
@@ -1115,6 +1192,7 @@
         vid.muted = true;
         vid.loop = true;
         vid.playsInline = true;
+        vid.controls = true;
         quickLookBody.appendChild(vid);
       } else if (audios.includes(ext)) {
         const aud = document.createElement('audio');
@@ -1128,7 +1206,7 @@
         quickLookBody.appendChild(pre);
         fetch(url)
           .then(r => r.text())
-          .then(t => { pre.textContent = t.slice(0, 5000); })
+          .then(t => { pre.textContent = t.slice(0, 10000); })
           .catch(() => { pre.textContent = 'Failed to load preview.'; });
       } else {
         quickLookBody.innerHTML = `
@@ -1141,6 +1219,18 @@
       }
 
       quickLookModal.classList.add('active');
+      if (pinned) {
+        pinQuickLook();
+      } else if (!isPinned) {
+        quickLookWindow.classList.remove('is-pinned');
+      }
+    }
+
+    function pinQuickLook() {
+      isPinned = true;
+      if (quickLookWindow) {
+        quickLookWindow.classList.add('is-pinned');
+      }
     }
 
     function hideQuickLook() {
@@ -1154,14 +1244,124 @@
       }
     }
 
+    function closeQuickLook(e) {
+      if (e) {
+        e.stopPropagation();
+        e.preventDefault();
+      }
+      isPinned = false;
+      if (quickLookWindow) {
+        quickLookWindow.classList.remove('is-pinned');
+        // Reset custom position/size on full close
+        if (hasCustomPosition) {
+          quickLookWindow.style.position = '';
+          quickLookWindow.style.left = '';
+          quickLookWindow.style.top = '';
+          quickLookWindow.style.width = '';
+          quickLookWindow.style.height = '';
+          quickLookWindow.style.maxWidth = '';
+          quickLookWindow.style.maxHeight = '';
+          quickLookWindow.style.margin = '';
+          quickLookWindow.style.transform = '';
+          hasCustomPosition = false;
+        }
+      }
+      hideQuickLook();
+    }
+
+    // Drag to Move Quick Look Window
+    if (quickLookHeader) {
+      quickLookHeader.addEventListener('mousedown', (e) => {
+        if (e.target.closest('.quicklook-close')) return;
+        if (!isPinned) pinQuickLook();
+
+        isDragging = true;
+        dragStartX = e.clientX;
+        dragStartY = e.clientY;
+
+        const rect = quickLookWindow.getBoundingClientRect();
+        winStartX = rect.left;
+        winStartY = rect.top;
+
+        quickLookWindow.style.position = 'fixed';
+        quickLookWindow.style.left = `${winStartX}px`;
+        quickLookWindow.style.top = `${winStartY}px`;
+        quickLookWindow.style.margin = '0';
+        quickLookWindow.style.transform = 'none';
+        quickLookHeader.style.cursor = 'grabbing';
+        hasCustomPosition = true;
+
+        e.preventDefault();
+      });
+    }
+
+    window.addEventListener('mousemove', (e) => {
+      if (isDragging) {
+        const dx = e.clientX - dragStartX;
+        const dy = e.clientY - dragStartY;
+        const newLeft = Math.max(8, Math.min(winStartX + dx, window.innerWidth - quickLookWindow.offsetWidth - 8));
+        const newTop = Math.max(8, Math.min(winStartY + dy, window.innerHeight - quickLookWindow.offsetHeight - 8));
+        quickLookWindow.style.left = `${newLeft}px`;
+        quickLookWindow.style.top = `${newTop}px`;
+      } else if (isResizing) {
+        const dw = e.clientX - resizeStartX;
+        const dh = e.clientY - resizeStartY;
+        const newW = Math.max(300, Math.min(winStartWidth + dw, window.innerWidth - 30));
+        const newH = Math.max(200, Math.min(winStartHeight + dh, window.innerHeight - 30));
+        quickLookWindow.style.width = `${newW}px`;
+        quickLookWindow.style.height = `${newH}px`;
+        quickLookWindow.style.maxWidth = 'none';
+        quickLookWindow.style.maxHeight = 'none';
+      }
+    });
+
+    window.addEventListener('mouseup', () => {
+      if (isDragging) {
+        isDragging = false;
+        if (quickLookHeader) quickLookHeader.style.cursor = 'grab';
+      }
+      if (isResizing) {
+        isResizing = false;
+      }
+    });
+
+    // Resize Quick Look Window
+    if (quickLookResizeHandle) {
+      quickLookResizeHandle.addEventListener('mousedown', (e) => {
+        if (!isPinned) pinQuickLook();
+        isResizing = true;
+        resizeStartX = e.clientX;
+        resizeStartY = e.clientY;
+
+        const rect = quickLookWindow.getBoundingClientRect();
+        winStartWidth = rect.width;
+        winStartHeight = rect.height;
+
+        if (!hasCustomPosition) {
+          quickLookWindow.style.position = 'fixed';
+          quickLookWindow.style.left = `${rect.left}px`;
+          quickLookWindow.style.top = `${rect.top}px`;
+          quickLookWindow.style.margin = '0';
+          quickLookWindow.style.transform = 'none';
+          hasCustomPosition = true;
+        }
+
+        e.preventDefault();
+        e.stopPropagation();
+      });
+    }
+
     // Track mouseover across file items for dynamic preview update while Space is held
     if (fileListEl) {
       fileListEl.addEventListener('mouseover', (e) => {
         const item = e.target.closest('.file-item');
         if (item && item.getAttribute('href') !== '..') {
-          currentHoveredItem = item;
-          if (isSpaceDown) {
-            showQuickLook(item);
+          if (currentHoveredItem !== item) {
+            currentHoveredItem = item;
+            if (isSpaceDown) {
+              hasSwitchedSubject = true;
+              showQuickLook(item, false);
+            }
           }
         }
       });
@@ -1182,18 +1382,35 @@
           return; // Let user type spaces in search input
         }
         e.preventDefault(); // Prevent browser window scroll
-        if (isSpaceDown) return; // Prevent repeat triggers while holding
+        if (e.repeat) return; // Prevent repeat triggers while holding
+
+        // If already pinned, pressing Space again toggles it off!
+        if (isPinned) {
+          closeQuickLook();
+          return;
+        }
+
+        spacePressTime = performance.now();
+        hasSwitchedSubject = false;
         isSpaceDown = true;
 
         const visible = getVisibleItems();
         const target = currentHoveredItem || (selectedIdx >= 0 ? visible[selectedIdx] : (visible.length > 0 ? visible[0] : null));
         if (target) {
-          showQuickLook(target);
+          showQuickLook(target, false);
         }
         return;
       }
 
-      // Other keyboard shortcuts
+      // Escape closes Quick Look if active
+      if (e.key === 'Escape') {
+        if (quickLookModal && quickLookModal.classList.contains('active')) {
+          closeQuickLook();
+          return;
+        }
+      }
+
+      // Arrow navigation
       if (!searchOn) {
         if (e.key === '/') {
           e.preventDefault();
@@ -1204,7 +1421,8 @@
           if (visible.length > 0) {
             setSelected(Math.min(selectedIdx + 1, visible.length - 1));
             if (isSpaceDown && visible[selectedIdx]) {
-              showQuickLook(visible[selectedIdx]);
+              hasSwitchedSubject = true;
+              showQuickLook(visible[selectedIdx], false);
             }
           }
         } else if (e.key === 'ArrowUp' || e.key === 'k') {
@@ -1217,7 +1435,8 @@
               setSelected(selectedIdx - 1);
             }
             if (isSpaceDown && visible[selectedIdx]) {
-              showQuickLook(visible[selectedIdx]);
+              hasSwitchedSubject = true;
+              showQuickLook(visible[selectedIdx], false);
             }
           }
         } else if (e.key === 'Enter' && selectedIdx >= 0) {
@@ -1233,20 +1452,30 @@
         if (searchOn || document.activeElement === searchInp) {
           return;
         }
+        const elapsed = performance.now() - spacePressTime;
         isSpaceDown = false;
-        hideQuickLook();
+
+        // Quick press & release (< 250ms) without switching files: PIN the window!
+        if (elapsed < 250 && !hasSwitchedSubject && quickLookModal.classList.contains('active')) {
+          pinQuickLook();
+        } else {
+          // Long press / hold: close when Space is released
+          if (!isPinned) {
+            hideQuickLook();
+          }
+        }
       }
     });
 
     window.addEventListener('scroll', () => {
-      if (isSpaceDown) {
+      if (isSpaceDown && !isPinned) {
         isSpaceDown = false;
         hideQuickLook();
       }
     }, { passive: true });
 
     window.addEventListener('blur', () => {
-      if (isSpaceDown) {
+      if (isSpaceDown && !isPinned) {
         isSpaceDown = false;
         hideQuickLook();
       }
