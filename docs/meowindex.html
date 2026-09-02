@@ -525,12 +525,12 @@
     }
 
     .quicklook-window {
-      background-color: rgba(33, 29, 29, 0.95);
-      backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
-      border: 1px solid var(--color-subsub);
-      border-radius: 1rem;
-      box-shadow: 0 28px 60px rgba(0, 0, 0, 0.8), 0 0 0 1px rgba(235, 173, 182, 0.15);
+      background-color: rgba(28, 22, 23, 0.78);
+      backdrop-filter: blur(24px) saturate(130%);
+      -webkit-backdrop-filter: blur(24px) saturate(130%);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 0.75rem;
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.35), 0 1px 4px rgba(0, 0, 0, 0.2);
       display: flex;
       flex-direction: column;
       overflow: hidden;
@@ -558,18 +558,20 @@
       transition: none;
     }
 
+    /* GNOME Style Headerbar */
     .quicklook-header {
       display: flex;
       align-items: center;
       gap: 0.5rem;
-      padding: 0.55rem 0.8rem 0.55rem 1.1rem;
-      background-color: rgba(24, 20, 20, 0.85);
-      border-bottom: 1px solid rgba(119, 84, 90, 0.3);
+      padding: 0.5rem 0.75rem 0.5rem 1rem;
+      background-color: rgba(36, 28, 30, 0.65);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
       font-size: 0.85rem;
       color: var(--color-main);
       user-select: none;
       cursor: grab;
       flex-shrink: 0;
+      min-height: 40px;
     }
 
     .quicklook-header:active {
@@ -577,13 +579,14 @@
     }
 
     .quicklook-header-title {
-      font-weight: 700;
+      font-weight: 600;
       color: var(--color-emp);
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
       flex: 1 1 0%;
       pointer-events: none;
+      letter-spacing: 0.01em;
     }
 
     .quicklook-header-meta {
@@ -591,18 +594,20 @@
       color: var(--color-sub);
       white-space: nowrap;
       pointer-events: none;
+      opacity: 0.85;
     }
 
+    /* GNOME Style Pill Action Button */
     .quicklook-action-btn {
-      background-color: var(--bg-dark-600);
-      border: 1px solid rgba(119, 84, 90, 0.4);
-      color: var(--color-emp);
+      background-color: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      color: var(--color-main);
       cursor: pointer;
       font-size: 0.75rem;
-      font-weight: 700;
+      font-weight: 600;
       font-family: inherit;
-      padding: 0.25rem 0.6rem;
-      border-radius: 0.4rem;
+      padding: 0.25rem 0.55rem;
+      border-radius: 6px;
       transition: all 0.15s ease;
       display: inline-flex;
       align-items: center;
@@ -613,13 +618,15 @@
     }
 
     .quicklook-action-btn:hover {
-      background-color: var(--bg-dark-300);
-      border-color: var(--color-emp);
+      background-color: rgba(255, 255, 255, 0.12);
+      color: var(--color-emp);
+      border-color: rgba(235, 173, 182, 0.3);
     }
 
     .quicklook-action-btn.copied {
       color: var(--color-alt);
-      border-color: var(--color-alt);
+      border-color: rgba(235, 214, 183, 0.3);
+      background-color: rgba(235, 214, 183, 0.1);
     }
 
     .quicklook-action-btn svg {
@@ -627,25 +634,29 @@
       height: 0.85rem;
     }
 
+    /* GNOME Circular Window Close Control */
     .quicklook-close {
-      background: none;
-      border: none;
+      background-color: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.06);
       color: var(--color-sub);
       cursor: pointer;
-      font-size: 1.35rem;
-      line-height: 1;
-      padding: 0.1rem 0.35rem;
-      border-radius: 0.35rem;
-      transition: all 0.15s;
+      font-size: 1rem;
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      transition: all 0.15s ease;
       display: flex;
       align-items: center;
       justify-content: center;
-      margin-left: 0.25rem;
+      margin-left: 0.15rem;
+      flex-shrink: 0;
+      line-height: 1;
     }
 
     .quicklook-close:hover {
       color: var(--color-emp);
-      background-color: var(--bg-dark-300);
+      background-color: rgba(235, 173, 182, 0.25);
+      border-color: rgba(235, 173, 182, 0.3);
     }
 
     /* Syntax Highlighting (MeowIndex Pastel Theme) */
@@ -694,8 +705,8 @@
       overflow: hidden;
       flex: 1 1 0%;
       min-height: 0;
-      height: calc(100% - 46px);
-      background-color: rgba(24, 20, 20, 0.45);
+      height: calc(100% - 40px);
+      background-color: transparent;
       position: relative;
       box-sizing: border-box;
     }
@@ -731,16 +742,16 @@
       box-sizing: border-box;
       margin: 0;
       overflow: auto;
-      white-space: pre-wrap;
-      word-break: break-word;
+      white-space: pre;
+      word-break: normal;
       font-family: ui-monospace, SFMono-Regular, monospace;
       font-size: 0.85rem;
       line-height: 1.5;
       color: var(--color-alt);
-      background: var(--bg-dark-800);
+      background: rgba(18, 14, 15, 0.55);
       padding: 1rem;
-      border-radius: 0.5rem;
-      border: 1px solid rgba(119, 84, 90, 0.25);
+      border-radius: 6px;
+      border: 1px solid rgba(255, 255, 255, 0.06);
     }
 
     .quicklook-folder-preview {
