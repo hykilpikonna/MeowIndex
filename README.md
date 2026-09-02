@@ -108,7 +108,7 @@ example.com {
 
 | Action | How to Trigger | Description |
 | :--- | :--- | :--- |
-| **Search / Filter** | Press <kbd>/</kbd> anywhere or click 🔍 | Filter files in real-time. Press <kbd>Esc</kbd> to exit. |
+| **Search / Filter** | Press <kbd>Ctrl</kbd>+<kbd>F</kbd>, <kbd>Cmd</kbd>+<kbd>F</kbd>, <kbd>/</kbd>, or click 🔍 | Filter files in real-time. Press <kbd>Esc</kbd> to exit. |
 | **Keyboard Nav** | <kbd>↓</kbd> / <kbd>↑</kbd> (or <kbd>j</kbd> / <kbd>k</kbd>) + <kbd>Enter</kbd> | Move focus highlight through files and press Enter to open. |
 | **Column Sorting** | Click **Name**, **Size**, or **Date** header | Sort by filename, numeric byte size, or modification date. Folders stay pinned at the top. |
 | **Quick Look** | Tap <kbd>Space</kbd> (pin) or Hold <kbd>Space</kbd> (scan) | Quick-tap Space to open a persistent, movable, and resizable preview window (close via <kbd>&times;</kbd>, <kbd>Esc</kbd>, or <kbd>Space</kbd>). Hold Space and move mouse or arrow keys to scan previews dynamically. |
