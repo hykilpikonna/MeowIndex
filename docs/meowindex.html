@@ -555,6 +555,7 @@
     /* Pinned mode: interactive window */
     .quicklook-window.is-pinned {
       pointer-events: auto; /* Clickable close button, draggable, resizable, scrollable */
+      transition: none;
     }
 
     .quicklook-header {
@@ -759,23 +760,40 @@
       height: 4.5rem;
     }
 
-    .quicklook-resize-handle {
+    /* 8-Direction Quick Look Resize Handles */
+    .ql-resize-handle {
       position: absolute;
-      right: 4px;
-      bottom: 4px;
-      width: 16px;
-      height: 16px;
-      cursor: nwse-resize;
-      color: var(--color-subsub);
-      display: flex;
-      align-items: center;
-      justify-content: center;
+      z-index: 50;
       user-select: none;
-      z-index: 10;
+    }
+    .ql-resize-n {
+      top: 0; left: 14px; right: 14px; height: 8px; cursor: ns-resize;
+    }
+    .ql-resize-s {
+      bottom: 0; left: 14px; right: 14px; height: 8px; cursor: ns-resize;
+    }
+    .ql-resize-w {
+      left: 0; top: 14px; bottom: 14px; width: 8px; cursor: ew-resize;
+    }
+    .ql-resize-e {
+      right: 0; top: 14px; bottom: 14px; width: 8px; cursor: ew-resize;
+    }
+    .ql-resize-nw {
+      top: 0; left: 0; width: 14px; height: 14px; cursor: nwse-resize;
+    }
+    .ql-resize-ne {
+      top: 0; right: 0; width: 14px; height: 14px; cursor: nesw-resize;
+    }
+    .ql-resize-sw {
+      bottom: 0; left: 0; width: 14px; height: 14px; cursor: nesw-resize;
+    }
+    .ql-resize-se {
+      bottom: 0; right: 0; width: 16px; height: 16px; cursor: nwse-resize;
+      display: flex; align-items: center; justify-content: center;
+      color: var(--color-subsub);
       transition: color 0.15s;
     }
-
-    .quicklook-resize-handle:hover {
+    .ql-resize-se:hover {
       color: var(--color-emp);
     }
   </style>
@@ -916,7 +934,15 @@
         <button class="quicklook-close" id="quickLookCloseBtn" onclick="closeQuickLook(event)" title="Close (Esc or Space)">&times;</button>
       </div>
       <div class="quicklook-body" id="quickLookBody"></div>
-      <div class="quicklook-resize-handle" id="quickLookResizeHandle" title="Resize">
+      <!-- 8-Direction Resize Handles -->
+      <div class="ql-resize-handle ql-resize-n" data-dir="n"></div>
+      <div class="ql-resize-handle ql-resize-s" data-dir="s"></div>
+      <div class="ql-resize-handle ql-resize-e" data-dir="e"></div>
+      <div class="ql-resize-handle ql-resize-w" data-dir="w"></div>
+      <div class="ql-resize-handle ql-resize-ne" data-dir="ne"></div>
+      <div class="ql-resize-handle ql-resize-nw" data-dir="nw"></div>
+      <div class="ql-resize-handle ql-resize-sw" data-dir="sw"></div>
+      <div class="ql-resize-handle ql-resize-se" data-dir="se" title="Resize">
         <svg viewBox="0 0 10 10" width="10" height="10">
           <line x1="9" y1="1" x2="1" y2="9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
           <line x1="9" y1="5" x2="5" y2="9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
@@ -946,8 +972,9 @@
     let dragStartX = 0, dragStartY = 0;
     let winStartX = 0, winStartY = 0;
     let isResizing = false;
+    let resizeDir = null;
     let resizeStartX = 0, resizeStartY = 0;
-    let winStartWidth = 0, winStartHeight = 0;
+    let resizeStartRect = null;
     let hasCustomPosition = false;
 
     const breadcrumbsWrap = document.getElementById('breadcrumbsWrap');
@@ -969,7 +996,6 @@
     const quickLookCopyBtn = document.getElementById('quickLookCopyBtn');
     const quickLookCopyLabel = document.getElementById('quickLookCopyLabel');
     const quickLookBody = document.getElementById('quickLookBody');
-    const quickLookResizeHandle = document.getElementById('quickLookResizeHandle');
 
     // 2. MIME Type to WhiteSur Icon Mapping
     const mimeMap = {
@@ -1488,13 +1514,35 @@
         const newTop = Math.max(8, Math.min(winStartY + dy, window.innerHeight - quickLookWindow.offsetHeight - 8));
         quickLookWindow.style.left = `${newLeft}px`;
         quickLookWindow.style.top = `${newTop}px`;
-      } else if (isResizing) {
-        const dw = e.clientX - resizeStartX;
-        const dh = e.clientY - resizeStartY;
-        const newW = Math.max(300, Math.min(winStartWidth + dw, window.innerWidth - 30));
-        const newH = Math.max(200, Math.min(winStartHeight + dh, window.innerHeight - 30));
-        quickLookWindow.style.width = `${newW}px`;
-        quickLookWindow.style.height = `${newH}px`;
+      } else if (isResizing && resizeDir && resizeStartRect) {
+        const dx = e.clientX - resizeStartX;
+        const dy = e.clientY - resizeStartY;
+        let { left, top, width, height, right, bottom } = resizeStartRect;
+
+        // Horizontal resizing
+        if (resizeDir.includes('e')) {
+          width = Math.max(320, Math.min(width + dx, window.innerWidth - left - 10));
+        } else if (resizeDir.includes('w')) {
+          const maxLeftShift = right - 320;
+          const proposedLeft = Math.max(8, Math.min(left + dx, maxLeftShift));
+          width = right - proposedLeft;
+          left = proposedLeft;
+        }
+
+        // Vertical resizing
+        if (resizeDir.includes('s')) {
+          height = Math.max(220, Math.min(height + dy, window.innerHeight - top - 10));
+        } else if (resizeDir.includes('n')) {
+          const maxTopShift = bottom - 220;
+          const proposedTop = Math.max(8, Math.min(top + dy, maxTopShift));
+          height = bottom - proposedTop;
+          top = proposedTop;
+        }
+
+        quickLookWindow.style.left = `${left}px`;
+        quickLookWindow.style.top = `${top}px`;
+        quickLookWindow.style.width = `${width}px`;
+        quickLookWindow.style.height = `${height}px`;
         quickLookWindow.style.maxWidth = 'none';
         quickLookWindow.style.maxHeight = 'none';
       }
@@ -1507,20 +1555,29 @@
       }
       if (isResizing) {
         isResizing = false;
+        resizeDir = null;
+        resizeStartRect = null;
       }
     });
 
-    // Resize Quick Look Window
-    if (quickLookResizeHandle) {
-      quickLookResizeHandle.addEventListener('mousedown', (e) => {
+    // 8-Direction Resize Handles Event Binding
+    document.querySelectorAll('.ql-resize-handle').forEach(handle => {
+      handle.addEventListener('mousedown', (e) => {
         if (!isPinned) pinQuickLook();
         isResizing = true;
+        resizeDir = handle.dataset.dir;
         resizeStartX = e.clientX;
         resizeStartY = e.clientY;
 
         const rect = quickLookWindow.getBoundingClientRect();
-        winStartWidth = rect.width;
-        winStartHeight = rect.height;
+        resizeStartRect = {
+          left: rect.left,
+          top: rect.top,
+          width: rect.width,
+          height: rect.height,
+          right: rect.right,
+          bottom: rect.bottom
+        };
 
         if (!hasCustomPosition) {
           quickLookWindow.style.position = 'fixed';
@@ -1534,7 +1591,7 @@
         e.preventDefault();
         e.stopPropagation();
       });
-    }
+    });
 
     // Track mouseover across file items for dynamic preview update while Space is held
     if (fileListEl) {
