@@ -1,11 +1,35 @@
 {{- $title := .RespHeader.Get "X-Site-Title" -}}
 {{- if not $title }}{{ $title = "File Listing" }}{{ end -}}
+{{- $n := len .Breadcrumbs -}}
+{{- $shortPath := "/" -}}
+{{- if gt $n 1 -}}
+  {{- $parts := slice .Breadcrumbs 1 -}}
+  {{- $numParts := len $parts -}}
+  {{- if eq $numParts 1 -}}
+    {{- $shortPath = (index $parts 0).Text -}}
+  {{- else -}}
+    {{- $buf := "" -}}
+    {{- range $idx, $p := $parts -}}
+      {{- if ne $idx 0 }}{{ $buf = print $buf "/" }}{{ end -}}
+      {{- if eq (add $idx 1) $numParts -}}
+        {{- $buf = print $buf $p.Text -}}
+      {{- else -}}
+        {{- if and (hasPrefix $p.Text ".") (gt (len $p.Text) 1) -}}
+          {{- $buf = print $buf (substr 0 2 $p.Text) -}}
+        {{- else -}}
+          {{- $buf = print $buf (substr 0 1 $p.Text) -}}
+        {{- end -}}
+      {{- end -}}
+    {{- end -}}
+    {{- $shortPath = $buf -}}
+  {{- end -}}
+{{- end -}}
 <!DOCTYPE html>
 <html lang="en" style="height: 100%;">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>{{html .Path}} - {{ $title }}</title>
+  <title>{{html $shortPath}} - {{ $title }}</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
