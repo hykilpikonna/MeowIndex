@@ -106,12 +106,16 @@ example.com {
 
 ### 3. How to Use & Shortcuts
 
-| Action | How to Trigger |
-| :--- | :--- |
-| **Search / Filter** | Press <kbd>/</kbd> anywhere or click the 🔍 icon. Type to filter instantly. Press <kbd>Esc</kbd> to close. |
-| **Copy Wget Command** | Click the **`>_`** terminal icon in the toolbar. Copies `wget -r -np ...` to clipboard with inline `✓ Copied` feedback. |
-| **Inspect Wget Command** | <kbd>Shift</kbd> + Click the **`>_`** icon to toggle the command drawer. |
-| **Breadcrumbs Navigation** | Click any path segment in the toolbar to jump up to that directory. |
+| Action | How to Trigger | Description |
+| :--- | :--- | :--- |
+| **Search / Filter** | Press <kbd>/</kbd> anywhere or click 🔍 | Filter files in real-time. Press <kbd>Esc</kbd> to exit. |
+| **Keyboard Nav** | <kbd>↓</kbd> / <kbd>↑</kbd> (or <kbd>j</kbd> / <kbd>k</kbd>) + <kbd>Enter</kbd> | Move focus highlight through files and press Enter to open. |
+| **Column Sorting** | Click **Name**, **Size**, or **Date** header | Sort by filename, numeric byte size, or modification date. Folders stay pinned at the top. |
+| **Quick Preview** | Hover file row &rarr; click 👁 icon | Instant lightbox preview for images, video, audio, and code/markdown without leaving page. |
+| **Copy File URL** | Hover file row &rarr; click 🔗 icon | Copies the full direct link of any file to clipboard. |
+| **Copy Wget Clone** | Click **`>_`** in the toolbar | Copies recursive `wget` command to clipboard with inline `✓ Copied` feedback. |
+| **Inspect Wget** | <kbd>Shift</kbd> + Click **`>_`** | Toggles collapsible command drawer. |
+| **Breadcrumbs** | Click any path segment | Jump up to parent directories. Auto-scrolls and supports mouse-wheel. |
 
 ---
 

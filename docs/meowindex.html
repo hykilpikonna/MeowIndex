@@ -28,6 +28,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>{{html $shortPath}} - {{ $title }}</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23ebadb6'><path d='M20 5h-8.586L9.707 3.293A1 1 0 0 0 9 3H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2z'/></svg>">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
@@ -194,6 +195,19 @@
       min-width: 0;
       scrollbar-width: none;
       -ms-overflow-style: none;
+      mask-image: linear-gradient(to right, black calc(100% - 20px), transparent);
+      -webkit-mask-image: linear-gradient(to right, black calc(100% - 20px), transparent);
+      transition: mask-image 0.2s, -webkit-mask-image 0.2s;
+    }
+
+    .breadcrumbs-wrap.is-scrolled-left {
+      mask-image: linear-gradient(to right, transparent, black 20px, black calc(100% - 20px), transparent);
+      -webkit-mask-image: linear-gradient(to right, transparent, black 20px, black calc(100% - 20px), transparent);
+    }
+
+    .breadcrumbs-wrap.is-scrolled-end {
+      mask-image: linear-gradient(to right, transparent, black 20px, black 100%);
+      -webkit-mask-image: linear-gradient(to right, transparent, black 20px, black 100%);
     }
 
     .breadcrumbs-wrap::-webkit-scrollbar {
@@ -319,6 +333,71 @@
       background-color: var(--bg-dark-200);
     }
 
+    /* List Column Headers for Sorting */
+    .list-header {
+      display: flex;
+      gap: 1rem;
+      padding: 0.25rem 0.75rem 0.5rem 0.75rem;
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--color-subsub);
+      user-select: none;
+      align-items: center;
+    }
+
+    .col-name {
+      flex: 1 1 0%;
+      padding-left: 3.5rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+      transition: color 0.15s;
+    }
+
+    .col-size {
+      flex-basis: 7.5rem;
+      text-align: right;
+      justify-content: flex-end;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+      transition: color 0.15s;
+    }
+
+    .col-mtime {
+      flex-basis: 7.5rem;
+      text-align: right;
+      justify-content: flex-end;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+      transition: color 0.15s;
+    }
+
+    .sort-header-col:hover {
+      color: var(--color-emp);
+    }
+
+    .sort-header-col.active {
+      color: var(--color-emp);
+    }
+
+    .sort-arrow {
+      display: inline-block;
+      font-size: 0.7rem;
+      opacity: 0.85;
+    }
+
+    @media (max-width: 640px) {
+      .col-size { flex-basis: 3.75rem; }
+      .col-mtime { display: none; }
+    }
+
     /* File List */
     .file-list {
       display: flex;
@@ -330,18 +409,24 @@
       width: 100%;
       display: flex;
       gap: 1rem;
-      transition: all 0.3s;
+      transition: all 0.2s;
       background-color: var(--bg-dark-800);
       border-radius: 0.75rem;
       padding: 0.5rem 0.75rem;
       align-items: center;
       text-decoration: none;
       color: var(--color-main);
+      position: relative;
     }
 
-    .file-item:hover {
+    .file-item:hover, .file-item.selected {
       background-color: var(--bg-dark-300);
       transition-duration: 0s;
+    }
+
+    .file-item.selected {
+      outline: 2px solid var(--color-emp);
+      outline-offset: -2px;
     }
 
     .file-icon {
@@ -360,7 +445,7 @@
       color: var(--color-main);
     }
 
-    .file-item:hover .file-name {
+    .file-item:hover .file-name, .file-item.selected .file-name {
       color: var(--color-emp);
     }
 
@@ -390,12 +475,190 @@
       }
     }
 
+    /* Hover Action Buttons */
+    .file-actions {
+      display: none;
+      align-items: center;
+      gap: 0.35rem;
+      margin-left: 0.25rem;
+    }
+
+    .file-item:hover .file-actions, .file-item.selected .file-actions {
+      display: flex;
+    }
+
+    .file-action-btn {
+      background: var(--bg-dark-600);
+      color: var(--color-main);
+      border: none;
+      border-radius: 0.375rem;
+      padding: 0.25rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.15s;
+    }
+
+    .file-action-btn:hover {
+      color: var(--color-emp);
+      background-color: var(--bg-dark-200);
+    }
+
+    .file-action-btn svg {
+      width: 1rem;
+      height: 1rem;
+    }
+
+    /* Summary Status Bar */
+    .list-summary {
+      text-align: center;
+      padding: 1.5rem 0.5rem 1rem 0.5rem;
+      color: var(--color-subsub);
+      font-size: 0.85rem;
+      user-select: none;
+    }
+
     .no-results {
       display: none;
       text-align: center;
       padding: 3rem 1rem;
       color: var(--color-sub);
       font-size: 1.1rem;
+    }
+
+    /* Lightbox Modal */
+    .lightbox-backdrop {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(10, 8, 8, 0.85);
+      backdrop-filter: blur(6px);
+      z-index: 9999;
+      align-items: center;
+      justify-content: center;
+      padding: 1.5rem;
+      animation: fadeIn 0.15s ease-out;
+    }
+
+    .lightbox-backdrop.active {
+      display: flex;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    .lightbox-dialog {
+      background-color: var(--bg-dark-600);
+      border: 1px solid var(--color-subsub);
+      border-radius: 1rem;
+      max-width: 90vw;
+      max-height: 85vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.7);
+    }
+
+    .lightbox-header {
+      display: flex;
+      align-items: center;
+      padding: 0.75rem 1.25rem;
+      border-bottom: 1px solid var(--bg-dark-800);
+      gap: 1rem;
+    }
+
+    .lightbox-title {
+      font-weight: 700;
+      color: var(--color-emp);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      flex: 1 1 0%;
+    }
+
+    .lightbox-close {
+      background: none;
+      border: none;
+      color: var(--color-sub);
+      cursor: pointer;
+      font-size: 1.5rem;
+      line-height: 1;
+      padding: 0.2rem;
+      transition: color 0.15s;
+    }
+
+    .lightbox-close:hover {
+      color: var(--color-emp);
+    }
+
+    .lightbox-body {
+      padding: 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: auto;
+      min-width: 320px;
+      min-height: 200px;
+    }
+
+    .lightbox-media-img {
+      max-width: 80vw;
+      max-height: 65vh;
+      object-fit: contain;
+      border-radius: 0.5rem;
+    }
+
+    .lightbox-media-video {
+      max-width: 80vw;
+      max-height: 65vh;
+      border-radius: 0.5rem;
+      outline: none;
+    }
+
+    .lightbox-media-audio {
+      width: 100%;
+      min-width: 300px;
+      margin: 2rem 1rem;
+    }
+
+    .lightbox-media-text {
+      max-width: 80vw;
+      max-height: 65vh;
+      overflow: auto;
+      white-space: pre-wrap;
+      word-break: break-word;
+      font-family: ui-monospace, SFMono-Regular, monospace;
+      font-size: 0.85rem;
+      color: var(--color-alt);
+      background: var(--bg-dark-800);
+      padding: 1rem;
+      border-radius: 0.5rem;
+    }
+
+    .lightbox-footer {
+      padding: 0.6rem 1.25rem;
+      background: var(--bg-dark-800);
+      display: flex;
+      justify-content: flex-end;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .lightbox-open-btn {
+      color: var(--color-emp);
+      text-decoration: none;
+      font-size: 0.85rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+    }
+
+    .lightbox-open-btn:hover {
+      text-decoration: underline;
     }
   </style>
 </head>
@@ -470,6 +733,22 @@
         <button class="wget-btn" id="drawerCopyBtn" onclick="copyWget()">Copy</button>
       </div>
 
+      <!-- Sort Column Headers -->
+      <div class="list-header" id="listHeader">
+        <div class="col-name sort-header-col active" id="sort-name" onclick="toggleSort('name')">
+          <span>Name</span>
+          <span class="sort-arrow" id="arrow-name">▲</span>
+        </div>
+        <div class="col-size sort-header-col" id="sort-size" onclick="toggleSort('size')">
+          <span>Size</span>
+          <span class="sort-arrow" id="arrow-size"></span>
+        </div>
+        <div class="col-mtime sort-header-col" id="sort-mtime" onclick="toggleSort('mtime')">
+          <span>Date</span>
+          <span class="sort-arrow" id="arrow-mtime"></span>
+        </div>
+      </div>
+
       <!-- Files List (Rendered by Caddy) -->
       <div class="file-list" id="fileList">
         {{if .CanGoUp}}
@@ -482,13 +761,28 @@
         {{end}}
 
         {{range .Items}}
-        <a class="file-item" href="{{html .URL}}" data-name="{{html .Name}}">
+        <a class="file-item" href="{{html .URL}}" data-name="{{html .Name}}" data-size="{{.Size}}" data-mtime="{{.ModTime.Unix}}" data-isdir="{{if .IsDir}}1{{else}}0{{end}}">
           <img class="file-icon" data-filename="{{html .Name}}" data-isdir="{{if .IsDir}}1{{else}}0{{end}}" src="/mime/{{if .IsDir}}folder.svg{{else}}application-blank.svg{{end}}" alt="" onerror="this.src='/mime/application-blank.svg'">
           <span class="file-name" title="{{html .Name}}">{{html .Name}}</span>
-          <Show><span class="file-size">{{if .IsDir}}-{{else}}{{.HumanSize}}{{end}}</span></Show>
+          <span class="file-size">{{if .IsDir}}-{{else}}{{.HumanSize}}{{end}}</span>
           <span class="file-mtime">
             <time datetime='{{.HumanModTime "2006-01-02T15:04:05Z07:00"}}'>{{.HumanModTime "02-Jan-2006 15:04"}}</time>
           </span>
+          <div class="file-actions" onclick="event.preventDefault(); event.stopPropagation();">
+            {{if not .IsDir}}
+            <button class="file-action-btn btn-preview" title="Preview file" onclick="openPreview('{{html .URL}}', '{{html .Name}}')">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
+              </svg>
+            </button>
+            {{end}}
+            <button class="file-action-btn btn-copy-link" title="Copy link to file" onclick="copyFileLink('{{html .URL}}', this)">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/>
+                <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>
+              </svg>
+            </button>
+          </div>
         </a>
         {{end}}
 
@@ -497,11 +791,56 @@
         </div>
       </div>
 
+      <!-- Item Count Summary -->
+      <div class="list-summary" id="listSummary"></div>
+
+    </div>
+  </div>
+
+  <!-- Lightbox Modal -->
+  <div class="lightbox-backdrop" id="lightboxBackdrop" onclick="closeLightbox(event)">
+    <div class="lightbox-dialog" onclick="event.stopPropagation()">
+      <div class="lightbox-header">
+        <span class="lightbox-title" id="lightboxTitle"></span>
+        <button class="lightbox-close" onclick="closeLightbox()">&times;</button>
+      </div>
+      <div class="lightbox-body" id="lightboxBody"></div>
+      <div class="lightbox-footer">
+        <a class="lightbox-open-btn" id="lightboxDirectLink" href="#" target="_blank" rel="noopener">
+          <span>Open Direct File</span>
+          <svg style="width: 0.9rem; height: 0.9rem;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+            <polyline points="15 3 21 3 21 9"></polyline>
+            <line x1="10" y1="14" x2="21" y2="3"></line>
+          </svg>
+        </a>
+      </div>
     </div>
   </div>
 
   <script>
-    // 1. MIME Type to WhiteSur Icon Mapping
+    // 1. Top-Level State and Elements
+    let currentSort = { col: 'name', dir: 'asc' };
+    let searchOn = false;
+    let selectedIdx = -1;
+
+    const breadcrumbsWrap = document.getElementById('breadcrumbsWrap');
+    const searchInp = document.getElementById('searchInp');
+    const fileListEl = document.getElementById('fileList');
+    const noResults = document.getElementById('noResults');
+    const listSummary = document.getElementById('listSummary');
+    const wgetDrawer = document.getElementById('wgetDrawer');
+    const wgetCmdEl = document.getElementById('wgetCmd');
+    const wgetBtn = document.getElementById('wgetBtn');
+    const wgetIcon = document.getElementById('wgetIcon');
+    const wgetLabel = document.getElementById('wgetLabel');
+    const drawerCopyBtn = document.getElementById('drawerCopyBtn');
+    const lightboxBackdrop = document.getElementById('lightboxBackdrop');
+    const lightboxBody = document.getElementById('lightboxBody');
+    const lightboxTitle = document.getElementById('lightboxTitle');
+    const lightboxDirectLink = document.getElementById('lightboxDirectLink');
+
+    // 2. MIME Type to WhiteSur Icon Mapping
     const mimeMap = {
       // Images
       png: 'image-png', jpg: 'image-jpeg', jpeg: 'image-jpeg', gif: 'image-gif', webp: 'image-webp',
@@ -545,16 +884,33 @@
     }
     resolveIcons();
 
-    // 2. Breadcrumbs Host Root & Auto-Scroll
+    // 3. Breadcrumbs Host Root, Auto-Scroll & Fade Masks
     const hostRoot = document.querySelector('#breadcrumbsInner .host-root');
     if (hostRoot) {
       hostRoot.textContent = window.location.host;
     }
 
-    const breadcrumbsWrap = document.getElementById('breadcrumbsWrap');
+    function updateBreadcrumbsMask() {
+      if (!breadcrumbsWrap) return;
+      const sl = breadcrumbsWrap.scrollLeft;
+      const maxScroll = breadcrumbsWrap.scrollWidth - breadcrumbsWrap.clientWidth;
+      if (maxScroll <= 5) {
+        breadcrumbsWrap.classList.remove('is-scrolled-left', 'is-scrolled-end');
+      } else if (sl > 10 && sl < maxScroll - 10) {
+        breadcrumbsWrap.classList.add('is-scrolled-left');
+        breadcrumbsWrap.classList.remove('is-scrolled-end');
+      } else if (sl >= maxScroll - 10) {
+        breadcrumbsWrap.classList.remove('is-scrolled-left');
+        breadcrumbsWrap.classList.add('is-scrolled-end');
+      } else {
+        breadcrumbsWrap.classList.remove('is-scrolled-left', 'is-scrolled-end');
+      }
+    }
+
     const scrollToEnd = () => {
       if (breadcrumbsWrap) {
         breadcrumbsWrap.scrollLeft = breadcrumbsWrap.scrollWidth - breadcrumbsWrap.clientWidth;
+        updateBreadcrumbsMask();
       }
     };
     scrollToEnd();
@@ -562,6 +918,7 @@
     setTimeout(scrollToEnd, 100);
 
     if (breadcrumbsWrap) {
+      breadcrumbsWrap.addEventListener('scroll', updateBreadcrumbsMask);
       breadcrumbsWrap.addEventListener('wheel', (e) => {
         if (e.deltaY !== 0 && !e.shiftKey) {
           e.preventDefault();
@@ -570,56 +927,149 @@
       }, { passive: false });
     }
 
-    // 3. Wget Command & Inline Copy Feedback
+    // 4. Wget Command & Inline Copy Feedback
     const fullPath = window.location.pathname;
     const cleanPath = fullPath.endsWith('/') ? fullPath : `${fullPath}/`;
     const cutDirs = Math.max(0, cleanPath.split('/').filter(Boolean).length);
     const wgetCommand = `wget -r -np -nH -e robots=off -nc --cut-dirs=${cutDirs} ${window.location.origin}${cleanPath}`;
-    const wgetCmdEl = document.getElementById('wgetCmd');
     if (wgetCmdEl) wgetCmdEl.textContent = wgetCommand;
 
     function copyWget() {
       navigator.clipboard.writeText(wgetCommand).then(() => {
-        const btn = document.getElementById('wgetBtn');
-        const icon = document.getElementById('wgetIcon');
-        const label = document.getElementById('wgetLabel');
-        const drawerBtn = document.getElementById('drawerCopyBtn');
-        
-        if (btn && icon && label) {
-          btn.classList.add('copied');
-          icon.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>`;
-          label.style.display = 'inline';
+        if (wgetBtn && wgetIcon && wgetLabel) {
+          wgetBtn.classList.add('copied');
+          wgetIcon.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>`;
+          wgetLabel.style.display = 'inline';
           
           setTimeout(() => {
-            btn.classList.remove('copied');
-            icon.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/></svg>`;
-            label.style.display = 'none';
+            wgetBtn.classList.remove('copied');
+            wgetIcon.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/></svg>`;
+            wgetLabel.style.display = 'none';
           }, 1200);
         }
 
-        if (drawerBtn) {
-          drawerBtn.textContent = 'Copied';
-          setTimeout(() => drawerBtn.textContent = 'Copy', 1200);
+        if (drawerCopyBtn) {
+          drawerCopyBtn.textContent = 'Copied';
+          setTimeout(() => drawerCopyBtn.textContent = 'Copy', 1200);
         }
       });
     }
 
     function handleWgetClick(e) {
       if (e.shiftKey || e.altKey) {
-        // Shift+Click toggles the drawer
-        const drawer = document.getElementById('wgetDrawer');
-        if (drawer) drawer.classList.toggle('active');
+        if (wgetDrawer) wgetDrawer.classList.toggle('active');
       } else {
-        // Direct click copies command
         copyWget();
       }
     }
 
-    // 4. Search Filter
-    const searchInp = document.getElementById('searchInp');
-    const fileItems = document.querySelectorAll('#fileList .file-item:not([href=".."])');
-    const noResults = document.getElementById('noResults');
-    let searchOn = false;
+    // 5. File Link Copy
+    function copyFileLink(url, btn) {
+      const fullUrl = new URL(url, window.location.origin).href;
+      navigator.clipboard.writeText(fullUrl).then(() => {
+        const origSvg = btn.innerHTML;
+        btn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>`;
+        btn.style.color = 'var(--color-emp)';
+        setTimeout(() => {
+          btn.innerHTML = origSvg;
+          btn.style.color = '';
+        }, 1200);
+      });
+    }
+
+    // 6. Column Sorting (Name / Size / Date)
+    function toggleSort(col) {
+      if (currentSort.col === col) {
+        currentSort.dir = currentSort.dir === 'asc' ? 'desc' : 'asc';
+      } else {
+        currentSort.col = col;
+        currentSort.dir = (col === 'name') ? 'asc' : 'desc';
+      }
+      applySort();
+    }
+
+    function applySort() {
+      ['name', 'size', 'mtime'].forEach(col => {
+        const header = document.getElementById(`sort-${col}`);
+        const arrow = document.getElementById(`arrow-${col}`);
+        if (!header || !arrow) return;
+        if (col === currentSort.col) {
+          header.classList.add('active');
+          arrow.textContent = currentSort.dir === 'asc' ? '▲' : '▼';
+        } else {
+          header.classList.remove('active');
+          arrow.textContent = '';
+        }
+      });
+
+      const items = Array.from(document.querySelectorAll('#fileList .file-item:not([href=".."])'));
+      const goUp = document.querySelector('#fileList .file-item[href=".."]');
+
+      items.sort((a, b) => {
+        const isDirA = a.dataset.isdir === '1';
+        const isDirB = b.dataset.isdir === '1';
+        if (isDirA !== isDirB) return isDirA ? -1 : 1;
+
+        let res = 0;
+        if (currentSort.col === 'name') {
+          res = (a.dataset.name || '').localeCompare(b.dataset.name || '', undefined, { numeric: true, sensitivity: 'base' });
+        } else if (currentSort.col === 'size') {
+          const sA = parseInt(a.dataset.size, 10) || 0;
+          const sB = parseInt(b.dataset.size, 10) || 0;
+          res = sA - sB;
+        } else if (currentSort.col === 'mtime') {
+          const tA = parseInt(a.dataset.mtime, 10) || 0;
+          const tB = parseInt(b.dataset.mtime, 10) || 0;
+          res = tA - tB;
+        }
+        return currentSort.dir === 'asc' ? res : -res;
+      });
+
+      if (goUp) fileListEl.appendChild(goUp);
+      items.forEach(item => fileListEl.appendChild(item));
+      if (noResults) fileListEl.appendChild(noResults);
+    }
+
+    // 7. Summary Status Bar
+    function updateSummary(visibleCount) {
+      if (!listSummary) return;
+      const allItems = document.querySelectorAll('#fileList .file-item:not([href=".."])');
+      const total = allItems.length;
+
+      if (searchOn && searchInp && searchInp.value.trim().length > 0) {
+        listSummary.textContent = `Showing ${visibleCount} of ${total} item${total === 1 ? '' : 's'}`;
+        return;
+      }
+
+      let folders = 0;
+      let files = 0;
+      allItems.forEach(el => {
+        if (el.dataset.isdir === '1') folders++;
+        else files++;
+      });
+      const parts = [];
+      if (folders > 0) parts.push(`${folders} folder${folders === 1 ? '' : 's'}`);
+      if (files > 0) parts.push(`${files} file${files === 1 ? '' : 's'}`);
+      listSummary.textContent = parts.length > 0 ? `${parts.join(', ')} (${total} total)` : 'Directory is empty';
+    }
+    updateSummary();
+
+    // 8. Search Filter & Keyboard Navigation
+    function getVisibleItems() {
+      return Array.from(document.querySelectorAll('#fileList .file-item')).filter(el => el.style.display !== 'none');
+    }
+
+    function setSelected(idx) {
+      const visible = getVisibleItems();
+      visible.forEach(el => el.classList.remove('selected'));
+      if (idx >= 0 && idx < visible.length) {
+        selectedIdx = idx;
+        visible[idx].classList.add('selected');
+        visible[idx].scrollIntoView({ block: 'nearest' });
+      } else {
+        selectedIdx = -1;
+      }
+    }
 
     function activateSearch() {
       searchOn = true;
@@ -628,6 +1078,7 @@
         searchInp.style.display = 'block';
         searchInp.focus();
       }
+      setSelected(-1);
     }
 
     function deactivateSearch() {
@@ -638,6 +1089,7 @@
       }
       if (breadcrumbsWrap) breadcrumbsWrap.style.display = 'block';
       filterFiles('');
+      setSelected(-1);
     }
 
     function toggleSearch() {
@@ -646,7 +1098,14 @@
 
     function filterFiles(query) {
       const q = query.trim().toLowerCase();
+      const fileItems = document.querySelectorAll('#fileList .file-item:not([href=".."])');
+      const goUp = document.querySelector('#fileList .file-item[href=".."]');
       let visible = 0;
+
+      if (goUp) {
+        goUp.style.display = q ? 'none' : 'flex';
+      }
+
       fileItems.forEach(el => {
         const name = (el.dataset.name || '').toLowerCase();
         if (!q || name.includes(q)) {
@@ -656,28 +1115,132 @@
           el.style.display = 'none';
         }
       });
+
       if (noResults) {
         noResults.style.display = (fileItems.length > 0 && visible === 0 && q) ? 'block' : 'none';
       }
+      updateSummary(visible);
+      setSelected(-1);
     }
 
-    searchInp.addEventListener('keyup', (e) => {
-      filterFiles(e.target.value);
-      if (e.target.value.length === 0 && e.key === 'Escape') deactivateSearch();
-    });
+    if (searchInp) {
+      searchInp.addEventListener('input', (e) => {
+        filterFiles(e.target.value);
+      });
+
+      searchInp.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+          deactivateSearch();
+        } else if (e.key === 'ArrowDown') {
+          e.preventDefault();
+          const visible = getVisibleItems();
+          if (visible.length > 0) {
+            searchInp.blur();
+            setSelected(0);
+          }
+        } else if (e.key === 'Enter') {
+          const visible = getVisibleItems();
+          if (visible.length === 1) {
+            visible[0].click();
+          }
+        }
+      });
+    }
 
     window.addEventListener('keydown', (e) => {
+      if (lightboxBackdrop && lightboxBackdrop.classList.contains('active')) {
+        if (e.key === 'Escape') closeLightbox();
+        return;
+      }
+
       if (!searchOn) {
         if (e.key === '/') {
           e.preventDefault();
           activateSearch();
+        } else if (e.key === 'ArrowDown' || e.key === 'j') {
+          e.preventDefault();
+          const visible = getVisibleItems();
+          if (visible.length > 0) {
+            setSelected(Math.min(selectedIdx + 1, visible.length - 1));
+          }
+        } else if (e.key === 'ArrowUp' || e.key === 'k') {
+          e.preventDefault();
+          const visible = getVisibleItems();
+          if (visible.length > 0) {
+            if (selectedIdx <= 0) {
+              setSelected(-1);
+            } else {
+              setSelected(selectedIdx - 1);
+            }
+          }
+        } else if (e.key === 'Enter' && selectedIdx >= 0) {
+          e.preventDefault();
+          const visible = getVisibleItems();
+          if (visible[selectedIdx]) visible[selectedIdx].click();
         }
-      } else if (searchOn && e.key === 'Escape') {
-        deactivateSearch();
       }
     });
 
-    // 5. Relative timestamps
+    // 9. Media Preview Lightbox
+    function openPreview(url, name) {
+      if (!lightboxBackdrop || !lightboxBody) return;
+      const sp = name.split('.');
+      const ext = sp.length > 1 ? sp[sp.length - 1].toLowerCase() : '';
+      if (lightboxTitle) lightboxTitle.textContent = name;
+      if (lightboxDirectLink) lightboxDirectLink.href = url;
+      lightboxBody.innerHTML = '';
+
+      const images = ['png', 'jpg', 'jpeg', 'gif', 'webp', 'svg', 'bmp', 'ico', 'avif'];
+      const videos = ['mp4', 'webm', 'mov', 'm4v'];
+      const audios = ['mp3', 'wav', 'ogg', 'flac', 'aac', 'm4a'];
+      const texts = ['txt', 'md', 'log', 'json', 'py', 'js', 'ts', 'css', 'html', 'sh', 'rs', 'go', 'yaml', 'yml', 'toml'];
+
+      if (images.includes(ext)) {
+        const img = document.createElement('img');
+        img.className = 'lightbox-media-img';
+        img.src = url;
+        lightboxBody.appendChild(img);
+      } else if (videos.includes(ext)) {
+        const vid = document.createElement('video');
+        vid.className = 'lightbox-media-video';
+        vid.src = url;
+        vid.controls = true;
+        vid.autoplay = true;
+        lightboxBody.appendChild(vid);
+      } else if (audios.includes(ext)) {
+        const aud = document.createElement('audio');
+        aud.className = 'lightbox-media-audio';
+        aud.src = url;
+        aud.controls = true;
+        aud.autoplay = true;
+        lightboxBody.appendChild(aud);
+      } else if (texts.includes(ext)) {
+        const pre = document.createElement('pre');
+        pre.className = 'lightbox-media-text';
+        pre.textContent = 'Loading text preview...';
+        lightboxBody.appendChild(pre);
+        fetch(url)
+          .then(r => r.text())
+          .then(t => { pre.textContent = t.slice(0, 50000); })
+          .catch(() => { pre.textContent = 'Failed to load file contents.'; });
+      } else {
+        lightboxBody.innerHTML = `<div style="text-align: center; color: var(--color-sub); padding: 2rem;">No preview available for .${ext} files.<br><br><a class="lightbox-open-btn" style="justify-content: center;" href="${url}" target="_blank">Download or open file</a></div>`;
+      }
+
+      lightboxBackdrop.classList.add('active');
+    }
+
+    function closeLightbox(e) {
+      if (e && e.target !== lightboxBackdrop && !e.target.classList.contains('lightbox-close')) return;
+      if (lightboxBackdrop) {
+        lightboxBackdrop.classList.remove('active');
+        const media = lightboxBody.querySelectorAll('video, audio');
+        media.forEach(m => { m.pause(); m.src = ''; });
+        lightboxBody.innerHTML = '';
+      }
+    }
+
+    // 10. Relative Timestamps
     function formatRelativeDates() {
       const now = new Date();
       document.querySelectorAll('#fileList time[datetime]').forEach(el => {
