@@ -24,89 +24,14 @@ A cute, feature-rich file listing theme and module for **Caddy** and **Nginx**.
 
 ---
 
-## Usage Guide (Caddy)
+## Setup Guides
 
-### 1. Installation
-
-Clone the repository to `/etc/caddy/MeowIndex` (or your preferred directory):
-
-```sh
-git clone https://github.com/hykilpikonna/MeowIndex /etc/caddy/MeowIndex
-```
-
-*(No build or compile steps needed for Caddy!)*
+* 🚀 **[Caddy Setup Guide](docs/setup-caddy.md)** — Native SSR, zero build steps, drop-in template
+* 🐧 **[Nginx Setup Guide](docs/setup-nginx.md)** — SolidJS SPA + autoindex JSON mode
 
 ---
 
-### 2. Configuration Examples
-
-#### Example A: Public Domain with Automatic HTTPS
-
-```caddyfile
-files.yourdomain.com {
-    root * /data/file-server
-
-    # Serve WhiteSur MIME icons
-    handle /mime/* {
-        root * /etc/caddy/MeowIndex/public
-        file_server
-    }
-
-    # Serve directory browsing with MeowIndex template
-    handle {
-        file_server {
-            browse /etc/caddy/MeowIndex/docs/meowindex.html
-        }
-    }
-
-    # Enable compression
-    encode zstd gzip
-}
-```
-
-#### Example B: Tailscale Node / Private Tailnet
-
-```caddyfile
-your-node.tailnet-name.ts.net {
-    root * /data/file-server
-
-    handle /mime/* {
-        root * /etc/caddy/MeowIndex/public
-        file_server
-    }
-
-    handle {
-        file_server {
-            browse /etc/caddy/MeowIndex/docs/meowindex.html
-        }
-    }
-}
-```
-
-#### Example C: Subdirectory Hosting (e.g. `example.com/downloads/`)
-
-```caddyfile
-example.com {
-    handle_path /downloads/* {
-        root * /data/file-server
-
-        handle /mime/* {
-            root * /etc/caddy/MeowIndex/public
-            file_server
-        }
-
-        handle {
-            file_server {
-                browse /etc/caddy/MeowIndex/docs/meowindex.html
-            }
-        }
-    }
-}
-```
-
----
-
-### 3. How to Use & Shortcuts
+## Shortcuts & Controls
 
 | Action | How to Trigger | Description |
 | :--- | :--- | :--- |
@@ -120,43 +45,11 @@ example.com {
 
 ---
 
-### 4. Customization
+## Development
 
-* **Change Title via `Caddyfile` (Recommended):** Add `header X-Site-Title "Your Custom Title"` to your Caddyfile block:
-  ```caddyfile
-  files.yourdomain.com {
-      root * /data/file-server
-      header X-Site-Title "HyDEV ArchLinux Mirror"
-      # ...
-  }
-  ```
-* **Change Title via Template:** Alternatively, edit line 2 in [`docs/meowindex.html`](docs/meowindex.html).
-* **Colors & Accents:** Tweak CSS variables under `:root` in [`docs/meowindex.html`](docs/meowindex.html) (`--color-emp`, `--color-main`, `--bg-dark-800`).
-
----
-
-## Usage with Nginx
-
-### 1. Installation
+If you want to modify or customize the Caddy template, the source code is modularized in `caddy/`:
 
 ```sh
-cd /etc/nginx
-git clone https://github.com/hykilpikonna/MeowIndex
-cd MeowIndex
-yarn install
-yarn build
-```
-
-### 2. Setup File Listing in Nginx
-
-```nginx
-server_name your.domain.com;
-
-set $title "Meow Index";
-set $dir_path /data/file-server;
-include "/etc/nginx/MeowIndex/docs/nginx.conf";
-
-location / {
-    try_files $uri $uri/index.html /__meowindex__/index.html;
-}
+npm run build:caddy   # Compile caddy/ source into docs/meowindex.html
+npm run watch:caddy   # Live reload / watch mode
 ```
