@@ -2,7 +2,7 @@
 
 A cute, feature-rich file listing theme and module for **Caddy** and **Nginx**.
 
-![image](https://user-images.githubusercontent.com/22280294/219513952-736182cb-a38a-4a49-b9ea-f9160399987c.png)
+![MeowIndex Preview](docs/screenshot.png)
 
 ## Demo
 
