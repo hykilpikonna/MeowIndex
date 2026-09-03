@@ -1,0 +1,20 @@
+# MeowIndex Caddy Configuration
+:80 {
+    root * /data/file-server
+
+    # Optional: Customize the heading text (defaults to "File Listing")
+    header X-Site-Title "My Custom Archive"
+
+    # Serve WhiteSur MIME icons
+    handle /mime/* {
+        root * /etc/caddy/MeowIndex/public
+        file_server
+    }
+
+    # Serve directory browsing with MeowIndex template
+    handle {
+        file_server {
+            browse /etc/caddy/MeowIndex/docs/meowindex.html
+        }
+    }
+}

@@ -1,0 +1,49 @@
+}
+
+    @media (min-width: 1024px) {
+      .page-wrapper {
+        padding: 2.5rem;
+      }
+    }
+
+    .container {
+      max-width: 768px;
+      margin: 0 auto;
+    }
+
+    /* Heading */
+    .heading {
+      text-align: center;
+      padding-top: 2.5rem;
+      padding-bottom: 2.5rem;
+      color: var(--color-emp);
+    }
+
+    .heading-title {
+      font-size: 2.25rem;
+      line-height: 2.5rem;
+      font-weight: 700;
+      margin-bottom: 0.25rem;
+    }
+
+    .heading-sub {
+      display: flex;
+      justify-content: center;
+      opacity: 0.5;
+      font-size: 0.875rem;
+      transition: opacity 0.2s;
+    }
+
+    .heading-sub:hover {
+      opacity: 0.85;
+    }
+
+    .heading-sub a {
+      display: flex;
+      align-items: center;
+      gap: 0.25rem;
+      color: inherit;
+      text-decoration: none;
+    }
+
+    /* Breadcrumbs Toolbar */

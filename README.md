@@ -1,8 +1,8 @@
 # MeowIndex
 
-A cute, feature-rich file listing module to replace nginx's autoindex / fancyindex.
+A cute, feature-rich file listing theme and module for **Caddy** and **Nginx**.
 
-![image](https://user-images.githubusercontent.com/22280294/219513952-736182cb-a38a-4a49-b9ea-f9160399987c.png)
+![MeowIndex Preview](docs/screenshot.png)
 
 ## Demo
 
@@ -14,55 +14,42 @@ A cute, feature-rich file listing module to replace nginx's autoindex / fancyind
 * [x] List files
 * [x] Show file icons
 * [x] Clickable, length-safe breadcrumb path
-* [x] Fix mobile view
-* [x] Infinite-scroll
+* [x] Quick Look previews (Space)
 * [x] Search
-* [x] Show 404 page
+* [x] Sort by name, size, or date
+* [x] Streamlined wget helper
+* [x] Relative timestamps and formatted sizes
+* [x] Fix mobile view
+* [x] Both Caddy and Nginx support
 
-**Features requiring a backend**
+---
 
-* [x] Show image/video previews
-* [x] Use file binary to determine mime type
+## Setup Guides
 
-**TODO**
+* 🚀 **[Caddy Setup Guide](docs/setup-caddy.md)** — Native SSR, zero build steps, drop-in template
+* 🐧 **[Nginx Setup Guide](docs/setup-nginx.md)** — SolidJS SPA + autoindex JSON mode
 
-* [ ] Play videos
+---
 
-## How to use
+## Shortcuts & Controls
 
-### 1. Installation
+| Action | How to Trigger | Description |
+| :--- | :--- | :--- |
+| **Search / Filter** | Press <kbd>Ctrl</kbd>+<kbd>F</kbd>, <kbd>Cmd</kbd>+<kbd>F</kbd>, <kbd>/</kbd>, or click 🔍 | Filter files in real-time. Press <kbd>Esc</kbd> to exit. |
+| **Keyboard Nav** | <kbd>↓</kbd> / <kbd>↑</kbd> (or <kbd>j</kbd> / <kbd>k</kbd>) + <kbd>Enter</kbd> | Move focus highlight through files and press Enter to open. |
+| **Column Sorting** | Click **Name**, **Size**, or **Date** header | Sort by filename, numeric byte size, or modification date. Folders stay pinned at the top. |
+| **Quick Look** | Tap <kbd>Space</kbd> (pin) or Hold <kbd>Space</kbd> (scan) | Quick-tap Space to open a persistent, movable, and resizable preview window (close via <kbd>&times;</kbd>, <kbd>Esc</kbd>, or <kbd>Space</kbd>). Hold Space and move mouse or arrow keys to scan previews dynamically. |
+| **Copy Wget Clone** | Click **`>_`** in the toolbar | Copies recursive `wget` command to clipboard with inline `✓ Copied` feedback. |
+| **Inspect Wget** | <kbd>Shift</kbd> + Click **`>_`** | Toggles collapsible command drawer. |
+| **Breadcrumbs** | Click any path segment | Jump up to parent directories. Auto-scrolls and supports mouse-wheel. |
 
-You can install from source by cloning the repository:
+---
+
+## Development
+
+If you want to modify or customize the Caddy template, the source code is modularized in `caddy/`:
 
 ```sh
-cd /etc/nginx
-git clone https://github.com/hykilpikonna/MeowIndex
-cd MeowIndex
-yarn install
-yarn build
+npm run build:caddy   # Compile caddy/ source into docs/meowindex.html
+npm run watch:caddy   # Live reload / watch mode
 ```
-
-To update, simply do `git pull` and `yarn build` in the same directory.
-
-### 2. Setup File Listing in Nginx
-
-This module uses the json file listing api in nginx. If you already have an autoindex file server set up, you can make the following changes. If you're new to nginx, you can check out our [example configs](docs/examples).
-
-The following example serves `/data/file-server` on http path `/`
-
-```nginx
-# ...
-server_name your.domain.com;
-
-set $title "Meow Index";
-set $dir_path /data/file-server;
-include "/etc/nginx/MeowIndex/docs/nginx.conf";
-
-location / {
-    try_files $uri $uri/index.html /__meowindex__/index.html;
-}
-```
-
-## Advanced Usage
-
-TODO

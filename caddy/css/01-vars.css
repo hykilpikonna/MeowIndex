@@ -1,0 +1,48 @@
+/* Exact MeowIndex Palette */
+    :root {
+      --color-emp: #ebadb6;
+      --color-main: #c49098;
+      --color-sub: #ad7a82;
+      --color-subsub: #77545a;
+      --color-alt: #ebd6b7;
+      --color-bg-darker: #181414;
+      --color-bg: #1b1616;
+      --color-bg-lighter: #211D1D;
+      --bg-dark-800: #1b1616;
+      --bg-dark-600: #251f1f;
+      --bg-dark-300: #3a2e2e;
+      --bg-dark-200: #4c3b3b;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      margin: 0;
+      height: 100%;
+      background-color: var(--bg-dark-800);
+      color: var(--color-main);
+      font-family: 'Nunito', 'Roboto', 'Microsoft YaHei UI', Avenir, Helvetica, Arial, sans-serif;
+      font-size: 0.875rem;
+      line-height: 1.5;
+    }
+
+    @media (min-width: 1024px) {
+      body {
+        font-size: 1rem;
+      }
+    }
+
+    .color-emp { color: var(--color-emp); }
+    .color-main { color: var(--color-main); }
+    .color-sub { color: var(--color-sub); }
+    .color-subsub { color: var(--color-subsub); }
+    .color-alt { color: var(--color-alt); }
+
+    .page-wrapper {
+      padding: 0.5rem;
+      min-height: 100%;
+      background-color: var(--bg-dark-800);

@@ -1,0 +1,1812 @@
+{{- $title := .RespHeader.Get "X-Site-Title" -}}
+{{- if not $title }}{{ $title = "File Listing" }}{{ end -}}
+{{- $n := len .Breadcrumbs -}}
+{{- $shortPath := "/" -}}
+{{- if gt $n 1 -}}
+  {{- $parts := slice .Breadcrumbs 1 -}}
+  {{- $numParts := len $parts -}}
+  {{- $buf := "" -}}
+  {{- range $idx, $p := $parts -}}
+    {{- $buf = print $buf "/" -}}
+    {{- if eq (add $idx 1) $numParts -}}
+      {{- $buf = print $buf $p.Text -}}
+    {{- else -}}
+      {{- if and (hasPrefix $p.Text ".") (gt (len $p.Text) 1) -}}
+        {{- $buf = print $buf (substr 0 2 $p.Text) -}}
+      {{- else -}}
+        {{- if gt (len $p.Text) 0 -}}
+          {{- $buf = print $buf (substr 0 1 $p.Text) -}}
+        {{- end -}}
+      {{- end -}}
+    {{- end -}}
+  {{- end -}}
+  {{- $shortPath = $buf -}}
+{{- end -}}
+<!DOCTYPE html>
+<html lang="en" style="height: 100%;">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>{{html $shortPath}} - {{ $title }}</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23ebadb6'><path d='M20 5h-8.586L9.707 3.293A1 1 0 0 0 9 3H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2z'/></svg>">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <style>
+    /* === [caddy/css/01-vars.css] === */
+    /* Exact MeowIndex Palette */
+        :root {
+          --color-emp: #ebadb6;
+          --color-main: #c49098;
+          --color-sub: #ad7a82;
+          --color-subsub: #77545a;
+          --color-alt: #ebd6b7;
+          --color-bg-darker: #181414;
+          --color-bg: #1b1616;
+          --color-bg-lighter: #211D1D;
+          --bg-dark-800: #1b1616;
+          --bg-dark-600: #251f1f;
+          --bg-dark-300: #3a2e2e;
+          --bg-dark-200: #4c3b3b;
+        }
+
+        * {
+          box-sizing: border-box;
+          margin: 0;
+          padding: 0;
+        }
+
+        body {
+          margin: 0;
+          height: 100%;
+          background-color: var(--bg-dark-800);
+          color: var(--color-main);
+          font-family: 'Nunito', 'Roboto', 'Microsoft YaHei UI', Avenir, Helvetica, Arial, sans-serif;
+          font-size: 0.875rem;
+          line-height: 1.5;
+        }
+
+        @media (min-width: 1024px) {
+          body {
+            font-size: 1rem;
+          }
+        }
+
+        .color-emp { color: var(--color-emp); }
+        .color-main { color: var(--color-main); }
+        .color-sub { color: var(--color-sub); }
+        .color-subsub { color: var(--color-subsub); }
+        .color-alt { color: var(--color-alt); }
+
+        .page-wrapper {
+          padding: 0.5rem;
+          min-height: 100%;
+          background-color: var(--bg-dark-800);
+
+    /* === [caddy/css/02-base.css] === */
+    }
+
+        @media (min-width: 1024px) {
+          .page-wrapper {
+            padding: 2.5rem;
+          }
+        }
+
+        .container {
+          max-width: 768px;
+          margin: 0 auto;
+        }
+
+        /* Heading */
+        .heading {
+          text-align: center;
+          padding-top: 2.5rem;
+          padding-bottom: 2.5rem;
+          color: var(--color-emp);
+        }
+
+        .heading-title {
+          font-size: 2.25rem;
+          line-height: 2.5rem;
+          font-weight: 700;
+          margin-bottom: 0.25rem;
+        }
+
+        .heading-sub {
+          display: flex;
+          justify-content: center;
+          opacity: 0.5;
+          font-size: 0.875rem;
+          transition: opacity 0.2s;
+        }
+
+        .heading-sub:hover {
+          opacity: 0.85;
+        }
+
+        .heading-sub a {
+          display: flex;
+          align-items: center;
+          gap: 0.25rem;
+          color: inherit;
+          text-decoration: none;
+        }
+
+        /* Breadcrumbs Toolbar */
+
+    /* === [caddy/css/03-layout.css] === */
+    #breadcrumbs {
+          display: flex;
+          align-items: center;
+          background-color: var(--bg-dark-600);
+          padding: 0.5rem 1.25rem;
+          margin-bottom: 1.25rem;
+          border-radius: 0.75rem;
+          white-space: nowrap;
+          position: relative;
+          z-index: 30;
+          gap: 0.5rem;
+        }
+
+        .icon-wifi {
+          width: 1.25rem;
+          height: 1.25rem;
+          margin-right: 0.25rem;
+          flex-shrink: 0;
+          color: var(--color-emp);
+        }
+
+        .toolbar-actions {
+          display: flex;
+          align-items: center;
+          gap: 0.6rem;
+          margin-left: auto;
+        }
+
+        .tool-btn {
+          background: none;
+          border: none;
+          padding: 0.25rem 0.4rem;
+          cursor: pointer;
+          display: inline-flex;
+          align-items: center;
+          gap: 0.35rem;
+          color: var(--color-main);
+          border-radius: 0.5rem;
+          font-family: inherit;
+          font-size: 0.85rem;
+          font-weight: 700;
+          transition: all 0.2s ease;
+        }
+
+        .tool-btn:hover {
+          color: var(--color-emp);
+          background-color: var(--bg-dark-300);
+        }
+
+        .tool-btn.copied {
+          color: var(--color-emp);
+          background-color: var(--bg-dark-300);
+        }
+
+        .tool-btn svg {
+          width: 1.25rem;
+          height: 1.25rem;
+        }
+
+        .breadcrumbs-wrap {
+          overflow-x: auto;
+          flex: 1 1 0%;
+          min-width: 0;
+          scrollbar-width: none;
+          -ms-overflow-style: none;
+          mask-image: linear-gradient(to right, black calc(100% - 20px), transparent);
+          -webkit-mask-image: linear-gradient(to right, black calc(100% - 20px), transparent);
+          transition: mask-image 0.2s, -webkit-mask-image 0.2s;
+        }
+
+        .breadcrumbs-wrap.is-scrolled-left {
+          mask-image: linear-gradient(to right, transparent, black 20px, black calc(100% - 20px), transparent);
+          -webkit-mask-image: linear-gradient(to right, transparent, black 20px, black calc(100% - 20px), transparent);
+        }
+
+        .breadcrumbs-wrap.is-scrolled-end {
+          mask-image: linear-gradient(to right, transparent, black 20px, black 100%);
+          -webkit-mask-image: linear-gradient(to right, transparent, black 20px, black 100%);
+        }
+
+        .breadcrumbs-wrap::-webkit-scrollbar {
+          display: none;
+        }
+
+        .breadcrumbs-inner {
+          display: inline-flex;
+          align-items: center;
+          white-space: nowrap;
+          min-width: max-content;
+        }
+
+        .breadcrumb-link {
+          color: var(--color-main);
+          text-decoration: none;
+          margin-left: 0.5rem;
+          transition: color 0.15s;
+          flex-shrink: 0;
+          white-space: nowrap;
+          max-width: 180px;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          display: inline-block;
+          vertical-align: middle;
+        }
+
+        .breadcrumb-link:first-child {
+          margin-left: 0;
+        }
+
+        .breadcrumb-link:hover {
+          color: var(--color-emp);
+        }
+
+        .breadcrumb-link.active {
+          color: var(--color-emp);
+          pointer-events: none;
+          cursor: default;
+          font-weight: 700;
+          flex-shrink: 0;
+          white-space: nowrap;
+          max-width: 220px;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          display: inline-block;
+          vertical-align: middle;
+        }
+
+        .breadcrumb-sep {
+          color: var(--color-subsub);
+          margin-left: 0.5rem;
+          user-select: none;
+          flex-shrink: 0;
+        }
+
+        .search-input {
+          background: transparent;
+          border: none;
+          outline: none;
+          color: var(--color-emp);
+          font-family: inherit;
+          font-size: 0.95rem;
+          flex: 1 1 0%;
+          width: 100%;
+        }
+
+        /* Optional Collapsible Wget Drawer */
+        .wget-drawer {
+          display: none;
+          background-color: var(--bg-dark-600);
+          padding: 0.75rem 1.25rem;
+          margin-top: -0.75rem;
+          margin-bottom: 1.25rem;
+          border-radius: 0 0 0.75rem 0.75rem;
+          border-top: 1px solid var(--bg-dark-800);
+          animation: slideDown 0.2s ease-out;
+        }
+
+        .wget-drawer.active {
+          display: flex;
+          gap: 0.5rem;
+          align-items: center;
+        }
+
+        @keyframes slideDown {
+          from { opacity: 0; transform: translateY(-6px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+
+        .wget-code {
+          flex: 1 1 0%;
+          overflow-x: auto;
+          white-space: nowrap;
+          background-color: var(--bg-dark-800);
+          border-radius: 0.5rem;
+          padding: 0.5rem;
+          font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+          font-size: 0.82rem;
+          color: var(--color-alt);
+          scrollbar-width: none;
+        }
+
+        .wget-code::-webkit-scrollbar {
+          display: none;
+        }
+
+        .wget-btn {
+          background-color: var(--bg-dark-300);
+          color: var(--color-emp);
+          border: none;
+          border-radius: 0.5rem;
+          padding: 0.45rem 0.75rem;
+          font-family: inherit;
+          font-size: 0.82rem;
+          font-weight: 600;
+          cursor: pointer;
+          transition: all 0.2s ease;
+          white-space: nowrap;
+        }
+
+        .wget-btn:hover {
+          background-color: var(--bg-dark-200);
+        }
+
+        /* List Column Headers for Sorting */
+
+    /* === [caddy/css/04-table.css] === */
+    .list-header {
+          display: flex;
+          gap: 1rem;
+          padding: 0.25rem 0.75rem 0.5rem 0.75rem;
+          font-size: 0.75rem;
+          font-weight: 700;
+          text-transform: uppercase;
+          letter-spacing: 0.05em;
+          color: var(--color-subsub);
+          user-select: none;
+          align-items: center;
+        }
+
+        .col-name {
+          flex: 1 1 0%;
+          padding-left: 3.5rem;
+          cursor: pointer;
+          display: flex;
+          align-items: center;
+          gap: 0.35rem;
+          transition: color 0.15s;
+        }
+
+        .col-size {
+          flex-basis: 7.5rem;
+          text-align: right;
+          justify-content: flex-end;
+          cursor: pointer;
+          display: flex;
+          align-items: center;
+          gap: 0.35rem;
+          transition: color 0.15s;
+        }
+
+        .col-mtime {
+          flex-basis: 7.5rem;
+          text-align: right;
+          justify-content: flex-end;
+          cursor: pointer;
+          display: flex;
+          align-items: center;
+          gap: 0.35rem;
+          transition: color 0.15s;
+        }
+
+        .sort-header-col:hover {
+          color: var(--color-emp);
+        }
+
+        .sort-header-col.active {
+          color: var(--color-emp);
+        }
+
+        .sort-arrow {
+          display: inline-block;
+          font-size: 0.7rem;
+          opacity: 0.85;
+        }
+
+        @media (max-width: 640px) {
+          .col-size { flex-basis: 3.75rem; }
+          .col-mtime { display: none; }
+        }
+
+        /* File List */
+        .file-list {
+          display: flex;
+          flex-direction: column;
+          gap: 0.25rem;
+        }
+
+        .file-item {
+          width: 100%;
+          display: flex;
+          gap: 1rem;
+          transition: all 0.2s;
+          background-color: var(--bg-dark-800);
+          border-radius: 0.75rem;
+          padding: 0.5rem 0.75rem;
+          align-items: center;
+          text-decoration: none;
+          color: var(--color-main);
+          position: relative;
+        }
+
+        .file-item:hover, .file-item.selected {
+          background-color: var(--bg-dark-300);
+          transition-duration: 0s;
+        }
+
+        .file-item.selected {
+          outline: 2px solid var(--color-emp);
+          outline-offset: -2px;
+        }
+
+        .file-icon {
+          width: 2.5rem;
+          max-height: 2.5rem;
+          object-fit: contain;
+          flex-shrink: 0;
+        }
+
+        .file-name {
+          flex: 1 1 0%;
+          font-weight: 700;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+          color: var(--color-main);
+        }
+
+        .file-item:hover .file-name, .file-item.selected .file-name {
+          color: var(--color-emp);
+        }
+
+        .file-size {
+          text-align: right;
+          flex-basis: 7.5rem;
+          overflow: hidden;
+          white-space: nowrap;
+          color: var(--color-sub);
+          font-variant-numeric: tabular-nums;
+        }
+
+        .file-mtime {
+          text-align: right;
+          flex-basis: 7.5rem;
+          user-select: none;
+          color: var(--color-sub);
+          white-space: nowrap;
+        }
+
+        @media (max-width: 640px) {
+          .file-size {
+            flex-basis: 3.75rem;
+          }
+          .file-mtime {
+            display: none;
+          }
+        }
+
+        /* Summary Status Bar */
+        .list-summary {
+          text-align: center;
+          padding: 1.5rem 0.5rem 1rem 0.5rem;
+          color: var(--color-subsub);
+          font-size: 0.85rem;
+          user-select: none;
+        }
+
+        .no-results {
+          display: none;
+          text-align: center;
+          padding: 3rem 1rem;
+          color: var(--color-sub);
+          font-size: 1.1rem;
+        }
+
+        /* macOS Quick Look Overlay & Window */
+
+    /* === [caddy/css/05-quicklook.css] === */
+    .quicklook-modal {
+          display: none;
+          position: fixed;
+          inset: 0;
+          z-index: 9999;
+          pointer-events: none;
+          align-items: center;
+          justify-content: center;
+          padding: 1.5rem;
+        }
+
+        .quicklook-modal.active {
+          display: flex;
+        }
+
+        @media (max-width: 768px), (pointer: coarse) {
+          .quicklook-modal,
+          .quicklook-modal.active {
+            display: none !important;
+          }
+        }
+
+        .quicklook-window {
+          background-color: rgba(28, 22, 23, 0.78);
+          backdrop-filter: blur(24px) saturate(130%);
+          -webkit-backdrop-filter: blur(24px) saturate(130%);
+          border: 1px solid rgba(255, 255, 255, 0.08);
+          border-radius: 0.75rem;
+          box-shadow: 0 6px 20px rgba(0, 0, 0, 0.35), 0 1px 4px rgba(0, 0, 0, 0.2);
+          display: flex;
+          flex-direction: column;
+          overflow: hidden;
+          max-width: 90vw;
+          max-height: 85vh;
+          min-width: 320px;
+          min-height: 240px;
+          width: 580px;
+          height: 420px;
+          position: relative;
+          transform: scale(0.96);
+          opacity: 0;
+          transition: transform 0.12s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.12s cubic-bezier(0.16, 1, 0.3, 1);
+          pointer-events: none; /* In hold mode, mouse events pass through to file list */
+        }
+
+        .quicklook-modal.active .quicklook-window {
+          transform: scale(1);
+          opacity: 1;
+        }
+
+        /* Pinned mode: interactive window */
+        .quicklook-window.is-pinned {
+          pointer-events: auto; /* Clickable close button, draggable, resizable, scrollable */
+          transition: none;
+        }
+
+        /* GNOME Style Headerbar */
+        .quicklook-header {
+          display: flex;
+          align-items: center;
+          gap: 0.5rem;
+          padding: 0.5rem 0.75rem 0.5rem 1rem;
+          background-color: rgba(36, 28, 30, 0.65);
+          border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+          font-size: 0.85rem;
+          color: var(--color-main);
+          user-select: none;
+          cursor: grab;
+          flex-shrink: 0;
+          min-height: 40px;
+        }
+
+        .quicklook-header:active {
+          cursor: grabbing;
+        }
+
+        .quicklook-header-title {
+          font-weight: 600;
+          color: var(--color-emp);
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+          flex: 1 1 0%;
+          pointer-events: none;
+          letter-spacing: 0.01em;
+        }
+
+        .quicklook-header-meta {
+          font-size: 0.75rem;
+          color: var(--color-sub);
+          white-space: nowrap;
+          pointer-events: none;
+          opacity: 0.85;
+        }
+
+        /* GNOME Style Flat Action Button */
+        .quicklook-action-btn {
+          background: transparent;
+          border: 1px solid transparent;
+          color: var(--color-main);
+          cursor: pointer;
+          font-size: 0.75rem;
+          font-weight: 600;
+          font-family: inherit;
+          padding: 0.25rem 0.55rem;
+          border-radius: 6px;
+          transition: all 0.15s ease;
+          display: inline-flex;
+          align-items: center;
+          gap: 0.35rem;
+          user-select: none;
+          flex-shrink: 0;
+          line-height: 1;
+        }
+
+        .quicklook-action-btn:hover {
+          background-color: rgba(255, 255, 255, 0.08);
+          color: var(--color-emp);
+        }
+
+        .quicklook-action-btn.copied {
+          color: var(--color-alt);
+          background-color: rgba(235, 214, 183, 0.12);
+        }
+
+        .quicklook-action-btn svg {
+          width: 0.85rem;
+          height: 0.85rem;
+        }
+
+        /* GNOME Flat Window Close Control */
+        .quicklook-close {
+          background: transparent;
+          border: 1px solid transparent;
+          color: var(--color-sub);
+          cursor: pointer;
+          font-size: 1rem;
+          width: 24px;
+          height: 24px;
+          border-radius: 50%;
+          transition: all 0.15s ease;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          margin-left: 0.15rem;
+          flex-shrink: 0;
+          line-height: 1;
+        }
+
+        .quicklook-close:hover {
+          color: var(--color-emp);
+          background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        /* Syntax Highlighting (MeowIndex Pastel Theme) */
+
+        .quicklook-body {
+          padding: 0.75rem;
+          display: flex;
+          align-items: stretch;
+          justify-content: stretch;
+          overflow: hidden;
+          flex: 1 1 0%;
+          min-height: 0;
+          height: calc(100% - 40px);
+          background-color: transparent;
+          position: relative;
+          box-sizing: border-box;
+        }
+
+        .quicklook-body img {
+          width: 100%;
+          height: 100%;
+          object-fit: contain;
+          border-radius: 0.5rem;
+          display: block;
+          margin: auto;
+        }
+
+        .quicklook-body video {
+          width: 100%;
+          height: 100%;
+          object-fit: contain;
+          border-radius: 0.5rem;
+          outline: none;
+          display: block;
+          margin: auto;
+        }
+
+        .quicklook-body audio {
+          width: 90%;
+          margin: auto;
+          align-self: center;
+        }
+
+        .quicklook-body pre {
+          width: 100%;
+          height: 100%;
+          box-sizing: border-box;
+          margin: 0;
+          overflow: auto;
+          white-space: pre;
+          word-break: normal;
+          font-family: ui-monospace, SFMono-Regular, monospace;
+          font-size: 0.85rem;
+          line-height: 1.5;
+          color: var(--color-alt);
+          background: rgba(18, 14, 15, 0.55);
+          padding: 1rem;
+          border-radius: 6px;
+          border: 1px solid rgba(255, 255, 255, 0.06);
+        }
+
+        .quicklook-folder-preview {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          gap: 0.75rem;
+          padding: 2rem 1rem;
+          text-align: center;
+          width: 100%;
+          height: 100%;
+        }
+
+        .quicklook-folder-preview img {
+          width: 4.5rem;
+          height: 4.5rem;
+        }
+
+        /* 8-Direction Quick Look Resize Handles */
+        .ql-resize-handle {
+          position: absolute;
+          z-index: 50;
+          user-select: none;
+        }
+        .ql-resize-n {
+          top: 0; left: 14px; right: 14px; height: 8px; cursor: ns-resize;
+        }
+        .ql-resize-s {
+          bottom: 0; left: 14px; right: 14px; height: 8px; cursor: ns-resize;
+        }
+        .ql-resize-w {
+          left: 0; top: 14px; bottom: 14px; width: 8px; cursor: ew-resize;
+        }
+        .ql-resize-e {
+          right: 0; top: 14px; bottom: 14px; width: 8px; cursor: ew-resize;
+        }
+        .ql-resize-nw {
+          top: 0; left: 0; width: 14px; height: 14px; cursor: nwse-resize;
+        }
+        .ql-resize-ne {
+          top: 0; right: 0; width: 14px; height: 14px; cursor: nesw-resize;
+        }
+        .ql-resize-sw {
+          bottom: 0; left: 0; width: 14px; height: 14px; cursor: nesw-resize;
+        }
+        .ql-resize-se {
+          bottom: 0; right: 0; width: 16px; height: 16px; cursor: nwse-resize;
+          display: flex; align-items: center; justify-content: center;
+          color: var(--color-subsub);
+          transition: color 0.15s;
+        }
+        .ql-resize-se:hover {
+          color: var(--color-emp);
+        }
+
+    /* === [caddy/css/06-syntax.css] === */
+    .quicklook-body pre code.hljs {
+          color: var(--color-main);
+          background: transparent;
+          font-family: inherit;
+          font-size: inherit;
+          padding: 0;
+          display: block;
+          tab-size: 4;
+        }
+        .hljs-keyword, .hljs-selector-tag, .hljs-subst {
+          color: var(--color-emp);
+          font-weight: 700;
+        }
+        .hljs-string, .hljs-title.class_, .hljs-attr {
+          color: var(--color-alt);
+        }
+        .hljs-comment, .hljs-quote {
+          color: #8a6a72;
+          font-style: italic;
+        }
+        .hljs-function, .hljs-title.function_, .hljs-section {
+          color: #b5e8e0;
+          font-weight: 600;
+        }
+        .hljs-number, .hljs-literal {
+          color: #fab387;
+        }
+        .hljs-type, .hljs-built_in {
+          color: #cba6f7;
+        }
+        .hljs-variable, .hljs-template-variable {
+          color: var(--color-main);
+        }
+        .hljs-meta, .hljs-meta .hljs-keyword {
+          color: var(--color-sub);
+        }
+  </style>
+</head>
+<body>
+  <div class="page-wrapper">
+    <div class="container">
+      
+      <!-- Heading -->
+      <div class="heading">
+        <p class="heading-title">{{ $title }}</p>
+        <div class="heading-sub">
+          <a href="https://github.com/hykilpikonna/MeowIndex" target="_blank" rel="noopener">
+            Powered by Caddy MeowIndex
+            <svg style="width: 1.125rem; height: 1.125rem;" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/>
+            </svg>
+          </a>
+        </div>
+      </div>
+
+      <!-- Breadcrumb Toolbar -->
+      <div id="breadcrumbs">
+        <!-- Wifi icon -->
+        <svg class="icon-wifi" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M5 12.55a11 11 0 0 1 14.08 0"/>
+          <path d="M1.42 9a16 16 0 0 1 21.16 0"/>
+          <path d="M8.53 16.11a6 6 0 0 1 6.95 0"/>
+          <line x1="12" y1="20" x2="12.01" y2="20"/>
+        </svg>
+
+        <!-- Search input (when search active) -->
+        <input type="text" id="searchInp" class="search-input" style="display: none;" placeholder="Search files (press Esc to close)..." autocomplete="off" />
+
+        <!-- Breadcrumbs (when search inactive) -->
+        <div class="breadcrumbs-wrap" id="breadcrumbsWrap">
+          <div class="breadcrumbs-inner" id="breadcrumbsInner">
+            {{range $i, $crumb := .Breadcrumbs}}
+              {{if ne $i 0}}<span class="breadcrumb-sep color-subsub">/</span>{{end}}
+              <a class="breadcrumb-link{{if eq $crumb.Link ""}} active{{end}}" href="{{if eq $crumb.Link ""}}#{{else}}{{html $crumb.Link}}{{end}}" title="{{html $crumb.Text}}">
+                {{if eq $i 0}}<span class="host-root">~</span>{{else}}{{html $crumb.Text}}{{end}}
+              </a>
+            {{end}}
+          </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="toolbar-actions">
+          <!-- Wget Quick Copy / Drawer Toggle button -->
+          <button class="tool-btn" id="wgetBtn" title="Copy recursive wget command" onclick="handleWgetClick(event)">
+            <span id="wgetIcon" style="display: flex; align-items: center;">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="4 17 10 11 4 5"/>
+                <line x1="12" y1="19" x2="20" y2="19"/>
+              </svg>
+            </span>
+            <span id="wgetLabel" style="display: none;">Copied</span>
+          </button>
+
+          <!-- Search icon -->
+          <button class="tool-btn" id="searchBtn" title="Search files ( / )" onclick="toggleSearch()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="11" cy="11" r="8"/>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Collapsible Wget Drawer (Hidden by default) -->
+      <div class="wget-drawer" id="wgetDrawer">
+        <code class="wget-code" id="wgetCmd"></code>
+        <button class="wget-btn" id="drawerCopyBtn" onclick="copyWget()">Copy</button>
+      </div>
+
+      <!-- Sort Column Headers -->
+      <div class="list-header" id="listHeader">
+        <div class="col-name sort-header-col active" id="sort-name" onclick="toggleSort('name')">
+          <span>Name</span>
+          <span class="sort-arrow" id="arrow-name">▲</span>
+        </div>
+        <div class="col-size sort-header-col" id="sort-size" onclick="toggleSort('size')">
+          <span>Size</span>
+          <span class="sort-arrow" id="arrow-size"></span>
+        </div>
+        <div class="col-mtime sort-header-col" id="sort-mtime" onclick="toggleSort('mtime')">
+          <span>Date</span>
+          <span class="sort-arrow" id="arrow-mtime"></span>
+        </div>
+      </div>
+
+      <!-- Files List (Rendered by Caddy) -->
+      <div class="file-list" id="fileList">
+        {{if .CanGoUp}}
+        <a class="file-item" href="..">
+          <img class="file-icon" src="/mime/folder.svg" alt="folder" onerror="this.src='/mime/application-blank.svg'">
+          <span class="file-name">..</span>
+          <span class="file-size">-</span>
+          <span class="file-mtime">-</span>
+        </a>
+        {{end}}
+
+        {{range .Items}}
+        <a class="file-item" href="{{html .URL}}" data-name="{{html .Name}}" data-size="{{.Size}}" data-mtime="{{.ModTime.Unix}}" data-isdir="{{if .IsDir}}1{{else}}0{{end}}">
+          <img class="file-icon" data-filename="{{html .Name}}" data-isdir="{{if .IsDir}}1{{else}}0{{end}}" src="/mime/{{if .IsDir}}folder.svg{{else}}application-blank.svg{{end}}" alt="" onerror="this.src='/mime/application-blank.svg'">
+          <span class="file-name" title="{{html .Name}}">{{html .Name}}</span>
+          <span class="file-size">{{if .IsDir}}-{{else}}{{.HumanSize}}{{end}}</span>
+          <span class="file-mtime">
+            <time datetime='{{.HumanModTime "2006-01-02T15:04:05Z07:00"}}'>{{.HumanModTime "02-Jan-2006 15:04"}}</time>
+          </span>
+        </a>
+        {{end}}
+
+        <div class="no-results" id="noResults">
+          No files matching query.
+        </div>
+      </div>
+
+      <!-- Item Count Summary -->
+      <div class="list-summary" id="listSummary"></div>
+
+    </div>
+  </div>
+
+  <!-- macOS Quick Look Modal -->
+  <div class="quicklook-modal" id="quickLookModal">
+    <div class="quicklook-window" id="quickLookWindow">
+      <div class="quicklook-header" id="quickLookHeader" title="Drag to move">
+        <span class="quicklook-header-title" id="quickLookTitle"></span>
+        <span class="quicklook-header-meta" id="quickLookMeta"></span>
+        <button class="quicklook-action-btn" id="quickLookCopyBtn" onclick="copyQuickLookContents(event)" title="Copy contents" style="display: none;">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
+            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+          </svg>
+          <span id="quickLookCopyLabel">Copy</span>
+        </button>
+        <button class="quicklook-close" id="quickLookCloseBtn" onclick="closeQuickLook(event)" title="Close (Esc or Space)">&times;</button>
+      </div>
+      <div class="quicklook-body" id="quickLookBody"></div>
+      <!-- 8-Direction Resize Handles -->
+      <div class="ql-resize-handle ql-resize-n" data-dir="n"></div>
+      <div class="ql-resize-handle ql-resize-s" data-dir="s"></div>
+      <div class="ql-resize-handle ql-resize-e" data-dir="e"></div>
+      <div class="ql-resize-handle ql-resize-w" data-dir="w"></div>
+      <div class="ql-resize-handle ql-resize-ne" data-dir="ne"></div>
+      <div class="ql-resize-handle ql-resize-nw" data-dir="nw"></div>
+      <div class="ql-resize-handle ql-resize-sw" data-dir="sw"></div>
+      <div class="ql-resize-handle ql-resize-se" data-dir="se" title="Resize">
+        <svg viewBox="0 0 10 10" width="10" height="10">
+          <line x1="9" y1="1" x2="1" y2="9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+          <line x1="9" y1="5" x2="5" y2="9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+          <line x1="9" y1="9" x2="9" y2="9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // === [caddy/js/01-state.js] ===
+    // 1. Top-Level State and Elements
+        let currentSort = { col: 'name', dir: 'asc' };
+        let searchOn = false;
+        let selectedIdx = -1;
+
+        // Quick Look State
+        let isSpaceDown = false;
+        let spacePressTime = 0;
+        let hasSwitchedSubject = false;
+        let isPinned = false;
+        let currentHoveredItem = null;
+        let currentPreviewItem = null;
+        let currentQuickLookText = '';
+
+        // Drag & Resize State
+        let isDragging = false;
+        let dragStartX = 0, dragStartY = 0;
+        let winStartX = 0, winStartY = 0;
+        let isResizing = false;
+        let resizeDir = null;
+        let resizeStartX = 0, resizeStartY = 0;
+        let resizeStartRect = null;
+        let hasCustomPosition = false;
+
+        const breadcrumbsWrap = document.getElementById('breadcrumbsWrap');
+        const searchInp = document.getElementById('searchInp');
+        const fileListEl = document.getElementById('fileList');
+        const noResults = document.getElementById('noResults');
+        const listSummary = document.getElementById('listSummary');
+        const wgetDrawer = document.getElementById('wgetDrawer');
+        const wgetCmdEl = document.getElementById('wgetCmd');
+        const wgetBtn = document.getElementById('wgetBtn');
+        const wgetIcon = document.getElementById('wgetIcon');
+        const wgetLabel = document.getElementById('wgetLabel');
+        const drawerCopyBtn = document.getElementById('drawerCopyBtn');
+        const quickLookModal = document.getElementById('quickLookModal');
+        const quickLookWindow = document.getElementById('quickLookWindow');
+        const quickLookHeader = document.getElementById('quickLookHeader');
+        const quickLookTitle = document.getElementById('quickLookTitle');
+        const quickLookMeta = document.getElementById('quickLookMeta');
+        const quickLookCopyBtn = document.getElementById('quickLookCopyBtn');
+        const quickLookCopyLabel = document.getElementById('quickLookCopyLabel');
+        const quickLookBody = document.getElementById('quickLookBody');
+
+        // 2. MIME Type to WhiteSur Icon Mapping
+
+    // === [caddy/js/02-mime.js] ===
+    const mimeMap = {
+          // Images
+          png: 'image-png', jpg: 'image-jpeg', jpeg: 'image-jpeg', gif: 'image-gif', webp: 'image-webp',
+          svg: 'image-svg+xml', bmp: 'image-bmp', ico: 'image-x-ico', avif: 'image-avif', tiff: 'image-tiff',
+          // Videos
+          mp4: 'video-mp4', mkv: 'video-x-matroska', webm: 'video-webm', avi: 'video-x-msvideo',
+          mov: 'video-quicktime', flv: 'video-x-flv', wmv: 'video-x-ms-wmv', m4v: 'video-mp4',
+          // Audio
+          mp3: 'audio-mp3', wav: 'audio-x-wav', flac: 'audio-x-flac', aac: 'audio-aac',
+          ogg: 'application-ogg', m4a: 'audio-mp4', wma: 'audio-x-ms-wma', midi: 'audio-midi',
+          // Documents
+          pdf: 'application-pdf', doc: 'application-msword', docx: 'application-vnd.openxmlformats-officedocument.wordprocessingml.document',
+          xls: 'application-vnd.ms-excel', xlsx: 'application-vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+          ppt: 'application-vnd.ms-powerpoint', pptx: 'application-vnd.openxmlformats-officedocument.presentationml.presentation',
+          txt: 'text-plain', md: 'text-markdown', markdown: 'text-markdown', log: 'text-x-log', csv: 'text-csv',
+          // Archives
+          zip: 'application-zip', tar: 'application-x-tar', gz: 'application-gzip', xz: 'application-x-xz',
+          '7z': 'application-x-7z-compressed', rar: 'application-vnd.rar', bz2: 'application-x-bzip', zst: 'application-x-zstd',
+          // Code & Web
+          js: 'text-javascript', mjs: 'text-javascript', ts: 'text-x-typescript', tsx: 'text-x-typescript', jsx: 'text-javascript',
+          py: 'text-x-python', rs: 'text-x-rust', go: 'text-x-go', c: 'text-x-c', cpp: 'text-x-cpp', h: 'text-x-chdr',
+          java: 'text-x-java', sh: 'application-x-shellscript', bash: 'application-x-shellscript', zsh: 'application-x-shellscript',
+          json: 'application-json', yaml: 'text-yaml', yml: 'text-yaml', toml: 'text-plain',
+          html: 'text-html', htm: 'text-html', css: 'text-css', scss: 'text-x-scss', sass: 'text-x-sass',
+          vue: 'text-x-vue', svelte: 'text-plain', sql: 'text-x-sql', php: 'text-x-php'
+        };
+
+        function resolveIcons() {
+          document.querySelectorAll('#fileList img.file-icon[data-filename]').forEach(img => {
+            const isDir = img.getAttribute('data-isdir') === '1';
+            if (isDir) {
+              img.src = '/mime/folder.svg';
+              return;
+            }
+            const name = img.getAttribute('data-filename') || '';
+            const sp = name.split('.');
+            const ext = sp.length > 1 ? sp[sp.length - 1].toLowerCase() : '';
+            const iconName = mimeMap[ext] || 'application-blank';
+            img.src = `/mime/${iconName}.svg`;
+          });
+        }
+        resolveIcons();
+
+        // 3. Breadcrumbs Host Root, Auto-Scroll & Fade Masks
+
+    // === [caddy/js/03-breadcrumbs.js] ===
+    const hostRoot = document.querySelector('#breadcrumbsInner .host-root');
+        if (hostRoot) {
+          hostRoot.textContent = window.location.host;
+        }
+
+        function updateBreadcrumbsMask() {
+          if (!breadcrumbsWrap) return;
+          const sl = breadcrumbsWrap.scrollLeft;
+          const maxScroll = breadcrumbsWrap.scrollWidth - breadcrumbsWrap.clientWidth;
+          if (maxScroll <= 5) {
+            breadcrumbsWrap.classList.remove('is-scrolled-left', 'is-scrolled-end');
+          } else if (sl > 10 && sl < maxScroll - 10) {
+            breadcrumbsWrap.classList.add('is-scrolled-left');
+            breadcrumbsWrap.classList.remove('is-scrolled-end');
+          } else if (sl >= maxScroll - 10) {
+            breadcrumbsWrap.classList.remove('is-scrolled-left');
+            breadcrumbsWrap.classList.add('is-scrolled-end');
+          } else {
+            breadcrumbsWrap.classList.remove('is-scrolled-left', 'is-scrolled-end');
+          }
+        }
+
+        const scrollToEnd = () => {
+          if (breadcrumbsWrap) {
+            breadcrumbsWrap.scrollLeft = breadcrumbsWrap.scrollWidth - breadcrumbsWrap.clientWidth;
+            updateBreadcrumbsMask();
+          }
+        };
+        scrollToEnd();
+        requestAnimationFrame(scrollToEnd);
+        setTimeout(scrollToEnd, 100);
+
+        if (breadcrumbsWrap) {
+          breadcrumbsWrap.addEventListener('scroll', updateBreadcrumbsMask);
+          breadcrumbsWrap.addEventListener('wheel', (e) => {
+            if (e.deltaY !== 0 && !e.shiftKey) {
+              e.preventDefault();
+              breadcrumbsWrap.scrollLeft += e.deltaY;
+            }
+          }, { passive: false });
+        }
+
+        // 4. Wget Command & Inline Copy Feedback
+
+    // === [caddy/js/04-wget.js] ===
+    const fullPath = window.location.pathname;
+        const cleanPath = fullPath.endsWith('/') ? fullPath : `${fullPath}/`;
+        const cutDirs = Math.max(0, cleanPath.split('/').filter(Boolean).length);
+        const wgetCommand = `wget -r -np -nH -e robots=off -nc --cut-dirs=${cutDirs} ${window.location.origin}${cleanPath}`;
+        if (wgetCmdEl) wgetCmdEl.textContent = wgetCommand;
+
+        function copyWget() {
+          navigator.clipboard.writeText(wgetCommand).then(() => {
+            if (wgetBtn && wgetIcon && wgetLabel) {
+              wgetBtn.classList.add('copied');
+              wgetIcon.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>`;
+              wgetLabel.style.display = 'inline';
+              
+              setTimeout(() => {
+                wgetBtn.classList.remove('copied');
+                wgetIcon.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/></svg>`;
+                wgetLabel.style.display = 'none';
+              }, 1200);
+            }
+
+            if (drawerCopyBtn) {
+              drawerCopyBtn.textContent = 'Copied';
+              setTimeout(() => drawerCopyBtn.textContent = 'Copy', 1200);
+            }
+          });
+        }
+
+        function handleWgetClick(e) {
+          if (e.shiftKey || e.altKey) {
+            if (wgetDrawer) wgetDrawer.classList.toggle('active');
+          } else {
+            copyWget();
+          }
+        }
+
+        // 5. Column Sorting (Name / Size / Date)
+
+    // === [caddy/js/05-sorting.js] ===
+    function toggleSort(col) {
+          if (currentSort.col === col) {
+            currentSort.dir = currentSort.dir === 'asc' ? 'desc' : 'asc';
+          } else {
+            currentSort.col = col;
+            currentSort.dir = (col === 'name') ? 'asc' : 'desc';
+          }
+          applySort();
+        }
+
+        function applySort() {
+          ['name', 'size', 'mtime'].forEach(col => {
+            const header = document.getElementById(`sort-${col}`);
+            const arrow = document.getElementById(`arrow-${col}`);
+            if (!header || !arrow) return;
+            if (col === currentSort.col) {
+              header.classList.add('active');
+              arrow.textContent = currentSort.dir === 'asc' ? '▲' : '▼';
+            } else {
+              header.classList.remove('active');
+              arrow.textContent = '';
+            }
+          });
+
+          const items = Array.from(document.querySelectorAll('#fileList .file-item:not([href=".."])'));
+          const goUp = document.querySelector('#fileList .file-item[href=".."]');
+
+          items.sort((a, b) => {
+            const isDirA = a.dataset.isdir === '1';
+            const isDirB = b.dataset.isdir === '1';
+            if (isDirA !== isDirB) return isDirA ? -1 : 1;
+
+            let res = 0;
+            if (currentSort.col === 'name') {
+              res = (a.dataset.name || '').localeCompare(b.dataset.name || '', undefined, { numeric: true, sensitivity: 'base' });
+            } else if (currentSort.col === 'size') {
+              const sA = parseInt(a.dataset.size, 10) || 0;
+              const sB = parseInt(b.dataset.size, 10) || 0;
+              res = sA - sB;
+            } else if (currentSort.col === 'mtime') {
+              const tA = parseInt(a.dataset.mtime, 10) || 0;
+              const tB = parseInt(b.dataset.mtime, 10) || 0;
+              res = tA - tB;
+            }
+            return currentSort.dir === 'asc' ? res : -res;
+          });
+
+          if (goUp) fileListEl.appendChild(goUp);
+          items.forEach(item => fileListEl.appendChild(item));
+          if (noResults) fileListEl.appendChild(noResults);
+        }
+
+        // 6. Summary Status Bar
+
+    // === [caddy/js/06-formatters.js] ===
+    function updateSummary(visibleCount) {
+          if (!listSummary) return;
+          const allItems = document.querySelectorAll('#fileList .file-item:not([href=".."])');
+          const total = allItems.length;
+
+          if (searchOn && searchInp && searchInp.value.trim().length > 0) {
+            listSummary.textContent = `Showing ${visibleCount} of ${total} item${total === 1 ? '' : 's'}`;
+            return;
+          }
+
+          let folders = 0;
+          let files = 0;
+          allItems.forEach(el => {
+            if (el.dataset.isdir === '1') folders++;
+            else files++;
+          });
+          const parts = [];
+          if (folders > 0) parts.push(`${folders} folder${folders === 1 ? '' : 's'}`);
+          if (files > 0) parts.push(`${files} file${files === 1 ? '' : 's'}`);
+          listSummary.textContent = parts.length > 0 ? `${parts.join(', ')} (${total} total)` : 'Directory is empty';
+        }
+        updateSummary();
+
+        // 7. Search Filter & Keyboard Navigation
+
+        // 9. Relative Timestamps
+        function formatRelativeDates() {
+          const now = new Date();
+          document.querySelectorAll('#fileList time[datetime]').forEach(el => {
+            const dt = new Date(el.getAttribute('datetime'));
+            if (isNaN(dt.getTime())) return;
+            const diff = Math.floor((now - dt) / 1000);
+            if (diff < 45) {
+              el.textContent = 'a few seconds ago';
+            } else if (diff < 90) {
+              el.textContent = 'a minute ago';
+            } else if (diff < 2700) {
+              el.textContent = `${Math.round(diff / 60)} minutes ago`;
+            } else if (diff < 5400) {
+              el.textContent = 'an hour ago';
+            } else if (diff < 79200) {
+              el.textContent = `${Math.round(diff / 3600)} hours ago`;
+            } else if (diff < 129600) {
+              el.textContent = 'yesterday';
+            } else if (diff < 2160000) {
+              el.textContent = `${Math.round(diff / 86400)} days ago`;
+            } else if (diff < 5184000) {
+              el.textContent = 'a month ago';
+            } else {
+              el.textContent = `${Math.round(diff / 2592000)} months ago`;
+            }
+          });
+        }
+        formatRelativeDates();
+
+    // === [caddy/js/07-search.js] ===
+    function getVisibleItems() {
+          return Array.from(document.querySelectorAll('#fileList .file-item')).filter(el => el.style.display !== 'none');
+        }
+
+        function setSelected(idx) {
+          const visible = getVisibleItems();
+          visible.forEach(el => el.classList.remove('selected'));
+          if (idx >= 0 && idx < visible.length) {
+            selectedIdx = idx;
+            visible[idx].classList.add('selected');
+            visible[idx].scrollIntoView({ block: 'nearest' });
+          } else {
+            selectedIdx = -1;
+          }
+        }
+
+        function activateSearch() {
+          searchOn = true;
+          closeQuickLook();
+          if (breadcrumbsWrap) breadcrumbsWrap.style.display = 'none';
+          if (searchInp) {
+            searchInp.style.display = 'block';
+            searchInp.focus();
+            searchInp.select();
+          }
+          setSelected(-1);
+        }
+
+        function deactivateSearch() {
+          searchOn = false;
+          if (searchInp) {
+            searchInp.value = '';
+            searchInp.style.display = 'none';
+          }
+          if (breadcrumbsWrap) breadcrumbsWrap.style.display = 'block';
+          filterFiles('');
+          setSelected(-1);
+        }
+
+        function toggleSearch() {
+          searchOn ? deactivateSearch() : activateSearch();
+        }
+
+        function filterFiles(query) {
+          const q = query.trim().toLowerCase();
+          const fileItems = document.querySelectorAll('#fileList .file-item:not([href=".."])');
+          const goUp = document.querySelector('#fileList .file-item[href=".."]');
+          let visible = 0;
+
+          if (goUp) {
+            goUp.style.display = q ? 'none' : 'flex';
+          }
+
+          fileItems.forEach(el => {
+            const name = (el.dataset.name || '').toLowerCase();
+            if (!q || name.includes(q)) {
+              el.style.display = 'flex';
+              visible++;
+            } else {
+              el.style.display = 'none';
+            }
+          });
+
+          if (noResults) {
+            noResults.style.display = (fileItems.length > 0 && visible === 0 && q) ? 'block' : 'none';
+          }
+          updateSummary(visible);
+          setSelected(-1);
+        }
+
+        if (searchInp) {
+          searchInp.addEventListener('input', (e) => {
+            filterFiles(e.target.value);
+          });
+
+          searchInp.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+              deactivateSearch();
+            } else if (e.key === 'ArrowDown') {
+              e.preventDefault();
+              const visible = getVisibleItems();
+              if (visible.length > 0) {
+                searchInp.blur();
+                setSelected(0);
+              }
+            } else if (e.key === 'Enter') {
+              const visible = getVisibleItems();
+              if (visible.length === 1) {
+                visible[0].click();
+              }
+            }
+          });
+        }
+
+        // 8. macOS Quick Look (Hold Space or Quick-Tap Space to Pin, Movable & Resizable)
+
+    // === [caddy/js/08-quicklook.js] ===
+    function isMobile() {
+          return window.innerWidth <= 768 || window.matchMedia('(pointer: coarse)').matches;
+        }
+
+        const extLangMap = {
+          go: 'go', py: 'python', rs: 'rust',
+          js: 'javascript', mjs: 'javascript', ts: 'typescript', tsx: 'typescript', jsx: 'javascript',
+          json: 'json', html: 'xml', xml: 'xml', css: 'css', scss: 'scss',
+          sh: 'bash', bash: 'bash', zsh: 'bash',
+          md: 'markdown', markdown: 'markdown',
+          yaml: 'yaml', yml: 'yaml', toml: 'ini',
+          c: 'c', cpp: 'cpp', h: 'c', java: 'java', sql: 'sql'
+        };
+
+        function copyQuickLookContents(e) {
+          if (e) {
+            e.stopPropagation();
+            e.preventDefault();
+          }
+          if (!currentQuickLookText) return;
+          navigator.clipboard.writeText(currentQuickLookText).then(() => {
+            if (quickLookCopyBtn && quickLookCopyLabel) {
+              quickLookCopyBtn.classList.add('copied');
+              quickLookCopyLabel.textContent = 'Copied!';
+              setTimeout(() => {
+                quickLookCopyBtn.classList.remove('copied');
+                quickLookCopyLabel.textContent = 'Copy';
+              }, 1200);
+            }
+          });
+        }
+
+        function showQuickLook(el, pinned = false) {
+          if (isMobile() || !el || !quickLookModal || !quickLookBody) return;
+          currentPreviewItem = el;
+
+          const isDir = el.dataset.isdir === '1';
+          const name = el.dataset.name || '';
+          const url = el.getAttribute('href') || '';
+          const sizeEl = el.querySelector('.file-size');
+          const sizeText = sizeEl ? sizeEl.textContent.trim() : '';
+          const sp = name.split('.');
+          const ext = sp.length > 1 ? sp[sp.length - 1].toLowerCase() : '';
+
+          quickLookTitle.textContent = name;
+          quickLookMeta.textContent = isDir ? 'Folder' : (sizeText !== '-' ? sizeText : '');
+          quickLookBody.innerHTML = '';
+
+          const images = ['png', 'jpg', 'jpeg', 'gif', 'webp', 'svg', 'bmp', 'avif', 'ico'];
+          const videos = ['mp4', 'webm', 'mov', 'm4v'];
+          const audios = ['mp3', 'wav', 'ogg', 'flac', 'aac', 'm4a'];
+          const texts = ['txt', 'md', 'json', 'py', 'js', 'ts', 'css', 'html', 'log', 'sh', 'yaml', 'yml', 'toml', 'rs', 'go', 'c', 'cpp', 'java', 'sql'];
+
+          if (isDir) {
+            if (quickLookCopyBtn) quickLookCopyBtn.style.display = 'none';
+            currentQuickLookText = '';
+            quickLookBody.innerHTML = `
+              <div class="quicklook-folder-preview">
+                <img src="/mime/folder.svg" alt="folder" />
+                <span style="color: var(--color-emp); font-weight: 700; font-size: 1.1rem;">${name}</span>
+                <span style="color: var(--color-sub); font-size: 0.8rem;">Folder</span>
+              </div>
+            `;
+          } else if (images.includes(ext)) {
+            if (quickLookCopyBtn) quickLookCopyBtn.style.display = 'none';
+            currentQuickLookText = '';
+            const img = document.createElement('img');
+            img.src = url;
+            img.alt = name;
+            quickLookBody.appendChild(img);
+          } else if (videos.includes(ext)) {
+            if (quickLookCopyBtn) quickLookCopyBtn.style.display = 'none';
+            currentQuickLookText = '';
+            const vid = document.createElement('video');
+            vid.src = url;
+            vid.autoplay = true;
+            vid.muted = true;
+            vid.loop = true;
+            vid.playsInline = true;
+            vid.controls = true;
+            quickLookBody.appendChild(vid);
+          } else if (audios.includes(ext)) {
+            if (quickLookCopyBtn) quickLookCopyBtn.style.display = 'none';
+            currentQuickLookText = '';
+            const aud = document.createElement('audio');
+            aud.src = url;
+            aud.autoplay = true;
+            aud.controls = true;
+            quickLookBody.appendChild(aud);
+          } else if (texts.includes(ext)) {
+            if (quickLookCopyBtn) quickLookCopyBtn.style.display = 'inline-flex';
+            const pre = document.createElement('pre');
+            const code = document.createElement('code');
+            code.className = 'hljs';
+            code.textContent = 'Loading preview...';
+            pre.appendChild(code);
+            quickLookBody.appendChild(pre);
+
+            fetch(url)
+              .then(r => r.text())
+              .then(t => {
+                currentQuickLookText = t;
+                const lang = extLangMap[ext];
+                if (window.hljs && lang) {
+                  try {
+                    code.innerHTML = hljs.highlight(t.slice(0, 30000), { language: lang, ignoreIllegals: true }).value;
+                    return;
+                  } catch (e) {}
+                }
+                if (window.hljs) {
+                  try {
+                    code.innerHTML = hljs.highlightAuto(t.slice(0, 30000)).value;
+                    return;
+                  } catch (e) {}
+                }
+                code.textContent = t.slice(0, 30000);
+              })
+              .catch(() => {
+                code.textContent = 'Failed to load preview.';
+                currentQuickLookText = '';
+              });
+          } else {
+            if (quickLookCopyBtn) quickLookCopyBtn.style.display = 'none';
+            currentQuickLookText = '';
+            quickLookBody.innerHTML = `
+              <div class="quicklook-folder-preview">
+                <img src="/mime/application-blank.svg" alt="" onerror="this.src='/mime/folder.svg'" />
+                <span style="color: var(--color-emp); font-weight: 700;">${name}</span>
+                <span style="color: var(--color-sub); font-size: 0.8rem;">${ext.toUpperCase()} File (${sizeText})</span>
+              </div>
+            `;
+          }
+
+          quickLookModal.classList.add('active');
+          if (pinned) {
+            pinQuickLook();
+          } else if (!isPinned) {
+            quickLookWindow.classList.remove('is-pinned');
+          }
+        }
+
+        function pinQuickLook() {
+          isPinned = true;
+          if (quickLookWindow) {
+            quickLookWindow.classList.add('is-pinned');
+          }
+        }
+
+        function hideQuickLook() {
+          currentPreviewItem = null;
+          currentQuickLookText = '';
+          if (quickLookCopyBtn) quickLookCopyBtn.style.display = 'none';
+          if (quickLookModal) {
+            quickLookModal.classList.remove('active');
+          }
+          if (quickLookBody) {
+            const media = quickLookBody.querySelectorAll('video, audio');
+            media.forEach(m => { m.pause(); m.src = ''; });
+            quickLookBody.innerHTML = '';
+          }
+        }
+
+        function closeQuickLook(e) {
+          if (e) {
+            e.stopPropagation();
+            e.preventDefault();
+          }
+          isPinned = false;
+          currentPreviewItem = null;
+          if (quickLookWindow) {
+            quickLookWindow.classList.remove('is-pinned');
+            // Reset custom position/size on full close
+            if (hasCustomPosition) {
+              quickLookWindow.style.position = '';
+              quickLookWindow.style.left = '';
+              quickLookWindow.style.top = '';
+              quickLookWindow.style.width = '';
+              quickLookWindow.style.height = '';
+              quickLookWindow.style.maxWidth = '';
+              quickLookWindow.style.maxHeight = '';
+              quickLookWindow.style.margin = '';
+              quickLookWindow.style.transform = '';
+              hasCustomPosition = false;
+            }
+          }
+          hideQuickLook();
+        }
+
+        // Drag to Move Quick Look Window
+
+    // === [caddy/js/09-window.js] ===
+    if (quickLookHeader) {
+          quickLookHeader.addEventListener('mousedown', (e) => {
+            if (e.target.closest('.quicklook-close')) return;
+            if (!isPinned) pinQuickLook();
+
+            isDragging = true;
+            dragStartX = e.clientX;
+            dragStartY = e.clientY;
+
+            const rect = quickLookWindow.getBoundingClientRect();
+            winStartX = rect.left;
+            winStartY = rect.top;
+
+            quickLookWindow.style.position = 'fixed';
+            quickLookWindow.style.left = `${winStartX}px`;
+            quickLookWindow.style.top = `${winStartY}px`;
+            quickLookWindow.style.margin = '0';
+            quickLookWindow.style.transform = 'none';
+            quickLookHeader.style.cursor = 'grabbing';
+            hasCustomPosition = true;
+
+            e.preventDefault();
+          });
+        }
+
+        window.addEventListener('mousemove', (e) => {
+          if (isDragging) {
+            const dx = e.clientX - dragStartX;
+            const dy = e.clientY - dragStartY;
+            const newLeft = Math.max(8, Math.min(winStartX + dx, window.innerWidth - quickLookWindow.offsetWidth - 8));
+            const newTop = Math.max(8, Math.min(winStartY + dy, window.innerHeight - quickLookWindow.offsetHeight - 8));
+            quickLookWindow.style.left = `${newLeft}px`;
+            quickLookWindow.style.top = `${newTop}px`;
+          } else if (isResizing && resizeDir && resizeStartRect) {
+            const dx = e.clientX - resizeStartX;
+            const dy = e.clientY - resizeStartY;
+            let { left, top, width, height, right, bottom } = resizeStartRect;
+
+            // Horizontal resizing
+            if (resizeDir.includes('e')) {
+              width = Math.max(320, Math.min(width + dx, window.innerWidth - left - 10));
+            } else if (resizeDir.includes('w')) {
+              const maxLeftShift = right - 320;
+              const proposedLeft = Math.max(8, Math.min(left + dx, maxLeftShift));
+              width = right - proposedLeft;
+              left = proposedLeft;
+            }
+
+            // Vertical resizing
+            if (resizeDir.includes('s')) {
+              height = Math.max(220, Math.min(height + dy, window.innerHeight - top - 10));
+            } else if (resizeDir.includes('n')) {
+              const maxTopShift = bottom - 220;
+              const proposedTop = Math.max(8, Math.min(top + dy, maxTopShift));
+              height = bottom - proposedTop;
+              top = proposedTop;
+            }
+
+            quickLookWindow.style.left = `${left}px`;
+            quickLookWindow.style.top = `${top}px`;
+            quickLookWindow.style.width = `${width}px`;
+            quickLookWindow.style.height = `${height}px`;
+            quickLookWindow.style.maxWidth = 'none';
+            quickLookWindow.style.maxHeight = 'none';
+          }
+        });
+
+        window.addEventListener('mouseup', () => {
+          if (isDragging) {
+            isDragging = false;
+            if (quickLookHeader) quickLookHeader.style.cursor = 'grab';
+          }
+          if (isResizing) {
+            isResizing = false;
+            resizeDir = null;
+            resizeStartRect = null;
+          }
+        });
+
+        // 8-Direction Resize Handles Event Binding
+        document.querySelectorAll('.ql-resize-handle').forEach(handle => {
+          handle.addEventListener('mousedown', (e) => {
+            if (!isPinned) pinQuickLook();
+            isResizing = true;
+            resizeDir = handle.dataset.dir;
+            resizeStartX = e.clientX;
+            resizeStartY = e.clientY;
+
+            const rect = quickLookWindow.getBoundingClientRect();
+            resizeStartRect = {
+              left: rect.left,
+              top: rect.top,
+              width: rect.width,
+              height: rect.height,
+              right: rect.right,
+              bottom: rect.bottom
+            };
+
+            if (!hasCustomPosition) {
+              quickLookWindow.style.position = 'fixed';
+              quickLookWindow.style.left = `${rect.left}px`;
+              quickLookWindow.style.top = `${rect.top}px`;
+              quickLookWindow.style.margin = '0';
+              quickLookWindow.style.transform = 'none';
+              hasCustomPosition = true;
+            }
+
+            e.preventDefault();
+            e.stopPropagation();
+          });
+        });
+
+        // Track mouseover across file items for dynamic preview update while Space is held
+
+    // === [caddy/js/10-keyboard.js] ===
+    if (fileListEl) {
+          fileListEl.addEventListener('mouseover', (e) => {
+            if (isMobile()) return;
+            const item = e.target.closest('.file-item');
+            if (item && item.getAttribute('href') !== '..') {
+              if (currentHoveredItem !== item) {
+                currentHoveredItem = item;
+                if (isSpaceDown) {
+                  hasSwitchedSubject = true;
+                  showQuickLook(item, isPinned);
+                }
+              }
+            }
+          });
+
+          fileListEl.addEventListener('mouseout', (e) => {
+            const related = e.relatedTarget ? e.relatedTarget.closest('.file-item') : null;
+            if (!related) {
+              currentHoveredItem = null;
+            }
+          });
+        }
+
+        // Global Key Handlers for Space Quick Look and Navigation
+        window.addEventListener('keydown', (e) => {
+          // Ctrl+F / Cmd+F activates file search filter
+          if ((e.ctrlKey || e.metaKey) && (e.key === 'f' || e.key === 'F')) {
+            e.preventDefault();
+            activateSearch();
+            return;
+          }
+
+          // Space Quick Look
+          if (e.key === ' ' || e.code === 'Space') {
+            if (isMobile() || searchOn || document.activeElement === searchInp) {
+              return; // Let user type spaces in search input or skip on mobile
+            }
+            e.preventDefault(); // Prevent browser window scroll
+            if (e.repeat) return; // Prevent repeat triggers while holding
+
+            const visible = getVisibleItems().filter(el => el.getAttribute('href') !== '..');
+            const target = currentHoveredItem || (selectedIdx >= 0 ? getVisibleItems()[selectedIdx] : null);
+
+            // When the preview window is already open:
+            if (quickLookModal && quickLookModal.classList.contains('active')) {
+              if (target && target !== currentPreviewItem) {
+                // Hovering over something else: show that something else's preview instead of closing!
+                spacePressTime = performance.now();
+                hasSwitchedSubject = false;
+                isSpaceDown = true;
+                showQuickLook(target, isPinned);
+                return;
+              } else {
+                // Space pressed while hovering over the same file (or hovering over nothing): close it!
+                closeQuickLook();
+                return;
+              }
+            }
+
+            // Preview window is not open: open it!
+            spacePressTime = performance.now();
+            hasSwitchedSubject = false;
+            isSpaceDown = true;
+
+            const openTarget = target || (visible.length > 0 ? visible[0] : null);
+            if (openTarget) {
+              showQuickLook(openTarget, false);
+            }
+            return;
+          }
+
+          // Escape closes Quick Look if active
+          if (e.key === 'Escape') {
+            if (quickLookModal && quickLookModal.classList.contains('active')) {
+              closeQuickLook();
+              return;
+            }
+          }
+
+          // Arrow navigation
+          if (!searchOn) {
+            if (e.key === '/') {
+              e.preventDefault();
+              activateSearch();
+            } else if (e.key === 'ArrowDown' || e.key === 'j') {
+              e.preventDefault();
+              const visible = getVisibleItems();
+              if (visible.length > 0) {
+                setSelected(Math.min(selectedIdx + 1, visible.length - 1));
+                if ((isSpaceDown || isPinned) && visible[selectedIdx]) {
+                  hasSwitchedSubject = true;
+                  showQuickLook(visible[selectedIdx], isPinned);
+                }
+              }
+            } else if (e.key === 'ArrowUp' || e.key === 'k') {
+              e.preventDefault();
+              const visible = getVisibleItems();
+              if (visible.length > 0) {
+                if (selectedIdx <= 0) {
+                  setSelected(0);
+                } else {
+                  setSelected(selectedIdx - 1);
+                }
+                if ((isSpaceDown || isPinned) && visible[selectedIdx]) {
+                  hasSwitchedSubject = true;
+                  showQuickLook(visible[selectedIdx], isPinned);
+                }
+              }
+            } else if (e.key === 'Enter' && selectedIdx >= 0) {
+              e.preventDefault();
+              const visible = getVisibleItems();
+              if (visible[selectedIdx]) visible[selectedIdx].click();
+            }
+          }
+        });
+
+        window.addEventListener('keyup', (e) => {
+          if (e.key === ' ' || e.code === 'Space') {
+            if (searchOn || document.activeElement === searchInp) {
+              return;
+            }
+            const elapsed = performance.now() - spacePressTime;
+            isSpaceDown = false;
+
+            // If the window is pinned, it stays open!
+            if (isPinned) {
+              return;
+            }
+
+            // Quick press & release (< 250ms) without switching files: PIN the window!
+            if (elapsed < 250 && !hasSwitchedSubject && quickLookModal.classList.contains('active')) {
+              pinQuickLook();
+            } else {
+              // Long press / hold: close when Space is released
+              hideQuickLook();
+            }
+          }
+        });
+
+        window.addEventListener('scroll', () => {
+          if (isSpaceDown && !isPinned) {
+            isSpaceDown = false;
+            hideQuickLook();
+          }
+        }, { passive: true });
+
+        window.addEventListener('blur', () => {
+          if (isSpaceDown && !isPinned) {
+            isSpaceDown = false;
+            hideQuickLook();
+          }
+        });
+  </script>
+</body>
+</html>

@@ -1,0 +1,36 @@
+.quicklook-body pre code.hljs {
+      color: var(--color-main);
+      background: transparent;
+      font-family: inherit;
+      font-size: inherit;
+      padding: 0;
+      display: block;
+      tab-size: 4;
+    }
+    .hljs-keyword, .hljs-selector-tag, .hljs-subst {
+      color: var(--color-emp);
+      font-weight: 700;
+    }
+    .hljs-string, .hljs-title.class_, .hljs-attr {
+      color: var(--color-alt);
+    }
+    .hljs-comment, .hljs-quote {
+      color: #8a6a72;
+      font-style: italic;
+    }
+    .hljs-function, .hljs-title.function_, .hljs-section {
+      color: #b5e8e0;
+      font-weight: 600;
+    }
+    .hljs-number, .hljs-literal {
+      color: #fab387;
+    }
+    .hljs-type, .hljs-built_in {
+      color: #cba6f7;
+    }
+    .hljs-variable, .hljs-template-variable {
+      color: var(--color-main);
+    }
+    .hljs-meta, .hljs-meta .hljs-keyword {
+      color: var(--color-sub);
+    }

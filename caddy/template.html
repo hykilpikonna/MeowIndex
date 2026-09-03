@@ -1,0 +1,199 @@
+{{- $title := .RespHeader.Get "X-Site-Title" -}}
+{{- if not $title }}{{ $title = "File Listing" }}{{ end -}}
+{{- $n := len .Breadcrumbs -}}
+{{- $shortPath := "/" -}}
+{{- if gt $n 1 -}}
+  {{- $parts := slice .Breadcrumbs 1 -}}
+  {{- $numParts := len $parts -}}
+  {{- $buf := "" -}}
+  {{- range $idx, $p := $parts -}}
+    {{- $buf = print $buf "/" -}}
+    {{- if eq (add $idx 1) $numParts -}}
+      {{- $buf = print $buf $p.Text -}}
+    {{- else -}}
+      {{- if and (hasPrefix $p.Text ".") (gt (len $p.Text) 1) -}}
+        {{- $buf = print $buf (substr 0 2 $p.Text) -}}
+      {{- else -}}
+        {{- if gt (len $p.Text) 0 -}}
+          {{- $buf = print $buf (substr 0 1 $p.Text) -}}
+        {{- end -}}
+      {{- end -}}
+    {{- end -}}
+  {{- end -}}
+  {{- $shortPath = $buf -}}
+{{- end -}}
+<!DOCTYPE html>
+<html lang="en" style="height: 100%;">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>{{html $shortPath}} - {{ $title }}</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23ebadb6'><path d='M20 5h-8.586L9.707 3.293A1 1 0 0 0 9 3H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2z'/></svg>">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <style>
+/* {{MEOWINDEX_CSS}} */
+  </style>
+</head>
+<body>
+  <div class="page-wrapper">
+    <div class="container">
+      
+      <!-- Heading -->
+      <div class="heading">
+        <p class="heading-title">{{ $title }}</p>
+        <div class="heading-sub">
+          <a href="https://github.com/hykilpikonna/MeowIndex" target="_blank" rel="noopener">
+            Powered by Caddy MeowIndex
+            <svg style="width: 1.125rem; height: 1.125rem;" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/>
+            </svg>
+          </a>
+        </div>
+      </div>
+
+      <!-- Breadcrumb Toolbar -->
+      <div id="breadcrumbs">
+        <!-- Wifi icon -->
+        <svg class="icon-wifi" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M5 12.55a11 11 0 0 1 14.08 0"/>
+          <path d="M1.42 9a16 16 0 0 1 21.16 0"/>
+          <path d="M8.53 16.11a6 6 0 0 1 6.95 0"/>
+          <line x1="12" y1="20" x2="12.01" y2="20"/>
+        </svg>
+
+        <!-- Search input (when search active) -->
+        <input type="text" id="searchInp" class="search-input" style="display: none;" placeholder="Search files (press Esc to close)..." autocomplete="off" />
+
+        <!-- Breadcrumbs (when search inactive) -->
+        <div class="breadcrumbs-wrap" id="breadcrumbsWrap">
+          <div class="breadcrumbs-inner" id="breadcrumbsInner">
+            {{range $i, $crumb := .Breadcrumbs}}
+              {{if ne $i 0}}<span class="breadcrumb-sep color-subsub">/</span>{{end}}
+              <a class="breadcrumb-link{{if eq $crumb.Link ""}} active{{end}}" href="{{if eq $crumb.Link ""}}#{{else}}{{html $crumb.Link}}{{end}}" title="{{html $crumb.Text}}">
+                {{if eq $i 0}}<span class="host-root">~</span>{{else}}{{html $crumb.Text}}{{end}}
+              </a>
+            {{end}}
+          </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="toolbar-actions">
+          <!-- Wget Quick Copy / Drawer Toggle button -->
+          <button class="tool-btn" id="wgetBtn" title="Copy recursive wget command" onclick="handleWgetClick(event)">
+            <span id="wgetIcon" style="display: flex; align-items: center;">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="4 17 10 11 4 5"/>
+                <line x1="12" y1="19" x2="20" y2="19"/>
+              </svg>
+            </span>
+            <span id="wgetLabel" style="display: none;">Copied</span>
+          </button>
+
+          <!-- Search icon -->
+          <button class="tool-btn" id="searchBtn" title="Search files ( / )" onclick="toggleSearch()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="11" cy="11" r="8"/>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Collapsible Wget Drawer (Hidden by default) -->
+      <div class="wget-drawer" id="wgetDrawer">
+        <code class="wget-code" id="wgetCmd"></code>
+        <button class="wget-btn" id="drawerCopyBtn" onclick="copyWget()">Copy</button>
+      </div>
+
+      <!-- Sort Column Headers -->
+      <div class="list-header" id="listHeader">
+        <div class="col-name sort-header-col active" id="sort-name" onclick="toggleSort('name')">
+          <span>Name</span>
+          <span class="sort-arrow" id="arrow-name">▲</span>
+        </div>
+        <div class="col-size sort-header-col" id="sort-size" onclick="toggleSort('size')">
+          <span>Size</span>
+          <span class="sort-arrow" id="arrow-size"></span>
+        </div>
+        <div class="col-mtime sort-header-col" id="sort-mtime" onclick="toggleSort('mtime')">
+          <span>Date</span>
+          <span class="sort-arrow" id="arrow-mtime"></span>
+        </div>
+      </div>
+
+      <!-- Files List (Rendered by Caddy) -->
+      <div class="file-list" id="fileList">
+        {{if .CanGoUp}}
+        <a class="file-item" href="..">
+          <img class="file-icon" src="/mime/folder.svg" alt="folder" onerror="this.src='/mime/application-blank.svg'">
+          <span class="file-name">..</span>
+          <span class="file-size">-</span>
+          <span class="file-mtime">-</span>
+        </a>
+        {{end}}
+
+        {{range .Items}}
+        <a class="file-item" href="{{html .URL}}" data-name="{{html .Name}}" data-size="{{.Size}}" data-mtime="{{.ModTime.Unix}}" data-isdir="{{if .IsDir}}1{{else}}0{{end}}">
+          <img class="file-icon" data-filename="{{html .Name}}" data-isdir="{{if .IsDir}}1{{else}}0{{end}}" src="/mime/{{if .IsDir}}folder.svg{{else}}application-blank.svg{{end}}" alt="" onerror="this.src='/mime/application-blank.svg'">
+          <span class="file-name" title="{{html .Name}}">{{html .Name}}</span>
+          <span class="file-size">{{if .IsDir}}-{{else}}{{.HumanSize}}{{end}}</span>
+          <span class="file-mtime">
+            <time datetime='{{.HumanModTime "2006-01-02T15:04:05Z07:00"}}'>{{.HumanModTime "02-Jan-2006 15:04"}}</time>
+          </span>
+        </a>
+        {{end}}
+
+        <div class="no-results" id="noResults">
+          No files matching query.
+        </div>
+      </div>
+
+      <!-- Item Count Summary -->
+      <div class="list-summary" id="listSummary"></div>
+
+    </div>
+  </div>
+
+  <!-- macOS Quick Look Modal -->
+  <div class="quicklook-modal" id="quickLookModal">
+    <div class="quicklook-window" id="quickLookWindow">
+      <div class="quicklook-header" id="quickLookHeader" title="Drag to move">
+        <span class="quicklook-header-title" id="quickLookTitle"></span>
+        <span class="quicklook-header-meta" id="quickLookMeta"></span>
+        <button class="quicklook-action-btn" id="quickLookCopyBtn" onclick="copyQuickLookContents(event)" title="Copy contents" style="display: none;">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
+            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+          </svg>
+          <span id="quickLookCopyLabel">Copy</span>
+        </button>
+        <button class="quicklook-close" id="quickLookCloseBtn" onclick="closeQuickLook(event)" title="Close (Esc or Space)">&times;</button>
+      </div>
+      <div class="quicklook-body" id="quickLookBody"></div>
+      <!-- 8-Direction Resize Handles -->
+      <div class="ql-resize-handle ql-resize-n" data-dir="n"></div>
+      <div class="ql-resize-handle ql-resize-s" data-dir="s"></div>
+      <div class="ql-resize-handle ql-resize-e" data-dir="e"></div>
+      <div class="ql-resize-handle ql-resize-w" data-dir="w"></div>
+      <div class="ql-resize-handle ql-resize-ne" data-dir="ne"></div>
+      <div class="ql-resize-handle ql-resize-nw" data-dir="nw"></div>
+      <div class="ql-resize-handle ql-resize-sw" data-dir="sw"></div>
+      <div class="ql-resize-handle ql-resize-se" data-dir="se" title="Resize">
+        <svg viewBox="0 0 10 10" width="10" height="10">
+          <line x1="9" y1="1" x2="1" y2="9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+          <line x1="9" y1="5" x2="5" y2="9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+          <line x1="9" y1="9" x2="9" y2="9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+      </div>
+    </div>
+  </div>
+
+  <script>
+// {{MEOWINDEX_JS}}
+  </script>
+</body>
+</html>
+

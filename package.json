@@ -6,6 +6,8 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
+    "build:caddy": "node scripts/build-caddy.js",
+    "watch:caddy": "node scripts/build-caddy.js --watch",
     "serve": "vite preview",
     "app:version": "echo $npm_package_version"
   },
